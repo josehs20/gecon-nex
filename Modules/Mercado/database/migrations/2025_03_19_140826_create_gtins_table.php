@@ -13,7 +13,7 @@ class CreateGtinsTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('gtins', function (Blueprint $table) {
+        Schema::connection('mercado')->create('gtins', function (Blueprint $table) {
             $table->id();
             $table->string('gtin', 14)->unique(); // Código GTIN/EAN
             $table->string('ncm', 20)->nullable();
@@ -39,6 +39,6 @@ class CreateGtinsTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('gtins');
+        Schema::connection('mercado')->dropIfExists('gtins');
     }
 }

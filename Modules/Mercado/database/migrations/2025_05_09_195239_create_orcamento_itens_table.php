@@ -13,7 +13,7 @@ class CreateOrcamentoItensTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('orcamento_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->create('orcamento_itens', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('orcamento_id')->constrained('orcamentos')->cascadeOnDelete();

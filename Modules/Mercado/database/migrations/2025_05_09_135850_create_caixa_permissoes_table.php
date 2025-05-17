@@ -13,7 +13,7 @@ class CreateCaixaPermissoesTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('caixa_permissoes', function (Blueprint $table) {
+        Schema::connection('mercado')->create('caixa_permissoes', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('caixa_id')->constrained('caixas')->onDelete('cascade');

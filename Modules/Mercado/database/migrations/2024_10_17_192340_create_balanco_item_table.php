@@ -13,7 +13,7 @@ class CreateBalancoItemTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('balanco_item', function (Blueprint $table) {
+        Schema::connection('mercado')->create('balanco_item', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('estoque_id');
             $table->unsignedBigInteger('balanco_id');
@@ -40,6 +40,6 @@ class CreateBalancoItemTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('balanco_item');
+        Schema::connection('mercado')->dropIfExists('balanco_item');
     }
 }

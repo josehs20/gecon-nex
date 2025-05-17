@@ -13,7 +13,7 @@ class CreateTipoImposto extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('tipo_imposto', function (Blueprint $table) {
+        Schema::connection('mercado')->create('tipo_imposto', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('descricao');
@@ -29,6 +29,6 @@ class CreateTipoImposto extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('tipo_imposto');
+        Schema::connection('mercado')->dropIfExists('tipo_imposto');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory;
@@ -9,6 +10,7 @@ use Modules\Mercado\Entities\Endereco;
 
 class CreateClientesFakeSeedTableSeeder extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -16,15 +18,15 @@ class CreateClientesFakeSeedTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
-
-        DB::connection(config('database.connections.mercado.database'))->table('clientes')->truncate();
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('clientes')->truncate();
 
         foreach (self::getClientes() as $key => $clientes) {
-            DB::connection(config('database.connections.mercado.database'))->table('clientes')->insert($clientes);
+            DB::connection($connection)->table('clientes')->insert($clientes);
         }
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->enableForeignKeys($connection);
     }
 
     private static function getClientes()

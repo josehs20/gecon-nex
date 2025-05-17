@@ -13,7 +13,7 @@ class CreateEstoqueImpostos extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('estoque_impostos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('estoque_impostos', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('nf_master_cod');
             $table->foreignId('tipo_imposto_id')->constrained('tipo_imposto')->onDelete('cascade');
@@ -30,10 +30,10 @@ class CreateEstoqueImpostos extends Migration
             $table->integer('csosn')->nullable();  // Para CSOSN (Caso aplicável)
             $table->decimal('pPIS', 5, 2)->nullable();  // Para PIS
             $table->decimal('pCOFINS', 5, 2)->nullable();  // Para COFINS
-        
+
 
             $table->timestamps();
-          
+
         });
     }
 
@@ -44,12 +44,12 @@ class CreateEstoqueImpostos extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('estoque_impostos', function (Blueprint $table) {
+        Schema::connection('mercado')->table('estoque_impostos', function (Blueprint $table) {
             $table->dropForeign(['tipo_imposto_id']);
             $table->dropForeign(['estoque_id']);
             $table->dropForeign(['produto_id']);
             $table->dropForeign(['loja_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('estoque_impostos');
+        Schema::connection('mercado')->dropIfExists('estoque_impostos');
     }
 }

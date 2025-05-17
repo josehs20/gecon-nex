@@ -13,7 +13,7 @@ class CreateCaixasTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('caixas', function (Blueprint $table) {
+        Schema::connection('mercado')->create('caixas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('loja_id');
             $table->string('nome');
@@ -36,7 +36,7 @@ class CreateCaixasTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('caixas', function (Blueprint $table) {
+        Schema::connection('mercado')->table('caixas', function (Blueprint $table) {
             $table->dropForeign(['loja_id']);
             $table->dropForeign(['status_id']);
             $table->dropForeign(['usuario_id']);

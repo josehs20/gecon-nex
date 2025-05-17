@@ -13,7 +13,7 @@ class CreateNcmsTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('ncms', function (Blueprint $table) {
+        Schema::connection('mercado')->create('ncms', function (Blueprint $table) {
             $table->id();
             $table->string('codigo');
             $table->text('descricao');
@@ -34,6 +34,6 @@ class CreateNcmsTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('ncms');
+        Schema::connection('mercado')->dropIfExists('ncms');
     }
 }

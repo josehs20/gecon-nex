@@ -13,7 +13,7 @@ class CreatePedidosItensTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('pedido_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->create('pedido_itens', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('pedido_id');
             $table->unsignedBigInteger('produto_id');
@@ -43,13 +43,13 @@ class CreatePedidosItensTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('pedido_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->table('pedido_itens', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['pedido_id']);
             $table->dropForeign(['produto_id']);
             $table->dropForeign(['estoque_id']);
             $table->dropForeign(['loja_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('pedidos_itens');
+        Schema::connection('mercado')->dropIfExists('pedidos_itens');
     }
 }

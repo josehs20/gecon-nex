@@ -3,11 +3,13 @@
 namespace Modules\Mercado\Database\Seeders;
 
 use App\Models\Empresa;
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateClassificacaoProdutoSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -15,15 +17,16 @@ class CreateClassificacaoProdutoSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('classificacao_produto')->truncate();
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('classificacao_produto')->truncate();
         $empresas = Empresa::get();
 
         foreach ($empresas as $key => $value) {
-            DB::connection(config('database.connections.mercado.database'))->table('classificacao_produto')->insert(self::getClassificaoProduto($value->id));
+            DB::connection($connection)->table('classificacao_produto')->insert(self::getClassificaoProduto($value->id));
         }
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->enableForeignKeys($connection);
     }
 
     private function getClassificaoProduto($empresa_id)

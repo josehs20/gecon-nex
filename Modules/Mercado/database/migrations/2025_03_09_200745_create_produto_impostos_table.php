@@ -13,7 +13,7 @@ class CreateProdutoImpostosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('produto_impostos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('produto_impostos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('produto_id');
             $table->unsignedBigInteger('estoque_id');
@@ -34,7 +34,7 @@ class CreateProdutoImpostosTable extends Migration
             $table->foreign('estoque_id')->references('id')->on('estoques')->onDelete('cascade');
         });
 
-        Schema::connection(config('database.connections.mercado.database'))->table('estoques', function (Blueprint $table) {
+        Schema::connection('mercado')->table('estoques', function (Blueprint $table) {
             $table->unsignedBigInteger('ncm_id')->after('produto_id')->nullable();
             $table->unsignedBigInteger('produto_imposto_id')->after('produto_id')->nullable();
 
@@ -51,6 +51,6 @@ class CreateProdutoImpostosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('produto_impostos');
+        Schema::connection('mercado')->dropIfExists('produto_impostos');
     }
 }

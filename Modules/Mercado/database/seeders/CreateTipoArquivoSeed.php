@@ -2,11 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateTipoArquivoSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -14,12 +16,13 @@ class CreateTipoArquivoSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_arquivo')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_arquivo')->insert(self::getTipoArquivos());
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('tipo_arquivo')->truncate();
+        DB::connection($connection)->table('tipo_arquivo')->insert(self::getTipoArquivos());
+        $this->enableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     private function getTipoArquivos()
@@ -34,7 +37,7 @@ class CreateTipoArquivoSeed extends Seeder
                 'descricao' => $descricaoFormatada
             ];
         }
-        
+
         return $array;
     }
 }

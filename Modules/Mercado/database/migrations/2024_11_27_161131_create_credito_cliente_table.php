@@ -13,7 +13,7 @@ class CreateCreditoClienteTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('credito_cliente', function (Blueprint $table) {
+        Schema::connection('mercado')->create('credito_cliente', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('cliente_id');
@@ -32,6 +32,6 @@ class CreateCreditoClienteTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('credito_cliente');
+        Schema::connection('mercado')->dropIfExists('credito_cliente');
     }
 }

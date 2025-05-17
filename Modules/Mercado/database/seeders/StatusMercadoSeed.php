@@ -2,22 +2,26 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class StatusMercadoSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
      * @return void
      */
     public function run()
-    {   DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+    {
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('status')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('status')->insert(self::getStatus());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('status')->truncate();
+        DB::connection($connection)->table('status')->insert(self::getStatus());
+        $this->enableForeignKeys($connection);
 
     }
 

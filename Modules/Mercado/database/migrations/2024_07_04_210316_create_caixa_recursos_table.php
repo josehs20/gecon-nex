@@ -13,7 +13,7 @@ class CreateCaixaRecursosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('caixa_recursos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('caixa_recursos', function (Blueprint $table) {
             $table->id();
             // $table->string('nome');
             $table->unsignedBigInteger('caixa_id');

@@ -13,7 +13,7 @@ class CreateOrcamentosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('orcamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('orcamentos', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('cliente_id')->nullable()->constrained('clientes')->nullOnDelete();

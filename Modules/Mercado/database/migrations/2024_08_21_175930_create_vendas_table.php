@@ -13,7 +13,7 @@ class CreateVendasTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('vendas', function (Blueprint $table) {
+        Schema::connection('mercado')->create('vendas', function (Blueprint $table) {
             $table->id();
             $table->string('n_venda');
             $table->foreignId('cliente_id');
@@ -50,7 +50,7 @@ class CreateVendasTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('vendas', function (Blueprint $table) {
+        Schema::connection('mercado')->table('vendas', function (Blueprint $table) {
             $table->dropForeign(['cliente_id']);
             $table->dropForeign(['caixa_id']);
             $table->dropForeign(['caixa_evidencia_id']);
@@ -62,6 +62,6 @@ class CreateVendasTable extends Migration
 
         });
 
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('vendas');
+        Schema::connection('mercado')->dropIfExists('vendas');
     }
 }

@@ -13,7 +13,7 @@ class CreateNfEstoquesDetalhes extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('estoque_nf', function (Blueprint $table) {
+        Schema::connection('mercado')->create('estoque_nf', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('nf_master_cod');
             $table->foreignId('estoque_id')->constrained('estoques')->onDelete('cascade');
@@ -36,7 +36,7 @@ class CreateNfEstoquesDetalhes extends Migration
             $table->boolean('indTot')->nullable();
             $table->timestamps();
 
- 
+
         });
     }
 
@@ -47,12 +47,12 @@ class CreateNfEstoquesDetalhes extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('estoque_nf', function (Blueprint $table) {
+        Schema::connection('mercado')->table('estoque_nf', function (Blueprint $table) {
             $table->dropForeign(['estoque_id']);
             $table->dropForeign(['produto_id']);
             $table->dropForeign(['loja_id']);
         });
-        
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('estoque_nf');
+
+        Schema::connection('mercado')->dropIfExists('estoque_nf');
     }
 }

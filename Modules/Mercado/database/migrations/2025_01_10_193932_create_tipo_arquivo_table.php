@@ -13,7 +13,7 @@ class CreateTipoArquivoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('tipo_arquivo', function (Blueprint $table) {
+        Schema::connection('mercado')->create('tipo_arquivo', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
 
@@ -28,6 +28,6 @@ class CreateTipoArquivoTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('tipo_arquivo');
+        Schema::connection('mercado')->dropIfExists('tipo_arquivo');
     }
 }

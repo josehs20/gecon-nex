@@ -13,7 +13,7 @@ class CreateArquivosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('arquivos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('arquivos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tipo_arquivo_id');
             $table->unsignedBigInteger('loja_id');
@@ -33,6 +33,6 @@ class CreateArquivosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('arquivos');
+        Schema::connection('mercado')->dropIfExists('arquivos');
     }
 }

@@ -3,6 +3,7 @@
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
 use App\Models\Empresa;
+use App\Traits\DisableForeignKeys;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,7 @@ use Modules\Mercado\Entities\Estoque;
 
 class CreateProdutoFakeSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -20,10 +22,11 @@ class CreateProdutoFakeSeed extends Seeder
         // Aumentar o limite de memória apenas como fallback (evitar depender disso)
         // ini_set('memory_limit', '512M');
 
-        DB::connection('mercado')->statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::connection('mercado')->table('produtos')->truncate();
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('produtos')->truncate();
         $this->criarProdutosFake();
-        DB::connection('mercado')->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->enableForeignKeys($connection);
     }
 
     private function criarProdutosFake()

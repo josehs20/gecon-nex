@@ -13,7 +13,7 @@ class CreateEspeciePagamentoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('especie_pagamento', function (Blueprint $table) {
+        Schema::connection('mercado')->create('especie_pagamento', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->boolean('afeta_troco')->default(false)->nullable();
@@ -32,6 +32,6 @@ class CreateEspeciePagamentoTable extends Migration
     public function down()
     {
 
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('especie_pagamento');
+        Schema::connection('mercado')->dropIfExists('especie_pagamento');
     }
 }

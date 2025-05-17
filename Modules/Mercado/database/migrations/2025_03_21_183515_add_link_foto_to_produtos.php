@@ -13,7 +13,7 @@ class AddLinkFotoToProdutos extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('produtos', function (Blueprint $table) {
+        Schema::connection('mercado')->table('produtos', function (Blueprint $table) {
             $table->string('link_foto')->after('descricao')->nullable();
         });
 

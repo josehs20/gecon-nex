@@ -13,7 +13,7 @@ class EstoqueTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('estoques', function (Blueprint $table) {
+        Schema::connection('mercado')->create('estoques', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('custo')->unsigned();
             $table->bigInteger('preco')->unsigned();
@@ -41,10 +41,10 @@ class EstoqueTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('estoques', function (Blueprint $table) {
+        Schema::connection('mercado')->table('estoques', function (Blueprint $table) {
             $table->dropForeign(['loja_id', 'produto_id']);
         });
 
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('estoques');
+        Schema::connection('mercado')->dropIfExists('estoques');
     }
 }

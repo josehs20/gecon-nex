@@ -2,11 +2,14 @@
 
 namespace Database\Seeders\permissoes;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class ProcessosUsuariosSeed extends Seeder
 {
+    use DisableForeignKeys;
+
     /**
      * PROCESSOS DE PERMISSAO PARA OS USUARIOS E TIPOS DE USUÁRIO DE CADA MODULO
      */
@@ -17,7 +20,6 @@ class ProcessosUsuariosSeed extends Seeder
      */
     public function run()
     {
-
         self::truncaTabelas();
         self::insertProcessos();
         self::insertProcessosUsuarios();
@@ -26,25 +28,29 @@ class ProcessosUsuariosSeed extends Seeder
 
     private function truncaTabelas()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('processos')->truncate();
-        
-        DB::connection(config('database.connections.mercado.database'))->table('processo_tipo_usuario')->truncate();
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('processos')->truncate();
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::connection($connection)->table('processo_tipo_usuario')->truncate();
 
-        DB::table('processos')->truncate();
+        $this->enableForeignKeys($connection);
+        $connection = 'gecon';
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
+
+        DB::connection($connection)->table('processos')->truncate();
+
+        $this->enableForeignKeys($connection);
+
     }
 
     private function insertProcessosUsuarios()
     {
         $arrayPermissoes = self::getPermissaoProcessoUsuario();
-        DB::connection(config('database.connections.mercado.database'))->table('processo_tipo_usuario')->insert($arrayPermissoes);
+        DB::connection('mercado')->table('processo_tipo_usuario')->insert($arrayPermissoes);
     }
 
     private static function insertProcessos(): void
@@ -60,9 +66,9 @@ class ProcessosUsuariosSeed extends Seeder
                 }
             }
         }
-        
-        DB::connection(config('database.connections.mercado.database'))->table('processos')->insert($processos);
-        DB::table('processos')->insert($processos);
+
+        DB::connection('mercado')->table('processos')->insert($processos);
+        DB::connection('gecon')->table('processos')->insert($processos);
     }
 
     private static function getPermissaoProcessoUsuario()

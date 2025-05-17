@@ -2,22 +2,26 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateTipoMovitacaoEstoqueSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
      * @return void
      */
     public function run()
-    {   DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+    {
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_movimentacao_estoque')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_movimentacao_estoque')->insert(self::getStatus());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('tipo_movimentacao_estoque')->truncate();
+        DB::connection($connection)->table('tipo_movimentacao_estoque')->insert(self::getStatus());
+        $this->enableForeignKeys($connection);
 
     }
 

@@ -13,7 +13,7 @@ class CreatePagamentosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('pagamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('pagamentos', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('loja_id');
@@ -46,7 +46,7 @@ class CreatePagamentosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('pagamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->table('pagamentos', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['loja_id']);
             $table->dropForeign(['caixa_id']);
@@ -56,6 +56,6 @@ class CreatePagamentosTable extends Migration
             $table->dropForeign(['forma_pagamento_id']);
             $table->dropForeign(['especie_pagamento_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('pagamentos');
+        Schema::connection('mercado')->dropIfExists('pagamentos');
     }
 }

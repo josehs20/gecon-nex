@@ -4,24 +4,22 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DisableForeignKeys;
 
 class AcoesGeconSeed extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    use DisableForeignKeys;
+
     public function run()
     {
-        //modulos gecon
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'gecon';
 
-        DB::table('acoes')->truncate();
+        $this->disableForeignKeys($connection);
 
-        DB::table('acoes')->insert(self::getAcoes());
+        DB::connection($connection)->table('acoes')->truncate();
+        DB::connection($connection)->table('acoes')->insert(self::getAcoes());
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->enableForeignKeys($connection);
     }
 
     private static function getAcoes()

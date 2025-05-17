@@ -13,7 +13,7 @@ class CreateFichaClienteTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('ficha_cliente', function (Blueprint $table) {
+        Schema::connection('mercado')->create('ficha_cliente', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cliente_id');
             $table->foreignId('loja_id');

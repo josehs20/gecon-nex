@@ -228,12 +228,12 @@ class ClienteController extends ControllerBaseMercado
                 $id
             );
 
-            // DB::connection(config('database.connections.mercado.database'))->commit();
+            // DB::connection('mercado')->commit();
             $this->getDb()->commit();
 
             return response()->json(['message' => 'Cliente atualizado com sucesso.']);
         } catch (\Exception $e) {
-            // DB::connection(config('database.connections.mercado.database'))->rollBack();
+            // DB::connection('mercado')->rollBack();
             $this->getDb()->rollBack();
 
             return response()->json(['message' => 'Erro ao atualizar cliente! Erro: ' . $e->getMessage()], 500);

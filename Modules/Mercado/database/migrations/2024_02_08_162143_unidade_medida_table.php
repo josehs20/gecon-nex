@@ -14,7 +14,7 @@ class UnidadeMedidaTable extends Migration
     public function up()
     {
 
-        Schema::connection(config('database.connections.mercado.database'))->create('unidade_medida', function (Blueprint $table) {
+        Schema::connection('mercado')->create('unidade_medida', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
             $table->string('sigla');
@@ -32,6 +32,6 @@ class UnidadeMedidaTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('unidade_medida');
+        Schema::connection('mercado')->dropIfExists('unidade_medida');
     }
 }

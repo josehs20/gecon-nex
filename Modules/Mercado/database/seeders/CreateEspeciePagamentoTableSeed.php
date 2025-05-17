@@ -2,12 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Modules\Mercado\Entities\Loja;
 
 class CreateEspeciePagamentoTableSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -15,12 +16,13 @@ class CreateEspeciePagamentoTableSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('especie_pagamento')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('especie_pagamento')->insert(self::getEspeciePagemetos());
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('especie_pagamento')->truncate();
+        DB::connection($connection)->table('especie_pagamento')->insert(self::getEspeciePagemetos());
+        $this->enableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     private function getEspeciePagemetos()
@@ -30,7 +32,7 @@ class CreateEspeciePagamentoTableSeed extends Seeder
         foreach ($especies as $key => $especie) {
             $array[] = $especie;
         }
-        
+
         return $array;
     }
 }

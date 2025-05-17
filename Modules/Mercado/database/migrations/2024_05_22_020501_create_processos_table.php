@@ -13,7 +13,7 @@ class CreateProcessosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('processos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('processos', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('descricao')->nullable();
@@ -30,6 +30,6 @@ class CreateProcessosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('processos');
+        Schema::connection('mercado')->dropIfExists('processos');
     }
 }

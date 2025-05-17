@@ -13,7 +13,7 @@ class CreateRecursosCaixaTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('recursos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('recursos', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('descricao');

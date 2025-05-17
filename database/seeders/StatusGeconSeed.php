@@ -4,21 +4,22 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DisableForeignKeys;
 
 class StatusGeconSeed extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    use DisableForeignKeys;
+
     public function run()
-    {   DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    {
+        $connection = 'gecon';
 
-        DB::table('status')->truncate();
-        DB::table('status')->insert(self::getStatus());
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
 
+        DB::connection($connection)->table('status')->truncate();
+        DB::connection($connection)->table('status')->insert(self::getStatus());
+
+        $this->enableForeignKeys($connection);
     }
 
     private static function getStatus()
@@ -29,7 +30,7 @@ class StatusGeconSeed extends Seeder
         foreach ($configStatus as $nome => $id) {
             $status[] = [
                 'id' => $id,
-                'descricao' => $nome
+                'descricao' => $nome,
             ];
         }
 

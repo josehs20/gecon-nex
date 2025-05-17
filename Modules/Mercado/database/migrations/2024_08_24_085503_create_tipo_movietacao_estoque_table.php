@@ -13,7 +13,7 @@ class CreateTipoMovietacaoEstoqueTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('tipo_movimentacao_estoque', function (Blueprint $table) {
+        Schema::connection('mercado')->create('tipo_movimentacao_estoque', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
 
@@ -28,6 +28,6 @@ class CreateTipoMovietacaoEstoqueTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('tipo_movietacao_estoque');
+        Schema::connection('mercado')->dropIfExists('tipo_movietacao_estoque');
     }
 }

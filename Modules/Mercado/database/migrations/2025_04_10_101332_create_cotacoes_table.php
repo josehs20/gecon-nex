@@ -13,7 +13,7 @@ class CreateCotacoesTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('cotacoes', function (Blueprint $table) {
+        Schema::connection('mercado')->create('cotacoes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('loja_id');
             $table->unsignedBigInteger('status_id');
@@ -38,6 +38,6 @@ class CreateCotacoesTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('cotacoes');
+        Schema::connection('mercado')->dropIfExists('cotacoes');
     }
 }

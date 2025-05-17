@@ -168,7 +168,7 @@ class CaixaRepository
     ) {
         $busca = '%' . str_replace(' ', '%', $busca) . '%'; // Formata a busca
 
-        return DB::connection(config('database.connections.mercado.database'))->table('clientes as t1')
+        return DB::connection('mercado')->table('clientes as t1')
             ->selectRaw("CONCAT(t1.nome, ' - ', LEFT(t1.documento, LENGTH(t1.documento) - 5), '***-**') as text, t1.id, t1.documento as attr")
             ->limit(50)
             ->where(function ($query) use ($busca) {

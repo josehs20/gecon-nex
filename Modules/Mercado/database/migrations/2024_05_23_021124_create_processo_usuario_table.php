@@ -13,7 +13,7 @@ class CreateProcessoUsuarioTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('processo_tipo_usuario', function (Blueprint $table) {
+        Schema::connection('mercado')->create('processo_tipo_usuario', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('processo_id');
             $table->unsignedBigInteger('tipo_usuario_id');
@@ -30,10 +30,10 @@ class CreateProcessoUsuarioTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('processo_tipo_usuario', function (Blueprint $table) {
+        Schema::connection('mercado')->table('processo_tipo_usuario', function (Blueprint $table) {
             $table->dropForeign(['processo_id']);
             $table->dropForeign(['tipo_usuario_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('processo_usuario');
+        Schema::connection('mercado')->dropIfExists('processo_usuario');
     }
 }

@@ -13,7 +13,7 @@ class CreateAcoesTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('acoes', function (Blueprint $table) {
+        Schema::connection('mercado')->create('acoes', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
             $table->timestamps();
@@ -29,6 +29,6 @@ class CreateAcoesTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('acoes');
+        Schema::connection('mercado')->dropIfExists('acoes');
     }
 }

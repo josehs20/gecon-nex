@@ -13,7 +13,7 @@ class CreateFechamentosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('fechamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('fechamentos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('caixa_id')->constrained()->onDelete('cascade');
             $table->foreignId('caixa_evidencia_id')->nullable()->constrained('caixa_evidencias')->onDelete('cascade');

@@ -2,11 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateFabricanteFakeSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -14,12 +16,12 @@ class CreateFabricanteFakeSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('fabricantes')->truncate();
+        DB::connection($connection)->table('fabricantes')->insert(self::getFabricantes());
+        $this->enableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->table('fabricantes')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('fabricantes')->insert(self::getFabricantes());
-
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     private static function getFabricantes()
@@ -167,5 +169,5 @@ class CreateFabricanteFakeSeed extends Seeder
             ],
         ];
     }
-    
+
 }

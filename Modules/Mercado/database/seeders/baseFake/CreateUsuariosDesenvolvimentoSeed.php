@@ -6,6 +6,7 @@ use App\Application\UsuarioApplication;
 use App\Application\UsuarioGeconApplication;
 use App\Models\Empresa;
 use App\Models\User;
+use App\Traits\DisableForeignKeys;
 use App\UseCases\Usuario\Requests\UsuarioRequest;
 use Illuminate\Database\Seeder;
 use Modules\Mercado\Entities\Endereco;
@@ -13,6 +14,7 @@ use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 
 class CreateUsuariosDesenvolvimentoSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *

@@ -13,7 +13,7 @@ class ClassificacaoProdutoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('classificacao_produto', function (Blueprint $table) {
+        Schema::connection('mercado')->create('classificacao_produto', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
             $table->integer('empresa_master_cod');
@@ -29,7 +29,7 @@ class ClassificacaoProdutoTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('classificacao_produto');
+        Schema::connection('mercado')->dropIfExists('classificacao_produto');
 
     }
 }

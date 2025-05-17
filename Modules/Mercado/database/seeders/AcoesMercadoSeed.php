@@ -2,11 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class AcoesMercadoSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -14,13 +16,16 @@ class AcoesMercadoSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('acoes')->truncate();
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->table('acoes')->insert(self::getAcoes());
+        DB::connection($connection)->table('acoes')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('acoes')->insert(self::getAcoes());
+
+        $this->enableForeignKeys($connection);
+
     }
 
     private static function getAcoes()

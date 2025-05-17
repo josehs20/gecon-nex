@@ -13,7 +13,7 @@ class CreateRecebimentosItensTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('recebimento_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->create('recebimento_itens', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('recebimento_id');
             $table->unsignedBigInteger('loja_id');
@@ -47,7 +47,7 @@ class CreateRecebimentosItensTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('recebimento_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->table('recebimento_itens', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['recebimento_id']);
             $table->dropForeign(['loja_id']);
@@ -55,6 +55,6 @@ class CreateRecebimentosItensTable extends Migration
             $table->dropForeign(['produto_id']);
             $table->dropForeign(['status_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('recebimento_itens');
+        Schema::connection('mercado')->dropIfExists('recebimento_itens');
     }
 }

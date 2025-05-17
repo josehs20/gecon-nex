@@ -2,11 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateEnderecosFakeSeedTableSeeder extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -14,12 +16,13 @@ class CreateEnderecosFakeSeedTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->table('enderecos')->truncate();
+        DB::connection($connection)->table('enderecos')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->table('enderecos')->insert(self::getEnderecos());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('enderecos')->insert(self::getEnderecos());
+        $this->enableForeignKeys($connection);
     }
 
     private static function getEnderecos()

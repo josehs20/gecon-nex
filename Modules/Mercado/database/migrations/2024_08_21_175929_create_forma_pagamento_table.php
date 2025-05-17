@@ -13,7 +13,7 @@ class CreateFormaPagamentoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('forma_pagamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('forma_pagamentos', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
             $table->boolean('ativo');
@@ -34,11 +34,11 @@ class CreateFormaPagamentoTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('forma_pagamentos', function (Blueprint $table) {
+        Schema::connection('mercado')->table('forma_pagamentos', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['especie_pagamento_id']);
             $table->dropForeign(['loja_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('forma_pagamentos');
+        Schema::connection('mercado')->dropIfExists('forma_pagamentos');
     }
 }

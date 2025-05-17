@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Modulo;
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateModulosSeed extends Seeder
 {
+    use DisableForeignKeys;
+
     /**
      * Run the database seeds.
      *
@@ -15,12 +18,14 @@ class CreateModulosSeed extends Seeder
      */
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'gecon';
 
-        DB::table('modulos')->truncate();
-        DB::table('modulos')->insert(self::getModulos());
+        $this->disableForeignKeys($connection);
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('modulos')->truncate();
+        DB::connection($connection)->table('modulos')->insert(self::getModulos());
+
+        $this->enableForeignKeys($connection);
     }
 
     private static function getModulos() {

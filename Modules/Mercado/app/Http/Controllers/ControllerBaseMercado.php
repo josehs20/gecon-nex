@@ -16,7 +16,7 @@ class ControllerBaseMercado extends Controller
     {
         $this->dbs = new MultiDatabaseTransactions([
             config('database.connections.gecon.database'),
-            config('database.connections.mercado.database'),
+            'mercado',
             config('database.connections.historicos.database')
         ]);
     }

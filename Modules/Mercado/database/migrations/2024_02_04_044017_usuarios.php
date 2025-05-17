@@ -13,7 +13,7 @@ class Usuarios extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('usuarios', function (Blueprint $table) {
+        Schema::connection('mercado')->create('usuarios', function (Blueprint $table) {
             $table->id();
             $table->integer('usuario_master_cod');
             $table->unsignedBigInteger('loja_id')->nullable();
@@ -57,7 +57,7 @@ class Usuarios extends Migration
             $table->dropForeign(['usuario_id']);
 
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('usuarios');
+        Schema::connection('mercado')->dropIfExists('usuarios');
 
     }
 }

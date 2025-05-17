@@ -13,7 +13,7 @@ class FornecedorTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('fornecedor', function (Blueprint $table) {
+        Schema::connection('mercado')->create('fornecedor', function (Blueprint $table) {
             $table->id();
             $table->integer('empresa_master_cod');
             $table->string('nome', 250);
@@ -38,9 +38,9 @@ class FornecedorTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('fornecedor', function (Blueprint $table) {
+        Schema::connection('mercado')->table('fornecedor', function (Blueprint $table) {
             $table->dropForeign(['endereco_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('fornecedor');
+        Schema::connection('mercado')->dropIfExists('fornecedor');
     }
 }

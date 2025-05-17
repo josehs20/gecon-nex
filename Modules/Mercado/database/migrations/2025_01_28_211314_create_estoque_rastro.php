@@ -13,7 +13,7 @@ class CreateEstoqueRastro extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('estoque_rastro', function (Blueprint $table) {
+        Schema::connection('mercado')->create('estoque_rastro', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('nf_master_cod');
             $table->foreignId('estoque_id')->constrained('estoques')->onDelete('cascade');
@@ -26,7 +26,7 @@ class CreateEstoqueRastro extends Migration
             $table->string('cAgreg')->nullable();
 
             $table->timestamps();
-  
+
         });
     }
 
@@ -37,11 +37,11 @@ class CreateEstoqueRastro extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('estoque_rastro', function (Blueprint $table) {
+        Schema::connection('mercado')->table('estoque_rastro', function (Blueprint $table) {
             $table->dropForeign(['estoque_id']);
             $table->dropForeign(['produto_id']);
             $table->dropForeign(['loja_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('estoque_rastro');
+        Schema::connection('mercado')->dropIfExists('estoque_rastro');
     }
 }

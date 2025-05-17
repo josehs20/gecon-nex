@@ -40,16 +40,29 @@ class AddDeletedAtToAllTables extends Command
      */
     public function handle()
     {
-        $database = config('database.connections.mercado.database');
-        $tabelas = DB::connection('mercado')->select("SHOW TABLES");
+        $connection = DB::connection('mercado');
+        $driver = $connection->getDriverName();
+
+        if ($driver === 'mysql') {
+            $tabelas = $connection->select('SHOW TABLES');
+            $database = $connection->getDatabaseName();
+        } elseif ($driver === 'sqlite') {
+            $tabelas = $connection->select("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+            $database = null; // não é usado para SQLite
+        } else {
+            $this->error("Driver {$driver} não suportado para este comando.");
+            return 1;
+        }
 
         $tabelasIgnoradas = [
             'processo_tipo_usuario',
-            // Adicione outras tabelas a serem ignoradas aqui
+            // outras tabelas a ignorar
         ];
 
         foreach ($tabelas as $t) {
-            $tabela = $t->{"Tables_in_{$database}"};
+            // Para MySQL o nome da tabela vem na propriedade Tables_in_database
+            // Para SQLite o nome da tabela vem na propriedade 'name'
+            $tabela = $driver === 'mysql' ? $t->{"Tables_in_{$database}"} : $t->name;
 
             if (in_array($tabela, $tabelasIgnoradas)) {
                 $this->info("Ignorando tabela: {$tabela}");
@@ -57,7 +70,7 @@ class AddDeletedAtToAllTables extends Command
             }
 
             if (!Schema::connection('mercado')->hasColumn($tabela, 'deleted_at')) {
-                Schema::connection('mercado')->table($tabela, function (Blueprint $table) use ($tabela) {
+                Schema::connection('mercado')->table($tabela, function (Blueprint $table) {
                     $table->softDeletes();
                 });
                 $this->info("Coluna 'deleted_at' adicionada à tabela: {$tabela}");
@@ -67,6 +80,6 @@ class AddDeletedAtToAllTables extends Command
         }
 
         $this->info('Processo concluído.');
+        return 0;
     }
-
 }

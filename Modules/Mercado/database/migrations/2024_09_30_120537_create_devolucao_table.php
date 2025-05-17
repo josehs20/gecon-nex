@@ -13,7 +13,7 @@ class CreateDevolucaoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('devolucoes', function (Blueprint $table) {
+        Schema::connection('mercado')->create('devolucoes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('venda_id');
             $table->foreignId('caixa_id');
@@ -44,7 +44,7 @@ class CreateDevolucaoTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('devolucoes', function (Blueprint $table) {
+        Schema::connection('mercado')->table('devolucoes', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['loja_id']);
             $table->dropForeign(['venda_id']);
@@ -54,6 +54,6 @@ class CreateDevolucaoTable extends Migration
             $table->dropForeign(['caixa_diario_id']);
 
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('devolucao');
+        Schema::connection('mercado')->dropIfExists('devolucao');
     }
 }

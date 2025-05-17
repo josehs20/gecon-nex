@@ -2,11 +2,13 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class CreateTipoImpostosSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -15,12 +17,14 @@ class CreateTipoImpostosSeed extends Seeder
     public function run()
     {
         self::getTipoImposto();
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_imposto')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('tipo_imposto')->insert(self::getTipoImposto());
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('tipo_imposto')->truncate();
+        DB::connection($connection)->table('tipo_imposto')->insert(self::getTipoImposto());
+
+        $this->enableForeignKeys($connection);
     }
 
     private function getTipoImposto()

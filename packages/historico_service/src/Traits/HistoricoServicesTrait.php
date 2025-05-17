@@ -18,6 +18,9 @@ trait HistoricoServicesTrait
     {
         parent::boot();
         static::saved(function ($model) {
+            if ($model->getConnection()->getDriverName() === 'sqlite') {
+                return;
+            }
             $service = new HistoricoServices($model->connection);
             // Se houver dados para o histórico, cria o histórico
             if (!array_key_exists('usuario_id', self::$historicoData) || self::$historicoData['usuario_id'] == null) {
@@ -36,6 +39,9 @@ trait HistoricoServicesTrait
         });
 
         static::deleted(function ($model) {
+            if ($model->getConnection()->getDriverName() === 'sqlite') {
+                return;
+            }
             // Cria o histórico para a exclusão
             $service = new HistoricoServices($model->connection);
             // Verifica se a model foi criada ou atualizada

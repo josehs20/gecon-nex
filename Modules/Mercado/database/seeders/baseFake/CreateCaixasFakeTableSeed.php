@@ -3,6 +3,7 @@
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
 use App\Models\User;
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Mercado\Entities\Caixa;
@@ -11,6 +12,7 @@ use Modules\Mercado\Entities\Usuario;
 
 class CreateCaixasFakeTableSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -18,12 +20,14 @@ class CreateCaixasFakeTableSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->table('caixas')->truncate();
+        DB::connection($connection)->table('caixas')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->table('caixas')->insert(self::getCaixas());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('caixas')->insert(self::getCaixas());
+        $this->enableForeignKeys($connection);
+
         $this->createCaixaRecuros();
         $this->createCaixaPermissoes();
     }
@@ -77,10 +81,11 @@ class CreateCaixasFakeTableSeed extends Seeder
                 ];
             }
         }
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::connection(config('database.connections.mercado.database'))->table('caixa_recursos')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('caixa_recursos')->insert($recursos_caixa);
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('caixa_recursos')->truncate();
+        DB::connection($connection)->table('caixa_recursos')->insert($recursos_caixa);
+        $this->enableForeignKeys($connection);
     }
 
     private function createCaixaPermissoes()
@@ -103,12 +108,12 @@ class CreateCaixasFakeTableSeed extends Seeder
                 ];
             }
         }
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
 
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::connection($connection)->table('caixa_permissoes')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->table('caixa_permissoes')->truncate();
-
-        DB::connection(config('database.connections.mercado.database'))->table('caixa_permissoes')->insert($caixa_permissoes);
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('caixa_permissoes')->insert($caixa_permissoes);
+        $this->enableForeignKeys($connection);
     }
 }

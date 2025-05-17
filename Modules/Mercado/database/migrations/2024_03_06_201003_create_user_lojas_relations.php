@@ -13,7 +13,7 @@ class CreateUserLojasRelations extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('lojas_usuario', function (Blueprint $table) {
+        Schema::connection('mercado')->create('lojas_usuario', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('loja_id');
             $table->unsignedBigInteger('usuario_id');
@@ -30,11 +30,11 @@ class CreateUserLojasRelations extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('lojas_usuario', function (Blueprint $table) {
+        Schema::connection('mercado')->table('lojas_usuario', function (Blueprint $table) {
             $table->dropForeign(['usuario_id']);
             $table->dropForeign(['loja_id']);
 
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('lojas_usuario');
+        Schema::connection('mercado')->dropIfExists('lojas_usuario');
     }
 }

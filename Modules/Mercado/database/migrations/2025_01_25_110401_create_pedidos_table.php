@@ -13,7 +13,7 @@ class CreatePedidosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('pedidos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('loja_id');
             $table->unsignedBigInteger('status_id');
@@ -36,14 +36,14 @@ class CreatePedidosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('pedidos', function (Blueprint $table) {
+        Schema::connection('mercado')->table('pedidos', function (Blueprint $table) {
             // Remove a chave estrangeira
             $table->dropForeign(['fornecedor_id']);
             $table->dropForeign(['loja_id']);
             $table->dropForeign(['status_id']);
             $table->dropForeign(['usuario_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('pedidos');
+        Schema::connection('mercado')->dropIfExists('pedidos');
 
     }
 }

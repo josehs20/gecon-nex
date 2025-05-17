@@ -13,7 +13,7 @@ class CreateFabricantesTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('fabricantes', function (Blueprint $table) {
+        Schema::connection('mercado')->create('fabricantes', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('descricao')->nullable();
@@ -21,13 +21,13 @@ class CreateFabricantesTable extends Migration
             $table->string('razao_social');
             $table->string('inscricao_estadual')->nullable();
             $table->unsignedBigInteger('endereco_id')->nullable();
-            $table->string('celular')->nullable(); 
-            $table->string('telefone')->nullable(); 
+            $table->string('celular')->nullable();
+            $table->string('telefone')->nullable();
             $table->string('email')->nullable();
-            $table->string('site')->nullable(); 
-            $table->boolean('ativo')->default(true); 
+            $table->string('site')->nullable();
+            $table->boolean('ativo')->default(true);
             $table->unsignedBigInteger('empresa_master_cod');
-            $table->timestamps(); 
+            $table->timestamps();
 
             $table->foreign('endereco_id')->references('id')->on('enderecos');
 
@@ -41,6 +41,6 @@ class CreateFabricantesTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('fabricantes');
+        Schema::connection('mercado')->dropIfExists('fabricantes');
     }
 }

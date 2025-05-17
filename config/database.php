@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => 'gecon',
+    'default' => env('DB_CONNECTION', 'gecon'),
 
     /*
     |--------------------------------------------------------------------------
@@ -30,64 +30,87 @@ return [
     */
 
     'connections' => [
+
         'gecon' => [
-            'driver' => 'mysql',
+            'driver' => env('DB_CONNECTION', 'mysql'),
+
+            // Config para SQLite
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+
+            // Config para MySQL
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
+
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
+
+            'options' => env('DB_CONNECTION') === 'mysql' && extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+
         'mercado' => [
-            'driver' => 'mysql',
+            'driver' => env('DB_CONNECTION_MERCADO', 'mysql'),
+
+            // SQLite
+            'database' => env('DB_DATABASE_MERCADO', database_path('mercado.sqlite')),
+
+            // MySQL
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST_MERCADO', '127.0.0.1'),
             'port' => env('DB_PORT_MERCADO', '3306'),
-            'database' => env('DB_DATABASE_MERCADO', 'forge'),
             'username' => env('DB_USERNAME_MERCADO', 'forge'),
             'password' => env('DB_PASSWORD_MERCADO', ''),
             'unix_socket' => env('DB_SOCKET_MERCADO', ''),
+
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
+
+            'options' => env('DB_CONNECTION_MERCADO') === 'mysql' && extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+
         'historicos' => [
-            'driver' => 'mysql',
+            'driver' => env('DB_CONNECTION_HISTORICOS', 'mysql'),
+
+            // SQLite
+            'database' => env('DB_DATABASE_HISTORICOS', database_path('historicos.sqlite')),
+
+            // MySQL
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST_HISTORICOS', '127.0.0.1'),
             'port' => env('DB_PORT_HISTORICOS', '3306'),
-            'database' => env('DB_DATABASE_HISTORICOS', 'forge'),
             'username' => env('DB_USERNAME_HISTORICOS', 'forge'),
             'password' => env('DB_PASSWORD_HISTORICOS', ''),
             'unix_socket' => env('DB_SOCKET_HISTORICOS', ''),
+
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
+
+            'options' => env('DB_CONNECTION_HISTORICOS') === 'mysql' && extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -122,7 +145,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

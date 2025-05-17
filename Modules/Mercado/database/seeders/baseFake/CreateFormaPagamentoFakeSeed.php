@@ -2,12 +2,14 @@
 
 namespace Modules\Mercado\Database\Seeders\baseFake;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Mercado\Entities\Loja;
 
 class CreateFormaPagamentoFakeSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -15,12 +17,12 @@ class CreateFormaPagamentoFakeSeed extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('forma_pagamentos')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->table('forma_pagamentos')->truncate();
-
-        DB::connection(config('database.connections.mercado.database'))->table('forma_pagamentos')->insert(self::getFormaPagamento());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('forma_pagamentos')->insert(self::getFormaPagamento());
+        $this->enableForeignKeys($connection);
     }
 
     public static function getFormaPagamento()
@@ -61,9 +63,9 @@ class CreateFormaPagamentoFakeSeed extends Seeder
                         'especie_pagamento_id' => $e['id'],
                     ];
                 }
-            
+
             }
-        
+
         }
 
         return $formas;

@@ -13,7 +13,7 @@ class CreateCaixaEvidenciasTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('caixa_evidencias', function (Blueprint $table) {
+        Schema::connection('mercado')->create('caixa_evidencias', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('caixa_id');
             $table->unsignedBigInteger('acao_id');
@@ -37,7 +37,7 @@ class CreateCaixaEvidenciasTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('caixa_evidencias', function (Blueprint $table) {
+        Schema::connection('mercado')->table('caixa_evidencias', function (Blueprint $table) {
             // Remover chaves estrangeiras
             $table->dropForeign(['caixa_id']);
             $table->dropForeign(['acao_id']);
@@ -45,6 +45,6 @@ class CreateCaixaEvidenciasTable extends Migration
         });
 
         // Finalmente, remover a tabela
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('caixa_evidencias');
+        Schema::connection('mercado')->dropIfExists('caixa_evidencias');
     }
 }

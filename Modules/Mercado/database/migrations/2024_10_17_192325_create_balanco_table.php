@@ -13,7 +13,7 @@ class CreateBalancoTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('balanco', function (Blueprint $table) {
+        Schema::connection('mercado')->create('balanco', function (Blueprint $table) {
             $table->id();
 
             // Foreign key fields

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Jhslib\HistoricoService\Services\HistoricoServices;
 
 class CriarHistoricosCommand extends Command
@@ -38,8 +39,13 @@ class CriarHistoricosCommand extends Command
      */
     public function handle()
     {
-        $historicoService = new HistoricoServices(config('database.connections.mercado.database'));
+        $drive = DB::connection('mercado')->getDriverName();
+        if ($drive == 'sqlite') {
+            $this->info('Sistema desktop não precisa de histórico.');
+            return;
+        }
+        $historicoService = new HistoricoServices('mercado');
         $historicoService->criarAllTabelasHist()->criaHistoricoInicial();
-        $this->info('Historicos das tabelas criado com sucesso, banco realizado operação:'.config('database.connections.mercado.database'));
-    }                   
+        $this->info('Históricos das tabelas criado com sucesso, banco realizado operação:' . 'mercado');
+    }
 }

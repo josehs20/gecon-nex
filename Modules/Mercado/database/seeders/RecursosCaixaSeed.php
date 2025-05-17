@@ -2,23 +2,27 @@
 
 namespace Modules\Mercado\Database\Seeders;
 
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class RecursosCaixaSeed extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
      * @return void
      */
     public function run()
-    {   DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+    {
+        $connection = 'mercado';
 
-        DB::connection(config('database.connections.mercado.database'))->table('recursos')->truncate();
-        DB::connection(config('database.connections.mercado.database'))->table('recursos')->insert(self::getRecursos());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
 
+        DB::connection($connection)->table('recursos')->truncate();
+        DB::connection($connection)->table('recursos')->insert(self::getRecursos());
+        $this->enableForeignKeys($connection);
     }
 
     private static function getRecursos()

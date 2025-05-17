@@ -13,7 +13,7 @@ class EnderecosTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('enderecos', function (Blueprint $table) {
+        Schema::connection('mercado')->create('enderecos', function (Blueprint $table) {
             $table->id();
             $table->string('logradouro');
             $table->string('numero')->nullable();
@@ -33,7 +33,7 @@ class EnderecosTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('enderecos');
+        Schema::connection('mercado')->dropIfExists('enderecos');
 
     }
 }

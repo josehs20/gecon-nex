@@ -13,7 +13,7 @@ class LojasTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('lojas', function (Blueprint $table) {
+        Schema::connection('mercado')->create('lojas', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->integer('empresa_master_cod');
@@ -38,10 +38,10 @@ class LojasTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->table('lojas', function (Blueprint $table) {
+        Schema::connection('mercado')->table('lojas', function (Blueprint $table) {
             $table->dropForeign(['endereco_id']);
             $table->dropForeign(['status_id']);
         });
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('lojas');
+        Schema::connection('mercado')->dropIfExists('lojas');
     }
 }

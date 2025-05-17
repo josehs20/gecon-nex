@@ -13,7 +13,7 @@ class CreateCompraItensTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('compra_itens', function (Blueprint $table) {
+        Schema::connection('mercado')->create('compra_itens', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('compra_id');
             $table->unsignedBigInteger('loja_id');
@@ -35,6 +35,6 @@ class CreateCompraItensTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('compra_itens');
+        Schema::connection('mercado')->dropIfExists('compra_itens');
     }
 }

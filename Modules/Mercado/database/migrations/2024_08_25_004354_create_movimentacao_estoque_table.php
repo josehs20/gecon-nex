@@ -13,7 +13,7 @@ class CreateMovimentacaoEstoqueTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('movimentacao_estoque', function (Blueprint $table) {
+        Schema::connection('mercado')->create('movimentacao_estoque', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('loja_id');
             $table->unsignedBigInteger('status_id');
@@ -37,6 +37,6 @@ class CreateMovimentacaoEstoqueTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('movimentacao_estoque');
+        Schema::connection('mercado')->dropIfExists('movimentacao_estoque');
     }
 }

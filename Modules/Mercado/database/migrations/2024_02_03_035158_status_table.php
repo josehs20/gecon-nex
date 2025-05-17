@@ -13,7 +13,7 @@ class StatusTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('status', function (Blueprint $table) {
+        Schema::connection('mercado')->create('status', function (Blueprint $table) {
             $table->id();
             $table->string('descricao');
             $table->timestamps();
@@ -27,7 +27,7 @@ class StatusTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('status');
+        Schema::connection('mercado')->dropIfExists('status');
 
     }
 }

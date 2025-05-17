@@ -4,22 +4,23 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DisableForeignKeys;
 
 class CreateTipoUsuariosSeed extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    use DisableForeignKeys;
+
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'gecon';
 
-        DB::table('tipo_usuarios')->truncate();
-        DB::table('tipo_usuarios')->insert(self::getTipoUsuarios());
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->disableForeignKeys($connection);
 
+        DB::connection($connection)->table('tipo_usuarios')->truncate();
+
+        DB::connection($connection)->table('tipo_usuarios')->insert(self::getTipoUsuarios());
+
+        $this->enableForeignKeys($connection);
     }
 
     private static function getTipoUsuarios()
@@ -28,7 +29,11 @@ class CreateTipoUsuariosSeed extends Seeder
         $array = [];
 
         foreach ($tiposUsuarios as $nome => $dados) {
-            $array[] = ['id' => $dados['id'], 'perfil' => $nome, 'descricao' => $dados['descricao']];
+            $array[] = [
+                'id' => $dados['id'],
+                'perfil' => $nome,
+                'descricao' => $dados['descricao']
+            ];
         }
 
         return $array;

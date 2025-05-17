@@ -4,12 +4,14 @@ namespace Modules\Mercado\Database\Seeders\baseFake;
 
 use App\Models\Empresa;
 use App\Models\Loja;
+use App\Traits\DisableForeignKeys;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Mercado\Entities\Endereco;
 
 class CreateLojasFakeSeeder extends Seeder
 {
+    use DisableForeignKeys;
     /**
      * Run the database seeds.
      *
@@ -17,12 +19,12 @@ class CreateLojasFakeSeeder extends Seeder
      */
     public function run()
     {
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=0;');
+        $connection = 'mercado';
+        $this->disableForeignKeys($connection);
+        DB::connection($connection)->table('lojas')->truncate();
 
-        DB::connection(config('database.connections.mercado.database'))->table('lojas')->truncate();
-
-        DB::connection(config('database.connections.mercado.database'))->table('lojas')->insert(self::getLojas());
-        DB::connection(config('database.connections.mercado.database'))->statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::connection($connection)->table('lojas')->insert(self::getLojas());
+        $this->enableForeignKeys($connection);
     }
 
     private static function getLojas()

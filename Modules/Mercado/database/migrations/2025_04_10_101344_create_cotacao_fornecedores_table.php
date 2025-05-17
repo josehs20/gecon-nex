@@ -13,7 +13,7 @@ class CreateCotacaoFornecedoresTable extends Migration
      */
     public function up()
     {
-        Schema::connection(config('database.connections.mercado.database'))->create('cotacao_fornecedores', function (Blueprint $table) {
+        Schema::connection('mercado')->create('cotacao_fornecedores', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cotacao_id');
             $table->unsignedBigInteger('loja_id');
@@ -41,6 +41,6 @@ class CreateCotacaoFornecedoresTable extends Migration
      */
     public function down()
     {
-        Schema::connection(config('database.connections.mercado.database'))->dropIfExists('cotacao_fornecedores');
+        Schema::connection('mercado')->dropIfExists('cotacao_fornecedores');
     }
 }
