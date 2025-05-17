@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gecon-nex
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_gecon_nex
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - db_data:/var/lib/mysql
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+    # restart: unless-stopped
+    depends_on:
+      - waha  # Garantir que o WAHA inicie antes do n8n
+
+  waha:
+    image: devlikeapro/waha  # Definindo a imagem correta
+    container_name: waha
+    ports:
+      - "3000:3000"  # Expondo a porta do WAHA
+    volumes:
+      - waha_data:/home/node/.waha_data
+    environment:
+      - WHATSAPP_DEFAULT_ENGINE=NOWEB
+      - WHATSAPP_HOOK_EVENTS=message
+      - WHATSAPP_HOOK_URL=http://n8n:5678/webhook-test/df91a1dc-d0d9-4827-b07a-50e935b25824/waha
+    # restart: unless-stopped
+
+volumes:
+  db_data:
+  n8n_data:
+  waha_data:

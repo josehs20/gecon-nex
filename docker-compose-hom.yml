@@ -1,0 +1,96 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gecon
+    ports:
+      - "80:80"  # Porta HTTP
+    volumes:
+      - .:/var/www/html
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=80  # Usando HTTP
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'    # Baseado no uso de 404.7 MiB e CPU baixo
+          memory: 450M   # Próximo do uso atual
+        reservations:
+          cpus: '0.01'
+          memory: 300M
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_gecon
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_INNODB_BUFFER_POOL_SIZE: 256M  # Aumentei pra 256M pra melhor desempenho
+      MYSQL_MAX_CONNECTIONS: 50            # Ajustei pra 50 (30 pode ser pouco)
+    volumes:
+      - db_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '0.7'    # Maior prioridade, uso de 0.47% observado
+          memory: 700M   # Próximo do uso atual (636.5 MiB)
+        reservations:
+          cpus: '0.2'
+          memory: 500M
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+    depends_on:
+      - waha
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'    # Baixo uso (0.02%), com folga
+          memory: 200M   # Acima do uso atual (145.8 MiB)
+        reservations:
+          cpus: '0.01'
+          memory: 120M
+    restart: unless-stopped
+
+  waha:
+    image: devlikeapro/waha
+    container_name: waha
+    ports:
+      - "3000:3000"
+    volumes:
+      - waha_data:/home/node/.waha_data
+    environment:
+      - WHATSAPP_DEFAULT_ENGINE=NOWEB
+      - WHATSAPP_HOOK_EVENTS=message
+      - WHATSAPP_HOOK_URL=http://n8n:5678/webhook-test/df91a1dc-d0d9-4827-b07a-50e935b25824/waha  # Removido HTTPS
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'    # Baixo uso (0.01%), com folga
+          memory: 180M   # Acima do uso atual (138 MiB)
+        reservations:
+          cpus: '0.01'
+          memory: 120M
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  n8n_data:
+  waha_data:

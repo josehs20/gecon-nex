@@ -1,0 +1,11 @@
+{
+    "name": "Mercado",
+    "alias": "mercado",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Mercado\\Providers\\MercadoServiceProvider"
+    ],
+    "files": []
+}

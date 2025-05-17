@@ -1,0 +1,142 @@
+/* CENTRALIZA AS LINHAS NO CENTRO DA TELA */
+.centralizar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CENTRALIZA AS COLUNAS NO CENTRO DA TELA */
+.centralizar-coluna {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CSS DO BADGE */
+.badge {
+    color: #fff;
+    padding: 5px 15px;
+}
+
+table{
+    text-align: center;
+}
+
+p {
+    color: #707070 !important;
+}
+
+input:focus {
+    box-shadow: 0px 0px 7px #707070 !important;
+    border: 1px solid #404040;
+}
+
+input[type='checkbox'] {
+    accent-color: #404040 !important;
+}
+
+/* CSS DO BOTAO CONFIRMAR TELA LOGIN E REGISTER */
+.btn-confirmar {
+    color: #fff;
+    background-color: #678362;
+    border: 1px solid #7e7e7e;
+    border-radius: 7px;
+    opacity: 0.8;
+    width: 200px !important;
+    letter-spacing: 0.5px;
+    padding: 5px 0;
+}
+
+.btn-confirmar:hover {
+    opacity: 1;
+    background-color: #678362;
+    box-shadow: 0px 0px 7px #707070;
+    font-weight: 600;
+}
+
+.custom-body {
+    max-width: 200px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+/* BOTOES DE TODAS AS OUTRAS TELAS */
+
+/* CSS DO BOTAO VISUALIZAR */
+.bt-visualizar {
+    background-color: #757575;
+    border: 1px solid #707070;
+    color: #fff;
+}
+
+/* CSS DOS ICONES */
+.bt-icones{
+    background-color: transparent !important;
+    text-decoration: none !important;
+    border: 1px solid transparent;
+    color: #000 !important;
+    /* font-size: 1.1rem !important; */
+    padding: 5px 7px;
+    border-radius: 5px;
+}
+.bt-icones:hover{
+    border: 1px solid #678362 !important;
+    background-color: #678362 !important;
+    color: #fff !important;
+}
+
+.bt-visualizar:hover {
+    background-color: #494949;
+}
+
+/* CSS DA ESTRUTURA DAS VIEWS */
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    /* margin-bottom: 20px; */
+}
+/* CSS DOS LINKS QUE FICAM NA PARTE SUPERIORES*/
+.trilha-paginas-acessadas{
+    display: flex;
+}
+.trilha-paginas-acessadas a{
+    color: #678362 !important;
+    font-weight: bold !important;
+    letter-spacing: 0.7 !important;
+}
+.trilha-paginas-acessadas a:hover{
+    color: #678362 !important;
+    text-decoration: underline !important;
+}
+
+/* CSS DO CARD */
+.card .card-header p {
+    color: #fff !important;
+}
+
+.card{
+    border-radius: 10px !important;
+    margin-bottom: 20px !important;
+    overflow-x: auto
+}
+.card-header{
+    background-color: #404040;
+    color: #fff;
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+    padding: 30px 20px !important;
+}
+
+.card-body{
+    padding: 30px;
+}
+
+.card-footer{
+    background-color: #fff;
+    padding: 20px;
+}
