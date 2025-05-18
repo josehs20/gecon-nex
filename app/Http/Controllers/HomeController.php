@@ -19,7 +19,7 @@ class HomeController extends Controller
         //MANIPULAÇAO DE ONDE VAI CADA USUARIO QUE LOGAR
         $rotaRedirect = false;
         self::carregaSessionMenu();
-        dd(auth()->user() && auth()->user()->isAdmin());
+        
         if (auth()->user() && auth()->user()->isAdmin()) {
             $rotaRedirect = redirect()->route('admin.empresa.index');
         } elseif (auth()->user()->isUsuarioGecon()) {

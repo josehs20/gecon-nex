@@ -2,57 +2,51 @@
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="icon" href="{{ asset('img/logo_gecon.jpg') }}" type="image">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>GECON</title>
 
     <link rel="icon" href="{{ asset('img/logo_gecon.jpg') }}" type="image">
 
+    <!-- Estilos -->
     <link rel="stylesheet" href="{{ asset('siedBar/css/owl.carousel.min.css') }}">
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('siedBar/css/bootstrap.min.css') }}">
-
-    <!-- Style -->
     <link rel="stylesheet" href="{{ asset('siedBar/css/style.css') }}">
-
     <link rel="stylesheet" href="{{ asset('css/cssGeral.css') }}">
+    <link rel="stylesheet" href="{{ asset('DataTables/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('DataTables/buttons/dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-icons/font/bootstrap-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('Toastr/toastr.min.css') }}">
 
-    <link href="{{ asset('DataTables/datatables.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/bootstrap-icons/font/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ asset('select2/css/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('DataTables/buttons/dataTables.min.css') }}" rel="stylesheet">
+    <!-- jQuery deve ser o PRIMEIRO script JS -->
 
     <script src="{{ asset('siedBar/js/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ asset('siedBar/js/popper.min.js') }}"></script>
-    <script src="{{ asset('siedBar/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('siedBar/js/main.js') }}"></script>
-    <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
-    <script src="{{ asset('select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset('maskMoney/maskMoney.min.js') }}"></script>
-    <script src="{{ asset('MaskJquery/maskjquery.min.js') }}"></script>
-    <script src="{{ asset('blockUI/blockUI.min.js') }}"></script>
 
-    <script src="{{ asset('DataTables/buttons/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('DataTables/buttons/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('DataTables/buttons/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('DataTables/buttons/buttons.jszip.min.js') }}"></script>
+     <!-- Scripts dependentes de jQuery (seguem depois) -->
+     <script src="{{ asset('siedBar/js/popper.min.js') }}"></script>
+     <script src="{{ asset('siedBar/js/bootstrap.min.js') }}"></script>
+     <script src="{{ asset('siedBar/js/main.js') }}"></script>
+     <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
+     <script src="{{ asset('select2/js/select2.min.js') }}"></script>
+     <script src="{{ asset('maskMoney/maskMoney.min.js') }}"></script>
+     <script src="{{ asset('MaskJquery/maskjquery.min.js') }}"></script>
+     <script src="{{ asset('blockUI/blockUI.min.js') }}"></script>
 
-    <script src="{{ asset('js/gerais.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+     <script src="{{ asset('DataTables/buttons/dataTables.buttons.min.js') }}"></script>
+     <script src="{{ asset('DataTables/buttons/buttons.html5.min.js') }}"></script>
+     <script src="{{ asset('DataTables/buttons/buttons.print.min.js') }}"></script>
+     <script src="{{ asset('DataTables/buttons/buttons.jszip.min.js') }}"></script>
 
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{{ asset('Toastr/toastr.min.css') }}">
-    <script src="{{ asset('Toastr/toastr.min.js') }}"></script>
+     <script src="{{ asset('Toastr/toastr.min.js') }}"></script>
 
-    <!-- Mask Jquery -->
-    <script src="{{ asset('MaskJquery/maskjquery.min.js') }}"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+     <!-- Seus scripts customizados SEMPRE por último -->
+     <script src="{{ asset('js/gerais.js') }}"></script>
+     <script src="{{ asset('js/app.js') }}"></script>
 
-    <title>GECON</title>
 </head>
 
 <style>
@@ -61,7 +55,7 @@
         padding: 1rem;
     }
 
-    .ss > div{
+    .ss>div {
         margin: 0px 1rem;
     }
 

@@ -1,6 +1,7 @@
 @extends('layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de empresas']]])
 
 @section('content')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3 class="card-title">Lista de empresas</h3>

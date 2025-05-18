@@ -22,7 +22,7 @@
     </head>
 
     <body>
-        {{ $slot }}
+        {{-- {{ $slot }} --}}
 
         {{-- Vite JS --}}
         {{-- {{ module_vite('build-mercado', 'resources/assets/js/app.js') }} --}}

@@ -34,6 +34,7 @@ class HomeController extends ControllerBase
             ['ativo', 'Ativo'],
             ['acao', 'Ação'],
         ]);
+     
         return view('admin.empresas.index', compact('columns'));
     }
 

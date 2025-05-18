@@ -14,7 +14,7 @@ class ControllerBase extends Controller
         $lite = env('DB_CONNECTION', '');
         if ($lite == 'sqlite') {
             $connections = [
-                'gecon',
+                // 'gecon',
                 'mercado',
             ];
 
