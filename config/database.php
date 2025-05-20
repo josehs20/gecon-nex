@@ -35,7 +35,7 @@ return [
             'driver' => env('DB_CONNECTION', 'mysql'),
 
             // Config para SQLite
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => env('DB_DATABASE', database_path('sqlite/gecon.sqlite')),
 
             // Config para MySQL
             'url' => env('DATABASE_URL'),
@@ -61,7 +61,7 @@ return [
             'driver' => env('DB_CONNECTION_MERCADO', 'mysql'),
 
             // SQLite
-            'database' => env('DB_DATABASE_MERCADO', database_path('mercado.sqlite')),
+            'database' => env('DB_DATABASE_MERCADO', database_path('sqlite/mercado.sqlite')),
 
             // MySQL
             'url' => env('DATABASE_URL'),
@@ -87,7 +87,7 @@ return [
             'driver' => env('DB_CONNECTION_HISTORICOS', 'mysql'),
 
             // SQLite
-            'database' => env('DB_DATABASE_HISTORICOS', database_path('historicos.sqlite')),
+            'database' => env('DB_DATABASE_HISTORICOS', database_path('sqlite/historicos.sqlite')),
 
             // MySQL
             'url' => env('DATABASE_URL'),
