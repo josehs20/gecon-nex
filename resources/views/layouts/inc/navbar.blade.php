@@ -242,14 +242,5 @@
         window.location.href = routeFecharCaixa;
 
     }
-    $(document).ready(function() {
-        $('#logout-button').on('click', function() {
-            if (confirmLogountComCaixa) {
-                $('#logoutModal').modal('show'); // Exibe o modal
-            } else {
-                logout();
-
-            }
-        });
-    });
+  
 </script>

@@ -54,7 +54,7 @@ class CriarLoja
             $this->request->getModuloId(),
             $this->request->getStatusId(),
             $this->request->getEmail(),
-            $this->request->getTelefone(),
+            $this->request->getTelefone()
         );
 
         $this->criaLojaModulo($loja);
@@ -82,7 +82,7 @@ class CriarLoja
                     $this->request->getEndereco()->getComplemento()
                 ))->id;
             }
-           
+
             $lojaModulo = LojaApplication::criarLoja(new RequestsCriarLojaRequest(
                 $loja->nome,
                 $loja->empresa_id,

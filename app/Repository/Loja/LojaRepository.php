@@ -21,6 +21,7 @@ class LojaRepository
         $telefone = null,
         $endereco_id = null
     ) {
+        
         return Loja::create([
             'nome' => $nome,
             'empresa_id' => $empresa_id,

@@ -28,7 +28,7 @@
     <link href="{{ asset('select2/css/select2.min.css') }}" rel="stylesheet" />
     @yield('styles')
 
-    <script src="{{ asset('siedBar/js/jquery-3.3.1.min.js') }}"></script>
+    {{-- <script src="{{ asset('siedBar/js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('siedBar/js/popper.min.js') }}"></script>
     <script src="{{ asset('siedBar/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('siedBar/js/main.js') }}"></script>
@@ -54,7 +54,7 @@
 
     <!-- Mask Jquery -->
     <script src="{{ asset('MaskJquery/maskjquery.min.js') }}"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}"> 
 
     <title>GECON</title>
 </head>

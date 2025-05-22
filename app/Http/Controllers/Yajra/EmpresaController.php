@@ -16,7 +16,7 @@ class EmpresaController extends ControllerBase
     public function getEmpresas(Request $request)
     {
         $parans = Post::anti_injection_yajra($request->all());
-
+        // dd($parans);
         $query = new YajraQueryBuilder(Empresa::query());
         return $query->limit(100)
         ->reject(['ativo'])

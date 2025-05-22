@@ -1,29 +1,5 @@
 @if (session()->has('menu'))
     @if (auth()->user())
-        <style>
-            .nav-item {
-                padding: 0;
-            }
-
-            .nav-link {
-                padding: 10px 20px;
-                color: #525252 !important;
-            }
-
-            .sub-menu {
-                margin-left: -20px;
-            }
-
-            .sub-menu .nav-link {
-                padding: 8px 40px;
-            }
-            .side-inner{
-                background-color: #0A0A1A !important;
-            }
-            .side-inner a {
-                color: #fff !important;
-            }
-        </style>
 
         <div class="nav-menu">
             <ul class="nav flex-column">
@@ -38,7 +14,7 @@
                             return is_array($sub);
                         });
                     @endphp
-                
+
                     @if ($contem_submenus)
                         <li class="nav-item">
                             <a class="nav-link"><strong>{{ $menu['nome'] }}</strong></a>
@@ -87,18 +63,4 @@
         </div>
     @endif
 @endif
-<script>
-    $(document).ready(function () {
-    $(".toggle-menu").on("click", function () {
-        let icon = $(this).find(".toggle-icon");
 
-        // Alterna entre as classes de seta para cima e para baixo
-        if (icon.hasClass("bi-caret-down")) {
-            icon.removeClass("bi-caret-down").addClass("bi-caret-up");
-        } else {
-            icon.removeClass("bi-caret-up").addClass("bi-caret-down");
-        }
-    });
-});
-
-</script>

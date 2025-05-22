@@ -34,7 +34,7 @@ class HomeController extends ControllerBase
             ['ativo', 'Ativo'],
             ['acao', 'Ação'],
         ]);
-     
+
         return view('admin.empresas.index', compact('columns'));
     }
 
@@ -52,6 +52,7 @@ class HomeController extends ControllerBase
 
             $ativo = $request->ativo ? 1 : 0;
             $status_id = config('config.status.em_dia');
+            $parans->nome_fantasia = !$parans->nome_fantasia ? $parans->razao_social : $parans->nome_fantasia;
             $empresa = EmpresaApplication::criarEmpresa(new CriarEmpresaRequest(
                 $parans->razao_social,
                 $parans->nome_fantasia,

@@ -76,7 +76,7 @@ class GtinController extends ControllerBase
             }
         }
 
-        $query->orderByRaw('ncm IS NULL DESC, ncm ASC');  // Primeiro os nulos, depois os outros
+        // $query->orderByRaw('ncm IS NULL DESC, ncm ASC');  // Primeiro os nulos, depois os outros
 
         return  DataTables::of($query)
             ->addColumn('id', function ($gtin) {

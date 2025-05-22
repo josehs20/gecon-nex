@@ -1,7 +1,7 @@
-@extends('layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de empresas']]])
+@extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de empresas']]])
 
 @section('content')
-
+    @vite('resources/js/views/admin/admin.js', 'build/.vite')
     <div class="cabecalho">
         <div class="page-header">
             <h3 class="card-title">Lista de empresas</h3>
@@ -40,12 +40,13 @@
             </a>
         </div>
     </div>
+
 @endsection
 
-@section('scripts')
+{{-- @section('scripts')
     <script>
         const routeGetEmpresas = @json(route('yajra.service.empresas.get'));
         const columns = @json($columns);
         montaDatatableYajra("tabela-home-admin", columns, routeGetEmpresas);
     </script>
-@endsection
+@endsection --}}

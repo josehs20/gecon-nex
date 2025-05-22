@@ -37,6 +37,7 @@
                     @csrf
                 @else
                     <form action="{{ route('admin.empresa.store') }}" method="POST">
+                        @method('POST')
                         @csrf
             @endif
 
@@ -156,84 +157,13 @@
             @if ($empresa && $empresa->lojas->count())
                 @foreach ($empresa->lojas as $l)
                     {{-- @include('admin.empresas.inc.form_nfe', ['loja' => $l]) --}}
+
                 @endforeach
             @endif
         </div>
     </div>
 </div>
-<script>
-    var routeGetDataEmpresa = @json(route('admin.empresa.api.brasil.get'));
-    @if ($empresa)
-        var routeEmpresaGetLojas = @json(route('yajra.service.empresa.get.lojas', ['empresa_id' => $empresa->id]));
-
-        const columns = [
-            ['id', '#'],
-            ['nome', 'Nome'],
-            ['cnpj', 'CNPJ'],
-            ['status.descricao', 'Status'],
-            ['acao', 'Ação', false, false]
-        ];
-        montaDatatableYajra('tabela-lojas', montaColunasParaYajra(columns), routeEmpresaGetLojas);
-    @endif
-
-    select2('modulo_id');
-    maskCNPJById('cnpj');
-    maskTelefoneById('telefone');
-    $(document).ready(function() {
-        $('#cnpj').on('input', function() {
-            var cnpj = $(this).val().replace(/\D/g, ''); // Remove qualquer caractere não numérico
-
-            if (cnpj.length === 14) {
-                bloquear();
-                // Quando o CNPJ tiver 14 dígitos, fazer a consulta Ajax
-                $.ajax({
-                    url: routeGetDataEmpresa, // A URL para a qual a requisição será feita
-                    method: 'GET', // Ou 'POST', dependendo do seu caso
-                    data: {
-                        cnpj: cnpj
-                    },
-                    success: function(response) {
-                        // Aqui você pode manipular a resposta da consulta, por exemplo:
-                        if (response.success == true) {
-                            msgToastr(response.msg, 'info');
-                            const empresa = response.empresa;
-                            const endereco = {
-                                logradouro: empresa.logradouro,
-                                numero: empresa.numero,
-                                complemento: empresa.complemento,
-                                bairro: empresa.bairro,
-                                municipio: empresa.municipio,
-                                uf: empresa.uf,
-                                cep: empresa.cep,
-                                tipoLogradouro: empresa.descricao_tipo_de_logradouro
-                            };
-
-                            $('#razao_social').val(empresa.razao_social);
-                            $('#nome_fantasia').val(empresa.nome_fantasia);
-                            $('#email').val(empresa.email);
-                            $('#telefone').val(empresa.ddd_telefone_1 ?? empresa
-                                .ddd_telefone_2);
-                            $('#telefone').trigger('input');
-                            $('#endereco_brasil_api').val(JSON.stringify(endereco));
-                        } else {
-                            msgToastr(response.msg, 'warning');
-                            $('input').val('');
+<div id="app_data" data-empresa-id="{{ $empresa->id ?? null }}">
+</div>
 
 
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Lidar com erros da requisição
-                        msgToastr('Erro na consulta: ', 'error');
-                        $('input').val('');
-
-                    },
-                    complete: function() {
-                        // Esta função será chamada independentemente de sucesso ou erro
-                        desbloquear(); // Desbloqueia após a resposta do servidor (ou erro)
-                    }
-                });
-            }
-        });
-    });
-</script>

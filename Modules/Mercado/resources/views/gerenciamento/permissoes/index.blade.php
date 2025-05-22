@@ -31,7 +31,6 @@
             @include('mercado::gerenciamento.permissoes.tabelaPermissoesUsuario')
         </div>
     </div>
-
     <script>
         const ROTA_BUSCAR_PERMISSOES = @json(route('gecon.usuarios.permissao.buscar', 'TIPO_USUARIO_ID'));
         const ROTA_BUSCAR_PERMISSOES_POR_TIPO_USUARIO = @json(route('gecon.usuarios.permissao.buscar_por_tipo_usuario', 'TIPO_USUARIO_ID'));
@@ -50,7 +49,7 @@
                 let tipo_usuario_id = $(this).val();
                 let tipo_usuario_label = $(this).find("option:selected").text();
                 $('#label-permissao-do-tipo-usuario').text(tipo_usuario_label);
-                
+
                 if(tipo_usuario_id == 0){
                     limparTabelas();
                     $('#label-permissao-do-tipo-usuario').text('');

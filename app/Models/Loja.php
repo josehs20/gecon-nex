@@ -8,6 +8,7 @@ use Modules\Mercado\Entities\Loja as EntitiesLoja;
 class Loja extends Model
 {
     protected $table = 'lojas';
+    protected $connection = 'gecon';
 
     protected $fillable = [
         'nome',

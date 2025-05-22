@@ -1,14 +1,8 @@
-@extends('layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicia'], ['rota' => route('admin.empresa.index'), 'titulo' => 'Lista de empresas'],['rota' => route('admin.empresa.edit', ['empresa' => $empresa->id]), 'titulo' => 'Editar empresa'], ['titulo' => 'Cadastro de lojas']]])
+@extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicia'], ['rota' => route('admin.empresa.index'), 'titulo' => 'Lista de empresas'],['rota' => route('admin.empresa.edit', ['empresa' => $empresa->id]), 'titulo' => 'Editar empresa'], ['titulo' => 'Cadastro de lojas']]])
 
 @section('content')
-    <style>
-        .nav-link.active {
-            background-color: #007bff !important;
-            /* Cor primária do Bootstrap */
-            color: #fff !important;
-            /* Texto branco */
-        }
-    </style>
+@vite('resources/js/views/lojas/form_lojas.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <div class="page-header">

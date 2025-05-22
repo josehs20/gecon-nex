@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Modulo extends Model
 {
     protected $table = 'modulos';
+    protected $connection = 'gecon';
 
     protected $fillable = ['id', 'nome'];
 }

@@ -1,88 +1,5 @@
 <style>
-    .navbar-custom {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 90px;
-        padding-left: 50px;
-        padding-right: 25px;
-        background-color: #0A0A1A;
-        border-radius: 10px;
-    }
 
-    .navbar-custom span {
-        color: #fff;
-    }
-
-    .navbar-custom a:hover {
-        font-weight: bold;
-    }
-
-    .navbar-custom .info {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .ul-lista {
-        display: flex;
-        align-items: center;
-        list-style: none;
-        margin: 0;
-    }
-
-    .ul-lista li {
-        margin-right: 10px;
-    }
-
-    .lista-de-links {
-        display: flex;
-        align-items: center;
-    }
-
-    .notification-icon {
-        position: relative;
-        cursor: pointer;
-        color: green;
-        /* Cor do sino */
-        font-size: 30px;
-        /* Ajusta o tamanho do ícone */
-    }
-
-    .notification-icon .badge {
-        position: absolute;
-        top: -5px;
-        right: -10px;
-        background-color: blue;
-        /* Cor do contador */
-        color: white;
-        border-radius: 50%;
-        padding: 2px 5px;
-        font-size: 12px;
-    }
-
-    .l {
-        font-weight: 700;
-        color: #fff !important;
-    }
-
-    /* Estilos para a segunda navbar */
-    .navbar-secondary {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* Centraliza o texto */
-        height: 50px;
-        /* Altura da navbar */
-        background-color: #f8f9fa;
-        /* Cor de fundo */
-        font-size: 18px;
-        /* Tamanho da fonte */
-        font-weight: bold;
-        /* Fonte em negrito */
-        color: #333;
-        /* Cor do texto */
-    }
 </style>
 
 <nav class="navbar-custom">
@@ -251,14 +168,5 @@
         window.location.href = routeFecharCaixa;
 
     }
-    $(document).ready(function() {
-        $('#logout-button').on('click', function() {
-            if (confirmLogountComCaixa) {
-                $('#logoutModal').modal('show'); // Exibe o modal
-            } else {
-                logout();
 
-            }
-        });
-    });
 </script>

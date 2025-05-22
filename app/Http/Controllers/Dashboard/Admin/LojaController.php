@@ -67,7 +67,7 @@ class LojaController extends ControllerBase
                     $request->complemento ? $parans->complemento : null
                 );
             }
-
+          
             $loja = LojaApplication::criaLoja(new CriarLojaRequest(
                 $nome,
                 $empresa_id,
@@ -75,6 +75,8 @@ class LojaController extends ControllerBase
                 $cnpj,
                 $modulo_id,
                 $status_id,
+                $parans->email,
+                $parans->telefone,
                 $endereco
             ));
 

@@ -39,6 +39,7 @@ class PermissaoUsuarioController extends ControllerBase
     }
 
     public function buscar_permissoes(int $tipo_usuario_id){
+
         return PermissaoUsuarioApplication::buscarPermissoes(
             new BuscarPermissoesPorTipoUsuarioIdRequest(
                 $tipo_usuario_id

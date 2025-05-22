@@ -24,10 +24,11 @@ class BuscarPermissoes extends Permissao
     }
 
     private function preencherDados(){
-        $processos = $this->obterPermissoes($this->request->getTipoUsuarioId(), false); 
+        $processos = $this->obterPermissoes($this->request->getTipoUsuarioId(), false);
+
         return $processos->filter(function($processo){
             return $processo->descricao != null; /** São permissões apenas para o ADMIN, por isso são desconsideradas aqui */
-        })->map(function($processo){              
+        })->map(function($processo){
                 return [
                     $processo->descricao,
                     $this->renderizarBotao($processo->id, $this->request->getTipoUsuarioId(), true)

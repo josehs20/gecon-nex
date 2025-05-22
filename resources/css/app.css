@@ -1,3 +1,239 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* @import url('../../public/siedBar/css/owl.carousel.min.css');
+@import url('../../public/siedBar/css/bootstrap.min.css');
+@import url('../../public/siedBar/css/style.css');
+@import url('../../public/css/cssGeral.css'); */
+@import "bootstrap-icons/font/bootstrap-icons.min.css";
+@import './css/owl.carousel.min.css';
+@import './css/bootstrap.min.css';
+@import './css/style.css';
+@import './css/cssGeral.css';
+
+/* @import './bootstrap-icons/font/bootstrap-icons.css'; */
+/* @import url('../../public/DataTables/datatables.min.css');
+@import url('../../public/DataTables/buttons/dataTables.min.css');
+@import url('../../public/select2/css/select2.min.css');
+@import url('../../public/css/bootstrap-icons/font/bootstrap-icons.css');
+@import url('../../public/Toastr/toastr.min.css'); */
+/* site-section */
+
+.nav-link.active {
+    background-color: #007bff !important;
+    /* Cor primária do Bootstrap */
+    color: #fff !important;
+    /* Texto branco */
+}
+
+.ss {
+    padding: 1rem;
+}
+
+.ss>div {
+    margin: 0px 1rem;
+}
+
+.content-caixa {
+    padding: 1%;
+}
+
+.nav-link.active {
+    background-color: #007bff !important;
+    /* Cor primária do Bootstrap */
+    color: #fff !important;
+    /* Texto branco */
+}
+
+.cabecalho h3,
+p {
+    color: #fff !important
+}
+
+.buttons-excel>span {
+    color: #fff;
+}
+
+/* Exceção para os links dentro da paginação do DataTables */
+.dataTables_wrapper .dataTables_paginate .paginate_button a {
+    color: #0A0A1A !important;
+    /* Define a cor normal para os links dentro da paginação */
+}
+
+/* Exceção para os botões de paginação */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: initial !important;
+    /* Volta à cor padrão ou qualquer cor desejada */
+}
+
+/* Estilo para o botão da página selecionada */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    color: #0A0A1A !important;
+    /* Muda a cor do texto para algo mais visível na página selecionada */
+    background-color: #fff;
+    /* Altera o fundo para branco ou qualquer outra cor que desejar */
+    border-color: #0A0A1A;
+    /* Muda a borda para uma cor mais visível, se necessário */
+}
+
+/* Adiciona sombra inicial */
+.elevated {
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    border-radius: 8px;
+}
+
+/* Efeito de elevação ao passar o mouse */
+.elevated:hover {
+    box-shadow: 0px 50px 30px rgba(0, 0, 0, 0.3);
+    transform: translate(1px, -1px);
+    /* Move no eixo X e Y */
+
+}
+
+/* Cor do texto das opções no dropdown */
+.select2-results__option {
+    color: black !important;
+}
+
+/* Cor do texto do item selecionado */
+.select2-selection__rendered {
+    color: black !important;
+}
+
+.select2-selection__choice__display {
+    color: black !important;
+}
+
+.dt-button {
+    background-color: #343a40 !important;
+    border-radius: 5px !important;
+    margin-right: 5px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.3em 0.8em;
+}
+
+.card-dashboard {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
+.burger {
+    margin-top: 13px !important;
+    margin-left: 20px !important;
+}
+
+.navbar-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 90px;
+    padding-left: 50px;
+    padding-right: 25px;
+    background-color: #0A0A1A;
+    border-radius: 10px;
+}
+
+.navbar-custom span {
+    color: #fff;
+}
+
+.navbar-custom a:hover {
+    font-weight: bold;
+}
+
+.navbar-custom .info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ul-lista {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+}
+
+.ul-lista li {
+    margin-right: 10px;
+}
+
+.lista-de-links {
+    display: flex;
+    align-items: center;
+}
+
+.notification-icon {
+    position: relative;
+    cursor: pointer;
+    color: green;
+    /* Cor do sino */
+    font-size: 30px;
+    /* Ajusta o tamanho do ícone */
+}
+
+.notification-icon .badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: blue;
+    /* Cor do contador */
+    color: white;
+    border-radius: 50%;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+.l {
+    font-weight: 700;
+    color: #fff !important;
+}
+
+/* Estilos para a segunda navbar */
+.navbar-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Centraliza o texto */
+    height: 50px;
+    /* Altura da navbar */
+    background-color: #f8f9fa;
+    /* Cor de fundo */
+    font-size: 18px;
+    /* Tamanho da fonte */
+    font-weight: bold;
+    /* Fonte em negrito */
+    color: #333;
+    /* Cor do texto */
+}
+
+.nav-item {
+    padding: 0;
+}
+
+.nav-link {
+    padding: 10px 20px;
+    color: #525252 !important;
+}
+
+.sub-menu {
+    margin-left: -20px;
+}
+
+.sub-menu .nav-link {
+    padding: 8px 40px;
+}
+
+.side-inner {
+    background-color: #0A0A1A !important;
+}
+
+.side-inner a {
+    color: #fff !important;
+}
