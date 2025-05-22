@@ -71,6 +71,7 @@ return [
         'content',
         'node_modules',
         '*/tests',
+    
     ],
 
     /**
@@ -143,6 +144,8 @@ return [
 
     'postbuild' => [
         // 'rm -rf public/build',
+         //'xcopy /E /I packages\\historico_service dist\\',  // Para Windows
+
     ],
 
     /**

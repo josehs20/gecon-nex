@@ -78,22 +78,33 @@ class InstalarBaseBdGeconCommand extends Command
         }
     }
 
-    protected function instalarSQLite(string $connection)
-    {
-        try {
-            $database = config("database.connections.{$connection}.database");
-            $path = base_path($database);
-          
-            if (file_exists($path)) {
-                $this->line("Removendo arquivo SQLite: {$database}");
-                unlink($path);
-            }
+   protected function instalarSQLite(string $connection)
+{
+    try {
+        $database = config("database.connections.{$connection}.database");
+        $path = base_path($database);
 
-            // Cria arquivo vazio para o SQLite
-            touch($path);
-            $this->line("Arquivo SQLite criado: {$database}");
-        } catch (\Exception $e) {
-            $this->error("Erro SQLite em {$connection}: " . $e->getMessage());
+        // Mostra para debug
+        $this->line("\"{$database}\""); // relativo
+        $this->line("\"{$path}\"");     // absoluto
+
+        // Cria diretório se necessário
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+            $this->line("Diretório criado: {$dir}");
         }
+
+        if (file_exists($path)) {
+            $this->line("Removendo arquivo SQLite: {$database}");
+            unlink($path);
+        }
+
+        touch($path);
+        $this->line("Arquivo SQLite criado: {$database}");
+    } catch (\Exception $e) {
+        $this->error("Erro SQLite em {$connection}: " . $e->getMessage());
     }
+}
+
 }

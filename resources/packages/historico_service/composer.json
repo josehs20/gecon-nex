@@ -1,0 +1,13 @@
+{
+    "name": "jhslib/historico-service",
+    "description": "Biblioteca de histórico para Laravel",
+    "autoload": {
+        "psr-4": {
+            "Jhslib\\HistoricoService\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.1",
+        "illuminate/support": "^11.0"
+    }
+}

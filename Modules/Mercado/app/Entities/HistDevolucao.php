@@ -2,7 +2,7 @@
 
 namespace Modules\Mercado\Entities;
 
-class Histolucao extends ModelBase
+class HistDevolucao extends ModelBase
 {
     protected $table = 'hist_devolucoes';
     protected $connection = 'mercado';

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f07ab8a1f7facb5f172baecc2957489",
+    "content-hash": "3d9cac5afd92817cf16866c026e57d8e",
     "packages": [
         {
             "name": "brick/math",
@@ -1194,7 +1194,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "./packages/historico_service",
+                "url": "./resources/packages/historico_service",
                 "reference": "9dbf6a1b20c16f511cbe89ac8cd7efd1b6652893"
             },
             "require": {
@@ -9052,6 +9052,6 @@
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

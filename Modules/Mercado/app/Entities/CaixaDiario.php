@@ -2,7 +2,7 @@
 
 namespace Modules\Mercado\Entities;
 
-class Caixa extends ModelBase
+class CaixaDiario extends ModelBase
 {
     protected $table = 'caixa_diario';
     protected $connection = 'mercado';
