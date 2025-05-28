@@ -26,16 +26,7 @@ class TesteCargaCommand extends Command
      *
      * @var string
      */
-    private $url = 'https://www.econodata.com.br/_nuxt3/ModalDesbloquearEmpresa.09fd6625.js';  // A URL que você quer testar
-
-    /**
-     * Número fixo de requisições e concorrência.
-     *
-     * @var int
-     */
-    private $totalRequests = 1000;  // Número total de requisições
-    private $concurrency = 50;      // Número de requisições simultâneas
-
+    private $url = 'https://www.econodata.com.br/_nuxt3/ModalDesbloquearEmpresa.09fd6625.js';  // A URL que você quer testa
     /**
      * Execute the console command.
      *
@@ -43,42 +34,68 @@ class TesteCargaCommand extends Command
      */
     public function handle()
     {
-        // Exibindo informações iniciais
-        $this->info("Iniciando teste de carga...");
-        $this->info("URL: {$this->url}");
-        $this->info("Total de requisições: {$this->totalRequests}");
-        $this->info("Conexões simultâneas: {$this->concurrency}");
+        ini_set('memory_limit', '12G'); // aumenta memória (cuidado)
 
-        // Dividindo as requisições em blocos de concorrência
-        $chunks = ceil($this->totalRequests / $this->concurrency);
-        $startTime = microtime(true);
-        $totalResponses = 0;
+        $url = 'https://www.botucatuautopecas.com.br/';
+        $quantidade = 380; // use valor menor, ex: 100 conexões simultâneas por batch
+        $batches = 1000;     // número de batches
 
-        // Executando as requisições em blocos de concorrência
-        for ($i = 0; $i < $chunks; $i++) {
-            $requests = [];
+        for ($batch = 1; $batch <= $batches; $batch++) {
+            $this->info("Iniciando batch $batch de $batches");
 
-            // Criando as requisições no bloco de concorrência
-            for ($j = 0; $j < $this->concurrency; $j++) {
-                if (($i * $this->concurrency + $j) >= $this->totalRequests) break;
+            $multiHandle = curl_multi_init();
+            $curlHandles = [];
 
-                $requests[] = Http::get($this->url);
-                
+            // Cria as conexões do batch atual
+            for ($i = 0; $i < $quantidade; $i++) {
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Referer: https://www.botucatuautopecas.com.br/',
+                    'Connection: keep-alive'
+                ]);
+                curl_multi_add_handle($multiHandle, $ch);
+                $curlHandles[$i] = $ch;
             }
 
-            // Esperando todas as requisições do bloco
-            foreach ($requests as $response) {
-                $totalResponses++;
-                $this->info("Resposta recebida: " . $response->status());
+            // Executa todas as requisições simultâneas
+            $running = null;
+            do {
+                curl_multi_exec($multiHandle, $running);
+                curl_multi_select($multiHandle);
+            } while ($running > 0);
+
+            // Processa cada resposta e verifica erros
+            foreach ($curlHandles as $i => $ch) {
+                $errorNumber = curl_errno($ch);
+                if ($errorNumber === 0) {
+                    $response = curl_multi_getcontent($ch);
+                    $length = strlen($response);
+                    if ($length > 0) {
+                        $this->info("Batch $batch - Requisição [$i] OK: $length bytes recebidos");
+                    } else {
+                        $this->warn("Batch $batch - Requisição [$i] retornou 0 bytes");
+                    }
+                } else {
+                    $errorMsg = curl_error($ch);
+                    $this->error("Batch $batch - Requisição [$i] falhou com erro ($errorNumber): $errorMsg");
+                }
+
+                curl_multi_remove_handle($multiHandle, $ch);
+                curl_close($ch);
             }
 
-            // Exibindo progresso
-            $this->info("Progresso: {$totalResponses} de {$this->totalRequests} requisições concluídas.");
+            curl_multi_close($multiHandle);
+
+            $this->info("Batch $batch finalizado.\n");
+
+            // sleep opcional para não sobrecarregar
+            // sleep(1);
         }
 
-        // Calculando o tempo total de execução
-        $duration = microtime(true) - $startTime;
-        $this->info("Teste concluído em {$duration} segundos.");
+        $this->info("Todos os batches finalizados.");
     }
 }
 

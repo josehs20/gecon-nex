@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         Model::unguard();
 
         $this->call(CreateModulosSeed::class);
+        $this->call(StatusGeconSeed::class);
         $this->call(AcoesGeconSeed::class);
         $this->call(CreateTipoUsuariosSeed::class);
         $this->call(ProcessosUsuariosSeed::class);
-        $this->call(StatusGeconSeed::class);
         $this->call(CreateUserAdminSeed::class);
 
     }

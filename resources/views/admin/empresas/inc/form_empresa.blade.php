@@ -1,3 +1,4 @@
+@vite('resources/js/views/admin/empresas/inc/form_empresa.js', 'build/.vite')
 <style>
     .nav-link.active {
         background-color: #0a0a1ada !important;
@@ -6,6 +7,7 @@
         /* Texto branco */
     }
 </style>
+
 <div class="card card-body elevated">
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">

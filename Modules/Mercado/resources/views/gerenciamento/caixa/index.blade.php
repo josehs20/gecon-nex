@@ -1,7 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Caixas']]])
 
-
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/caixa/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Caixas</h3>

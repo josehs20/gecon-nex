@@ -1,7 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de empresas']]])
 
 @section('content')
-    @vite('resources/js/views/admin/admin.js', 'build/.vite')
+    @vite('resources/js/views/admin/empresas/index.js', 'build/.vite')
     <div class="cabecalho">
         <div class="page-header">
             <h3 class="card-title">Lista de empresas</h3>

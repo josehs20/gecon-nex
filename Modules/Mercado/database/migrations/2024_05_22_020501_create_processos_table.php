@@ -20,6 +20,7 @@ class CreateProcessosTable extends Migration
             $table->string('tipo')->nullable();
             $table->string('rota')->nullable();
             $table->string('posicao_menu')->nullable();
+            $table->string('icon')->nullable();
         });
     }
 

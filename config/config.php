@@ -1,6 +1,6 @@
 <?php
 return [
-   'caixa' => [
+    'caixa' => [
         'recursos' => [
             'venda' => [
                 'id' => 1,
@@ -185,32 +185,41 @@ return [
 
     'processos' => [
 
-        'empresas' =>   [
+        'empresas' => [
             'nome' => 'Empresas',
             'empresa' => [
                 'id' => 1,
                 'nome' => 'Lista de empresas',
-                'descricao' => null,
+                'descricao' => 'Empresas/empresa',
                 'rota' => 'admin.empresa.index',
-                'posicao_menu' => 1
+                'posicao_menu' => 1,
+                'icon' => 'bi bi-building',
             ],
             'gtin' => [
                 'id' => 22,
                 'nome' => 'Lista de gtins',
-                'descricao' => null,
+                'descricao' => 'Getins/gtins',
                 'rota' => 'admin.gtin.index',
-                'posicao_menu' => 1
+                'posicao_menu' => 1,
+                'icon' => 'bi bi-upc-scan',
             ]
         ],
-
         'dashboard' => [
             'id' => 26,
             'nome' => 'Dashboard',
             'descricao' => 'Dashboard',
             'rota' => 'dashboard.index',
-            'posicao_menu' => 1
+            'posicao_menu' => 1,
+            'icon' => 'bi bi-speedometer2',
         ],
-
+        'inicio' => [
+            'id' => 27,
+            'nome' => 'Início',
+            'descricao' => 'Início',
+            'rota' => 'home.index',
+            'posicao_menu' => 1,
+            'icon' => 'bi bi-house',
+        ],
         'gerenciamento' => [
             'nome' => 'Gerenciamento',
             'produto' => [
@@ -219,6 +228,7 @@ return [
                 'descricao' => 'Cadastro/Produtos',
                 'rota' => 'cadastro.produto.index',
                 'posicao_menu' => 1000,
+                'icon' => 'bi bi-box',
             ],
             'estoque' => [
                 'id' => 3,
@@ -226,6 +236,7 @@ return [
                 'descricao' => 'Cadastro/Estoque',
                 'rota' => 'cadastro.estoque.index',
                 'posicao_menu' => 2000,
+                'icon' => 'bi bi-boxes',
             ],
             'balanco' => [
                 'id' => 4,
@@ -233,6 +244,7 @@ return [
                 'descricao' => 'Estoque/Balanço',
                 'rota' => 'estoque.balanco.index',
                 'posicao_menu' => 2001,
+                'icon' => 'bi bi-clipboard-data',
             ],
             'movimentacao' => [
                 'id' => 5,
@@ -240,6 +252,7 @@ return [
                 'descricao' => 'Estoque/Movimentações',
                 'rota' => 'estoque.movimentacao.index',
                 'posicao_menu' => 2002,
+                'icon' => 'bi bi-arrow-left-right',
             ],
             'unidade_medida' => [
                 'id' => 6,
@@ -247,6 +260,7 @@ return [
                 'descricao' => 'Cadastro/Unidade de medida',
                 'rota' => 'cadastro.unidade_medida.index',
                 'posicao_menu' => 1001,
+                'icon' => 'bi bi-rulers',
             ],
             'classificacao_produto' => [
                 'id' => 7,
@@ -254,6 +268,7 @@ return [
                 'descricao' => 'Cadastro/Classificação de produto',
                 'rota' => 'cadastro.classificacao_produto.index',
                 'posicao_menu' => 1002,
+                'icon' => 'bi bi-tags',
             ],
             'fornecedor' => [
                 'id' => 8,
@@ -261,6 +276,7 @@ return [
                 'descricao' => 'Cadastro/Fornecedores',
                 'rota' => 'cadastro.fornecedor.index',
                 'posicao_menu' => 1003,
+                'icon' => 'bi bi-truck',
             ],
             'caixas' => [
                 'id' => 9,
@@ -268,13 +284,15 @@ return [
                 'descricao' => 'Cadastro/Caixas',
                 'rota' => 'cadastro.caixa.index',
                 'posicao_menu' => 1004,
+                'icon' => 'bi bi-wallet',
             ],
             'cliente' => [
                 'id' => 10,
                 'nome' => 'Clientes',
-                'descricao' => 'Cadastro/Clientes',
+                'descricao' => 'Cadastro/Clientes[["Clientes"]]',
                 'rota' => 'cadastro.cliente.index',
                 'posicao_menu' => 1005,
+                'icon' => 'bi bi-people-fill',
             ],
             'forma_pagemento' => [
                 'id' => 11,
@@ -282,6 +300,7 @@ return [
                 'descricao' => 'Cadastro/Formas de pagamento',
                 'rota' => 'cadastro.forma_pagemento.index',
                 'posicao_menu' => 1006,
+                'icon' => 'bi bi-credit-card',
             ],
             'usuarios' => [
                 'id' => 12,
@@ -289,6 +308,7 @@ return [
                 'descricao' => 'Cadastro/Usuários',
                 'rota' => 'cadastro.gecon.usuarios.index',
                 'posicao_menu' => 3000,
+                'icon' => 'bi bi-person-circle',
             ],
             'permissao_usuario' => [
                 'id' => 13,
@@ -296,6 +316,7 @@ return [
                 'descricao' => 'Cadastro/Permissões de usuários',
                 'rota' => 'cadastro.gecon.usuarios.permissao.index',
                 'posicao_menu' => 3001,
+                'icon' => 'bi bi-lock',
             ],
             'recebimento' => [
                 'id' => 14,
@@ -303,6 +324,7 @@ return [
                 'descricao' => 'Cadastro/Recebimento',
                 'rota' => 'cadastro.recebimento.index',
                 'posicao_menu' => 2003,
+                'icon' => 'bi bi-box-arrow-in-down',
             ],
             'pedidos' => [
                 'id' => 15,
@@ -310,6 +332,7 @@ return [
                 'descricao' => 'Pedido/Pedidos',
                 'rota' => 'cadastro.pedido.index',
                 'posicao_menu' => 4000,
+                'icon' => 'bi bi-cart',
             ],
             'cotacao' => [
                 'id' => 24,
@@ -317,6 +340,7 @@ return [
                 'descricao' => 'Pedido/Cotação',
                 'rota' => 'cadastro.cotacao.index',
                 'posicao_menu' => 4000,
+                'icon' => 'bi bi-calculator',
             ],
             'recebimento_pedido' => [
                 'id' => 16,
@@ -324,6 +348,7 @@ return [
                 'descricao' => 'Cadastro/Recebimento de pedido',
                 'rota' => 'cadastro.recebimento.index',
                 'posicao_menu' => 4001,
+                'icon' => 'bi bi-box-arrow-in-down-right',
             ],
             'fabricantes' => [
                 'id' => 23,
@@ -331,6 +356,7 @@ return [
                 'descricao' => 'Cadastro/Fabricantes',
                 'rota' => 'cadastro.fabricante.index',
                 'posicao_menu' => 4002,
+                'icon' => 'bi bi-tools',
             ],
             'compras' => [
                 'id' => 25,
@@ -338,9 +364,9 @@ return [
                 'descricao' => 'Pedido/Compras',
                 'rota' => 'cadastro.compra.index',
                 'posicao_menu' => 4002,
+                'icon' => 'bi bi-basket',
             ]
         ],
-
         'pdv' => [
             'nome' => 'Ponto de venda',
             'caixa' => [
@@ -348,17 +374,18 @@ return [
                 'nome' => 'Caixa',
                 'descricao' => 'PDV/Caixa',
                 'rota' => 'caixa.autenticacao',
-                'posicao_menu' => 5000
+                'posicao_menu' => 5000,
+                'icon' => 'bi bi-cash-register',
             ],
             'fechamento_caixa' => [
                 'id' => 18,
                 'nome' => 'Fechamento de caixa',
                 'descricao' => 'PDV/Fechamento de caixa',
                 'rota' => 'caixa.fechamento.index',
-                'posicao_menu' => 6000
+                'posicao_menu' => 6000,
+                'icon' => 'bi bi-cash-stack',
             ],
         ],
-
         'nfe' => [
             'nome' => 'Nota Fiscal',
             'empresa' => [
@@ -366,23 +393,26 @@ return [
                 'nome' => 'Empresa',
                 'descricao' => 'NFE/Empresa',
                 'rota' => 'nfe.empresa.index',
-                'posicao_menu' => 7000
+                'posicao_menu' => 7000,
+                'icon' => 'bi bi-building',
             ],
             'certificado' => [
                 'id' => 20,
                 'nome' => 'Certificado digital',
                 'descricao' => 'NFE/Certificado digital',
                 'rota' => 'nfe.certificado.index',
-                'posicao_menu' => 8000
+                'posicao_menu' => 8000,
+                'icon' => 'bi bi-file-earmark-lock',
             ],
             'inscricao_estadual' => [
                 'id' => 21,
                 'nome' => 'Inscrição estadual',
                 'descricao' => 'NFE/Inscrição estadual',
                 'rota' => 'nfe.inscricao_estadual.index',
-                'posicao_menu' => 9000
+                'posicao_menu' => 9000,
+                'icon' => 'bi bi-file-text',
             ]
-        ]
+        ],
     ],
 
     'acoes' => [

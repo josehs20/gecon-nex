@@ -526,7 +526,7 @@ function verificarPessoa(documento) {
     }
 }
 
-function aplicarMascaraDocumento(documento) {
+export function aplicarMascaraDocumento(documento) {
     var tipoPessoa = verificarPessoa(documento);
     if (tipoPessoa === 'CNPJ') {
         // Aplica máscara para CNPJ
@@ -537,13 +537,13 @@ function aplicarMascaraDocumento(documento) {
     }
 }
 
-function aplicarMascaraCelular(celular) {
+export function aplicarMascaraCelular(celular) {
     if (celular) {
         return celular.replace(/^(\d{2})(\d{1})(\d{4})(\d{4})$/, '($1) $2 $3-$4');
     }
 }
 
-function aplicarMascaraTelefoneFixo(telefoneFixo) {
+export function aplicarMascaraTelefoneFixo(telefoneFixo) {
     if (telefoneFixo) {
         return telefoneFixo.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
     }
@@ -569,7 +569,7 @@ function aplicarMascaraCep(cep) {
     }
 }
 
-function aplicarMascaraData(data) {
+export function aplicarMascaraData(data) {
     if (data) {
         var particionado = data.split('-');
 
@@ -633,10 +633,12 @@ function formatarDocumento(retornar = null) {
         $('#documento').val(documentoFormatado);
     }
 }
+
 function converteParaFloat(qtd) {
     return parseFloat((qtd.replace(/\./g, '').replace(',', '.')));
 }
-function trocarPontoPorVirgula(valor) {
+
+export function trocarPontoPorVirgula(valor) {
     if (typeof valor === 'number') {
         valor = valor.toString();
     }
