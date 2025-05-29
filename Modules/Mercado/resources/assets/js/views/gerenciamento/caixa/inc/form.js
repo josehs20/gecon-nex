@@ -71,7 +71,11 @@ $('#formPermissaoCaixa').on('submit', function (e) {
         }
     });
 });
+$(document).on('click', '.btn-excluir-permissao', function () {
+    const id = $(this).data('id');
 
+    excluirPermissao(id);
+});
 function excluirPermissao(caixa_permissao_id) {
     Swal.fire({
         title: 'Você tem certeza?',
@@ -102,7 +106,6 @@ function excluirPermissao(caixa_permissao_id) {
                         msgToastr(res.msg, 'success');
                         $('#permissoesTable').DataTable().ajax
                             .reload(); // Atualiza a tabela
-                        form.trigger("reset"); // Limpa o form
                         $('#usuario_id').val(null).trigger('change'); // Limpa o select2
                     } else {
                         msgToastr(res.msg, 'warning');

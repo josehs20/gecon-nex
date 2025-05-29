@@ -177,6 +177,5 @@
 
 <div id="dataView" data-route-usuarios-caixa-permissao="{{ route('cadastro.caixa.get_usuarios_permissao_caixa') }}"
     data-route-usuarios-get="{{ route('cadastro.caixa.get_usuarios') }}"
-    data-route-delete-permissao="{{ route('cadastro.caixa.get_usuarios') }}"
     data-route-delete-permissao="{{ route('cadastro.caixa.delete.permissao') }}" data-caixa="{{ $caixa }}">
 </div>

@@ -62,4 +62,10 @@ class Usuario extends ModelBase
     public function caixa_permissoes(){
         return $this->hasMany(CaixaPermissao::class, 'usuario_id');
     }
+
+      public function caixa_permissoes_loja(){
+        return $this->hasMany(CaixaPermissao::class, 'usuario_id')->whereHas('caixa', function($q){
+            $q->where('loja_id', auth()->user()->getUserModulo->loja_id);
+        });
+    }
 }

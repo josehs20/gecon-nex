@@ -1,10 +1,11 @@
 <?php
 
-namespace Modules\Mercado\Http\Controllers\Caixa;
+namespace Modules\Mercado\Http\Controllers\PDV;
 
 use App\System\Post;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Jenssegers\Agent\Facades\Agent;
@@ -29,19 +30,26 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FecharCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\TrocarDispositivoRequest;
 use Modules\Mercado\UseCases\Pdv\Venda\Requests\CriarVendaRequest;
 
-class CaixaController extends ControllerBaseMercado
+class CaixaPDVController extends ControllerBaseMercado
 {
     //autenticacao de abertura do caixa se não preencher o formulário não pode abrir o caixa de maneira nenhuma
     public function index(Request $request)
     {
-        $caixaJaAberto = auth()->user()->usuarioMercado->caixa;
+        $usuario = Auth::user()->getUserModulo;
+        $permissaoCaixasLoja = $usuario->caixa_permissoes_loja;
+        if (!$permissaoCaixasLoja) {
+            session()->flash('error', 'Você não tem permissão para acessar nenhum caixa nesta loja.');
+            return redirect()->back();
+        }
+        //melhorar logica caso sempre passe por essa rota
+        $caixaJaAberto = auth()->user()->getUserModulo->caixa;
 
-        if ($caixaJaAberto && $caixaJaAberto->evidencia->ip_address == $request->ip() && $caixaJaAberto->evidencia->token == session()->getId()) {
+        if ($caixaJaAberto) {
             return redirect()->route('caixa.venda');
         }
 
-        removeCookie('estoques');
-        removeCookie('n_venda');
+        // removeCookie('estoques');
+        // removeCookie('n_venda');
 
         if ($caixaJaAberto) {
             $ultima_abertura = $caixaJaAberto->evidencias()->whereIn('acao_id', [config('config.acoes.abriu_caixa.id'), config('config.acoes.abriu_caixa.id')])->latest()->first();
@@ -51,7 +59,8 @@ class CaixaController extends ControllerBaseMercado
                 $ultima_abertura->created_at->format('d/m/Y') . ' às ' . $ultima_abertura->created_at->format('H:i'));
         }
 
-        $caixas = CaixaRepository::getCaixaDisponiveis();
+        $caixas = CaixaRepository::getCaixaDisponiveisByPermissao($usuario->loja_id, $usuario->id);
+
         return view('mercado::caixa.index', ['caixaDiponiveis' => $caixas, 'removeStrorages' => true, 'caixaAtual' => $caixaJaAberto]);
     }
 
@@ -92,7 +101,7 @@ class CaixaController extends ControllerBaseMercado
         try {
             $parans = (object) Post::anti_injection_array($request->all());
             $transferir_dispositivo = filter_var($request->transferir_dispositivo, FILTER_VALIDATE_BOOLEAN);
-            $usuario_id = auth()->user()->getUserModulo->id;
+            $usuario_id = Auth::user()->getUserModulo->id;
 
             if ($transferir_dispositivo == false) {
                 $comentario = $request->comentario ? $parans->comentario : null;
@@ -109,6 +118,7 @@ class CaixaController extends ControllerBaseMercado
                     $usuario_id,
                     $request
                 ));
+                dd($caixa);
                 session()->flash('success', 'Caixa aberto!');
             } else {
                 $usuario = auth()->user()->getUserModulo;
@@ -130,6 +140,7 @@ class CaixaController extends ControllerBaseMercado
             $this->getDb()->commit();
             return redirect()->route('caixa.venda');
         } catch (\Exception $e) {
+            dd($e);
             $this->getDb()->rollBack();
             Log::error($e);
             session()->flash('error', 'error: ' . $e->getMessage());

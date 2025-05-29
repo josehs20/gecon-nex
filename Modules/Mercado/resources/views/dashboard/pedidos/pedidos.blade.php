@@ -1,3 +1,4 @@
+@vite('Modules/Mercado/resources/assets/js/views/dashboard/pedidos/pedidos.js', 'build/.vite')
 <div class="titulo-view text-center">
     <h3>PEDIDOS</h3>
 </div>
@@ -136,11 +137,11 @@
 </div>
 
 <script>
-    $(document).ready(function() {
-        renderizarTabela();
-    });
+    // $(document).ready(function() {
+    //     renderizarTabela();
+    // });
 
-    function renderizarTabela() {
-        montaDatatable('view-tabela-listagem-pedidos');
-    }
+    // function renderizarTabela() {
+    //     montaDatatable('view-tabela-listagem-pedidos');
+    // }
 </script>

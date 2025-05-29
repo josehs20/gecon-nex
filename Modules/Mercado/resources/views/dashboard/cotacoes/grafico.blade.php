@@ -1,42 +1,7 @@
-<script>
-    $(document).ready(function (){
-        dadosDesconsiderar = [
-            'cotações_sem_compras',
-            'cotações_com_compras'
-        ];
-
-        const porcentagens = @json($view_renderizada['porcentagens']);
-
-        const dataPoints = Object.entries(porcentagens)
-        .filter(([label, _]) => !dadosDesconsiderar.includes(label))
-        .map(([label, y]) => ({
-            label: label
-                .replace(/_/g, ' ')
-                .toLowerCase()
-                .replace(/^./, str => str.toUpperCase()),
-            y: y
-        }));
-
-        const chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            title: {
-                text: "Porcentagem das cotações",
-                fontSize: 20, 
-                horizontalAlign: "center"
-            },
-            data: [{
-                type: "column",
-                startAngle: 60,
-                indexLabelFontSize: 17,
-                indexLabel: "{y}%",
-                toolTipContent: "<b>{label}:</b> {y}%",
-                dataPoints: dataPoints
-            }]
-        });
-
-        chart.render();
-    });
-</script>
+@vite('Modules/Mercado/resources/assets/js/views/dashboard/cotacoes/grafico.js', 'build/.vite')
+<div id="cotacoesGrafico"
+data-porcentagens='@json($view_renderizada['porcentagens'])'
+></div>
 
 <div id="chartContainer" style="height: 40vh; width: 100%;"></div>
-<script src="{{ asset('js/canvasjs/canvasjs.min.js') }}"></script>
+

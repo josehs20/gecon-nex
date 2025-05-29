@@ -9,6 +9,7 @@ import 'select2/dist/css/select2.min.css';
 import dt from 'datatables.net-bs5';  // ou datatables.net
 import { initSidebar } from './vendor/siedBar/js/main.js';
 import Swal from 'sweetalert2';
+import './canvasjs/canvasjs.min.js'
 window.Swal = Swal;
 
 // Importa o script geral

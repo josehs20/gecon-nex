@@ -1,6 +1,7 @@
 @extends('mercado::layouts.app')
 
 @section('content')
+    @vite('Modules/Mercado/resources/assets/js/views/pdv/caixa/index.js', 'build/.vite')
     <div class="trilha-paginas-acessadas">
         <a href="{{ route('home.index') }}">Página inicial</a>
         <span>&nbsp;-&nbsp;</span>
@@ -47,6 +48,15 @@
                     </button>
 
                 </div>
+
+                <div class="alert alert-info d-flex align-items-center m-3" role="alert">
+                    <i class="bi bi-info-circle-fill me-2" style="font-size: 1rem;"></i>
+                    <div class="mx-2" style="font-size: 0.9rem;">
+                        Se esta guia for fechada ou aberta em outro local/dispositivo, será necessário confirmar ou trocar o
+                        dispositivo.
+                    </div>
+                </div>
+
                 <form action="{{ route('caixa.abrir') }}" method="POST">
                     @csrf
                     <div class="modal-body">
@@ -99,14 +109,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <a href="{{ route('home.index') }}" type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                        <a href="{{ route('home.index') }}" type="button" class="btn btn-outline-danger">
                             <i class="bi bi-arrow-left"></i> Voltar
                         </a>
                         <button type="submit" class="btn btn-success">
                             <i class="bi bi-unlock"></i> Abrir caixa
                         </button>
                     </div>
-                    
                 @else
                     <input type="hidden" name="transferir_dispositivo" value="{{ true }}">
                     <div class="alert alert-warning col-12" role="alert">
@@ -146,93 +155,10 @@
             </div>
         </div>
     </div>
-    <script>
-        maskDinheiro('valorInicial')
-        var routeHome = @json(route('home.index'));
-        var routeValidate = @json(route('caixa.abrir'));
-        var routGetCaixa = @json(route('caixa.verificar.status'));
-        var routeUpdateStatusCaixa = @json(route('caixa.status.update'));
-        var rodarFeath = @json($caixaAtual ? true : false);
-        var statusValido = @json(config('config.status.livre'));
-        pedir_validacao();
+    <div id="dataView" data-route-home="{{ route('home.index') }}" data-route-validate="{{ route('caixa.abrir') }}"
+        data-route-get-caixa="{{ route('caixa.verificar.status') }}"
+        data-route-update-status-caixa="{{ route('caixa.status.update') }}"
+        data-rodar-feath="{{ $caixaAtual ? true : false }}" data-status-valido="{{ config('config.status.livre') }}"
+        data-remove-storages="{{ isset($removeStrorages) && $removeStrorages === true }}"></div>
 
-        @if (isset($removeStrorages) && $removeStrorages === true)
-
-            localStorage.removeItem('estoques');
-            localStorage.removeItem('visualizarVoltarVenda');
-            localStorage.removeItem('obj_venda');
-        @endif
-
-        function pedir_validacao() {
-            $('#modalAbrirCaixa').modal('show');
-        }
-
-        function forcarMudancaDeStatus() {
-            $('#botaoForcarMudancaDeStatus').text('Aguarde...').attr('disabled', true);
-            $.ajax({
-                url: routeUpdateStatusCaixa, // Substitua com a URL da sua rota
-                type: 'POST', // Método POST
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                        'content') // Inclua o token CSRF se estiver usando Laravel
-                },
-                data: {
-                    status_id: statusValido
-                },
-                success: function(response) {
-                    if (response.success == true) {
-                        $('#statusCaixaVenda').text(response.status);
-                        msgToastr(response.msg, 'success');
-                        statuAtualCaixa = response.caixa.status_id
-                        fetchData();
-                    } else {
-                        msgToastr(response.msg, 'error')
-
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erro na requisição:', error);
-                }
-            });
-        }
-
-        function fetchData() {
-            $.ajax({
-                url: routGetCaixa, // Substitua pela sua rota no Laravel
-                method: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    // Manipule a resposta aqui
-                    if (response.caixa.status_id == statusValido) {
-                    $('#botaoForcarMudancaDeStatus').addClass('d-none');
-
-                        $('#botaoSubmitAbriCaixa').attr('disabled', false);
-                    } else {
-                        $('#botaoSubmitAbriCaixa').attr('disabled', true);
-                    }
-                    $('#statuAtual').text(response.status);
-                    $('#ultimaAtualizacao').text(response.hora);
-                    // Exiba os dados ou faça o que precisar com eles
-
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erro na requisição:', error);
-                }
-            });
-        }
-        if (rodarFeath) {
-            setInterval(fetchData, 10000);
-        }
-        // Configura o intervalo para chamar a função a cada 5 segundos
-        // Função para exibir o alerta após a página carregar
-        // Aqui você pode verificar condições antes de exibir o alerta, se necessário
-
-        // // Executar algo após o modal ser fechado completamente
-        $('#modalAbrirCaixa').on('hidden.bs.modal', function(e) {
-            pedir_validacao();
-            //  window.location.href = routeHome; // Em caso de erro, redireciona para a página inicial
-
-        });
-    </script>
 @endsection
