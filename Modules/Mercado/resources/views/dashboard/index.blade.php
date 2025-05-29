@@ -2,7 +2,7 @@
 
 @section('content')
     <style>
-        .titulo-view{
+        .titulo-view {
             margin-bottom: 30px;
             color: #fff;
         }
@@ -19,22 +19,23 @@
                             [
                                 'view' => 'pedido',
                                 'nome' => 'Pedidos',
-                                'icone' => 'bi bi-bookshelf'
-                            ], 
+                                'icone' => 'bi bi-bookshelf',
+                            ],
                             [
                                 'view' => 'cotacao',
                                 'nome' => 'Cotações',
-                                'icone' => 'bi bi-c-square'
-                            ], 
+                                'icone' => 'bi bi-c-square',
+                            ],
                             [
                                 'view' => 'compra',
                                 'nome' => 'Compras',
-                                'icone' => 'bi bi-basket'
-                            ], 
+                                'icone' => 'bi bi-basket',
+                            ],
                         ];
                     @endphp
-                    @foreach($botoes as $botao)
-                        <a class="btn btn-success me-2" href="{{ route('dashboard.renderizar', ['view' => $botao['view']]) }}">
+                    @foreach ($botoes as $botao)
+                        <a class="btn btn-success me-2"
+                            href="{{ route('dashboard.renderizar', ['view' => $botao['view']]) }}">
                             <i class="{{ $botao['icone'] }}"></i>
                             {{ ucfirst($botao['nome']) }}
                         </a>
@@ -43,31 +44,29 @@
             </div>
         </div>
     </div>
-    
 
     @php
         $dados_view = [
             'pedidos' => [
                 'nome_view_renderizada' => 'view_pedido',
-                'caminho_da_view' => 'mercado::dashboard.pedidos.pedidos'
+                'caminho_da_view' => 'mercado::dashboard.pedidos.pedidos',
             ],
             'cotacoes' => [
                 'nome_view_renderizada' => 'view_cotacao',
-                'caminho_da_view' => 'mercado::dashboard.cotacoes.cotacoes'
+                'caminho_da_view' => 'mercado::dashboard.cotacoes.cotacoes',
             ],
             'compras' => [
                 'nome_view_renderizada' => 'view_compra',
-                'caminho_da_view' => 'mercado::dashboard.compras.compras'
+                'caminho_da_view' => 'mercado::dashboard.compras.compras',
             ],
         ];
     @endphp
 
     @foreach ($dados_view as $dados)
-        @if (isset($view_renderizada) && isset($view_renderizada[$dados['nome_view_renderizada']]))        
-            <div>   
+        @if (isset($view_renderizada) && isset($view_renderizada[$dados['nome_view_renderizada']]))
+            <div>
                 @include($dados['caminho_da_view'])
             </div>
         @endif
     @endforeach
-
 @endsection

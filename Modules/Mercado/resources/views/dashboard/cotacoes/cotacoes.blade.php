@@ -1,3 +1,5 @@
+@vite('Modules/Mercado/resources/assets/js/views/dashboard/cotacoes/cotacoes.js', 'build/.vite')
+
 <div class="titulo-view text-center">
     <h3>Cotações</h3>
 </div>
@@ -117,12 +119,4 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        renderizarTabela();
-    });
 
-    function renderizarTabela() {
-        montaDatatable('view-tabela-listagem-cotacoes');
-    }
-</script>

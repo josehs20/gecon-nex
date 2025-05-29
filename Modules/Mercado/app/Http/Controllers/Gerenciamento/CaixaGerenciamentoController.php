@@ -197,7 +197,7 @@ class CaixaGerenciamentoController extends ControllerBaseMercado
                 $p->id,
                 $p->usuario->master->name,
                 $p->superior ? 'Sim' : 'Não',
-                '<button type="button" class="btn btn-danger btn-sm" onclick="excluirPermissao(' . $p->id . ')">
+                '<button type="button" class="btn btn-danger btn-sm btn-excluir-permissao" data-id="' . $p->id . '">
                     <i class="bi bi-trash"></i> Excluir
                 </button>'
             ];

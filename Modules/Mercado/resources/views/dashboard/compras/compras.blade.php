@@ -1,3 +1,5 @@
+@vite('Modules/Mercado/resources/assets/js/views/dashboard/compras/compras.js', 'build/.vite')
+
 <div class="titulo-view text-center">
     <h3>COMPRAS</h3>
 </div>
@@ -59,7 +61,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($view_renderizada['listagem_compras'] as $compra) 
+                @foreach ($view_renderizada['listagem_compras'] as $compra)
                     <tr>
                         <td>{{ $compra->id }}</td>
                         <td>{{ $compra->usuario->master->name }}</td>
@@ -88,12 +90,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        renderizarTabela();
-    });
-
-    function renderizarTabela() {
-        montaDatatable('view-tabela-listagem-compras');
-    }
-</script>

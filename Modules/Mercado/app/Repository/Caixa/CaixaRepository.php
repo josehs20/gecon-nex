@@ -95,7 +95,7 @@ class CaixaRepository
     public static function getCaixaDisponiveis(
         string $nome = ''
     ) {
-        $caixas = Caixa::where('loja_id', auth()->user()->usuarioMercado->loja_id)->where('nome', 'like', '%' . $nome . '%')->where('ativo', 1)->where('status_id', config('config.status.fechado'))->get();
+        $caixas = Caixa::where('loja_id', auth()->user()->getUserModulo->loja_id)->where('nome', 'like', '%' . $nome . '%')->where('ativo', 1)->where('status_id', config('config.status.fechado'))->get();
         return $caixas;
     }
 
@@ -791,5 +791,16 @@ class CaixaRepository
         CaixaPermissao::setHistorico($criarHistoricoRequest);
         CaixaPermissao::where('id', $caixa_permissao_id)->delete();
         return true;
+    }
+
+
+
+
+    //----------------------------------novas funcoes--------------------------//
+    public static function getCaixaDisponiveisByPermissao($loja_id, $usuario_id)
+    {
+        return Caixa::whereHas('permissoes', function ($q) use ($usuario_id) {
+            $q->where('usuario_id', $usuario_id);
+        })->where('loja_id', $loja_id)->get();
     }
 }
