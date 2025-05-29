@@ -1,4 +1,4 @@
-import { montaDatatableYajra } from '../../gerais.js';
+import { montaDatatableYajra } from '../../../gerais';
 
 const routeGetEmpresas = '/yajra/empresas/get';
 const columns = [

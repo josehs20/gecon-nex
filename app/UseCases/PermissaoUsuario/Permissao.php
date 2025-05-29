@@ -29,13 +29,15 @@ class Permissao
         $onclick = $shouldAdicionar ? 'adicionarPermissao' : 'removerPermissao';
 
         return "
-            <button
-                class='$classeBotao'
-                onclick='$onclick($processo_id, $tipo_usuario_id)'
-            >
-                <i class='$icone'></i>
-            </button>
-        ";
+        <button
+            class='$classeBotao'
+            data-acao='$onclick'
+            data-processo-id='$processo_id'
+            data-tipo-usuario-id='$tipo_usuario_id'
+        >
+            <i class='$icone'></i>
+        </button>
+    ";
     }
 
     protected function permissao_existe(

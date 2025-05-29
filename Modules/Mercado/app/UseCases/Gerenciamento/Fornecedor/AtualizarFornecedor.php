@@ -2,6 +2,7 @@
 
 namespace Modules\Mercado\UseCases\Gerenciamento\Fornecedor;
 
+use Modules\Mercado\Application\EnderecoApplication;
 use Modules\Mercado\Entities\Endereco;
 use Modules\Mercado\Repository\Endereco\EnderecoRepository;
 use Modules\Mercado\Repository\Fornecedor\FornecedorRepository;
@@ -21,7 +22,7 @@ class AtualizarFornecedor
     public function handle()
     {
         $fornecedor = $this->atualizarFornecedor();
-        $this->atualizarEnderecoFornecedor();
+        $this->atualizarEnderecoFornecedor($fornecedor);
         return $fornecedor;
     }
 
@@ -43,11 +44,18 @@ class AtualizarFornecedor
             $this->getEnderecoFornecedorId()
         );
     }
-    public function atualizarEnderecoFornecedor(){
-        return EnderecoRepository::update($this->request->getCriarHistoricoRequest(),$this->request->getEndereco(), $this->getEnderecoFornecedorId());
+    public function atualizarEnderecoFornecedor($fornecedor)
+    {
+
+        if (!$fornecedor->endereco_id) {
+            return EnderecoApplication::criarEndereco($this->request->getEndereco());
+        }
+
+        return EnderecoApplication::atualizarEndereco($this->request->getEndereco(), $fornecedor->endereco_id);
     }
 
-    public function getEnderecoFornecedorId(){
+    public function getEnderecoFornecedorId()
+    {
         $fornecedor =  FornecedorRepository::getFornecedorById($this->fornecedorId);
         return $fornecedor->endereco_id;
     }

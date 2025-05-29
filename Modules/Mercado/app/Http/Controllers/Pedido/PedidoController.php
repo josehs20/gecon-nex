@@ -75,7 +75,7 @@ class PedidoController extends ControllerBaseMercado
             session()->flash('success', 'Pedido atualizado com cesso.');
 
             $this->getDb()->commit();
-            return redirect()->back();
+            return redirect()->route('cadastro.pedido.index');
         } catch (\Exception $e) {
 
             $this->getDb()->rollBack();

@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 const $ = jQuery;
-import { montaDatatableYajra } from '../../gerais.js';
+import { montaDatatableYajra } from '../../../gerais.js';
 
 const getGtinsYajra = '/admin/admin/gtin/yajra';
 const getGtinsId = '/admin/admin/gtin/show';

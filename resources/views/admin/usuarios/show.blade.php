@@ -1,21 +1,24 @@
-<div class="modal fade" id="showUsuariosModal" tabindex="-1" aria-labelledby="showUsuariosModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title d-flex justify-content-between w-100" id="showUsuariosModalLabel">
-                    <h5 id="nomeUsuarioModal"></h5>
-                    <h5 id="tipoUsuarioModal"></h5>
+    @vite('resources/js/views/admin/usuarios/show.js', 'build/.vite')
+
+    <div class="modal fade" id="showUsuariosModal" tabindex="-1" aria-labelledby="showUsuariosModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title d-flex justify-content-between w-100" id="showUsuariosModalLabel">
+                        <h5 id="nomeUsuarioModal"></h5>
+                        <h5 id="tipoUsuarioModal"></h5>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-body" id="dadosUsuarioModal">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="fecharModal()">Fechar</button>
+                <div class="modal-body" id="dadosUsuarioModal">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<script>
+    {{-- <script>
     function showUsuario(usuario){
         console.log(usuario)
         preencherTituloModal(usuario);
@@ -56,7 +59,7 @@
         return `
             <div class='d-flex justify-content-between'>
                 <h5> <strong>Dados da empresa</strong></h5>
-                <h5>${getSpanAtivo(usuario.usuario_mercado.ativo)}</h5>    
+                <h5>${getSpanAtivo(usuario.usuario_mercado.ativo)}</h5>
             </div>
             <span class='ml-3'> <strong> Modulo             : </strong> ${(usuario.modulo.nome).toUpperCase()}                                              </span> <br>
             <span class='ml-3'> <strong> Login              : </strong> ${usuario.login}                                                                    </span> <br>
@@ -88,22 +91,22 @@
             let uf = endereco.uf;
             let complemento = endereco.complemento;
             let cep = endereco.cep;
-            
+
             return `${logradouro}, ${numero ? numero + ', ' : ''} ${bairro}, ${cidade} - ${uf}, ${cep}${complemento ? ', ' + complemento : ''}.`;
         }
-        
+
         return 'Não informado';
     }
 
     function renderizarPermissoes(usuario){
         let processos = usuario.tipo_usuario.processos;
         let html = `<h5> <strong>Permissões </strong> </h5>`;
-        
+
         if (processos.length === 0) {
             html += `<span class="badge badge-info w-100"> Não existem permissões para este grupo de usuário! </span>`;
             return html;
         }
-        
+
         processos.forEach(function(processo){
             html += `
                 <span class='ml-4'> <strong> <i class="bi bi-arrow-right"></i> </strong>  ${processo.processo.descricao}                       </span> <br>
@@ -123,4 +126,4 @@
         }
         return "<a class=' badge badge-danger'>Inativo</a>";
     }
-</script>
+</script> --}}

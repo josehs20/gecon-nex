@@ -85,6 +85,10 @@ class ProcessosUsuariosSeed extends Seeder
 
         return [
             [
+                'processo_id' => config('config.processos.inicio.id'),
+                'tipo_usuario_id' => $tipo_usuario
+            ],
+            [
                 'processo_id' => config('config.processos.empresas.empresa.id'),
                 'tipo_usuario_id' => $tipo_usuario
             ],
@@ -116,6 +120,10 @@ class ProcessosUsuariosSeed extends Seeder
     {
         $tipo_usuario = config('config.tipo_usuarios.cliente_master.id');
         return [
+            [
+                'processo_id' => config('config.processos.inicio.id'),
+                'tipo_usuario_id' => $tipo_usuario
+            ],
             [
                 'processo_id' => config('config.processos.gerenciamento.produto.id'),
                 'tipo_usuario_id' => $tipo_usuario

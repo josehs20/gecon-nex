@@ -1,7 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('cadastro.gecon.usuarios.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Permissões de usuários']]])
 
 @section('content')
-@vite('resources/js/views/admin/permissoes.js', 'build/.vite')
+@vite('resources/js/views/admin/permissoes/index.js', 'build/.vite')
 
     <div class="cabecalho">
         <div class="page-header">

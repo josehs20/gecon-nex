@@ -1,3 +1,5 @@
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/produtos/inc/form.js', 'build/.vite')
+
 <div class="row mt-2">
     <div class="col-md-2">
         <div class="form-group">
@@ -119,45 +121,9 @@
         <i class="bi bi-floppy"></i> Salvar
     </button>
 </div>
-<script>
-    var rotaUnidadeMedida = @json(route('unidade_medida.select2'));
-    var rotaClassificacaoProduto = @json(route('classificacao_produto.select2'));
-    var routeBuscaGtin = @json(route('cadastro.produto.nfe.get.gtin'));
-    // $(window).load(function() {
-    maskDinheiro('preco_venda');
-    maskDinheiro('preco_custo');
-    // });
-    $(document).ready(function() {
-        $('#loja_id').on('select2:unselecting', function(e) {
-            // Impede a remoção de opções protegidas
-            var selected = $(e.params.args.data.element).prop('disabled');
-            if (selected) {
-                e.preventDefault();
-            }
-        });
-        select2('loja_id');
-        select2('fabricante_id');
-        select2('unidade_medida', rotaUnidadeMedida);
-        select2('classificacao_id', rotaClassificacaoProduto);
+ <div id="dataView"
+    data-rota-unidade-medida ="{{route('cadastro.produto.get.yajra')}}"
+    data-rota-classificacao-produto ="{{route('classificacao_produto.select2')}}"
+    data-route-busca-gtin="{{route('cadastro.produto.nfe.get.gtin')}}"
+    ></div>
 
-        $('#cod_barras').on('input', function() {
-            let codigo = $(this).val();
-
-            if (codigo.length > 8) {
-                $.ajax({
-                    url: routeBuscaGtin, // Defina a rota correta no Laravel
-                    method: 'GET',
-                    data: {
-                        cod_barras: codigo
-                    },
-                    success: function(response) {
-                        $('#captcha-container').html(response.html);
-                    },
-                    error: function() {
-                        alert("Erro ao buscar produto.");
-                    }
-                });
-            }
-        });
-    })
-</script>

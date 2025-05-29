@@ -1,4 +1,7 @@
-<form id="form-fiscal-produto" action="{{ auth()->user()->getUserModulo->loja->nfeio && $produto ? route('cadastro.produto.post.ncms', ['estoque_id' => $produto->estoque->id]) : '#' }}"
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/produtos/inc/imposto_form.js', 'build/.vite')
+
+<form id="form-fiscal-produto"
+    action="{{ auth()->user()->getUserModulo->loja->nfeio && $produto ? route('cadastro.produto.post.ncms', ['estoque_id' => $produto->estoque->id]) : '#' }}"
     method="POST">
     @csrf
     <div class="row mt-2">
@@ -33,30 +36,4 @@
 
     </div>
 </form>
-<script>
-    var routeGetNcms = @json(route('cadastro.produto.get.ncms'));
-    select2('ncm', routeGetNcms);
-    $(document).ready(function() {
-        $('#form-fiscal-produto').on('submit', function(e) {
-            e.preventDefault(); // Impede o envio do formulário
-
-            let form = $(this);
-            let url = form.attr('action');
-            let formData = form.serialize(); // Serializa os dados do form
-
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                success: function(response) {
-                    console.log(response);
-
-                },
-                error: function(xhr) {
-                    alert("Erro ao cadastrar o produto.");
-                    console.error(xhr.responseText);
-                }
-            });
-        });
-    });
-</script>
+<div id="dataView" data-route-get-ncms ="{{ route('cadastro.produto.get.ncms') }}"></div>

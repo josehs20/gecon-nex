@@ -21,7 +21,7 @@ class CreateEmpresasDesenvolvimentoSeed extends Seeder
     {
         $empresas = [];
 
-        for ($i = 1; $i <= 25; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $empresas[] = [
                 'razao_social' => "empresa {$i} ME",
                 'nome_fantasia' => "empresa {$i}",

@@ -21,7 +21,7 @@ Route::get('/login/sair', function () {
 // Route::post('nova-senha', [UsuarioController::class, 'atualizar_senha_post'])->name('atualizar.senha.post');
 
 Route::get('/welcome', function () {
-    return view('welcome');
+    return redirect()->route('login');
 })->name('home.welcome');
 
 

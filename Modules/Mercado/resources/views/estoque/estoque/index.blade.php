@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Estoque']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/estoque/estoque/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Estoque</h3>
@@ -52,50 +54,8 @@
     </div>
 
     {{-- @include('mercado::estoque.estoque.modalEstoqueShow') --}}
-
-    <script>
-        var getEstoques = @json(route('yajra.service.estoques.get'));
-        const columns = [{
-                data: 'id',
-                title: 'ID'
-            }, // Coluna ID
-            {
-                data: 'produto@nome',
-                title: 'Produto'
-            },
-            {
-                data: 'produto@fabricante@nome',
-                title: 'Fabricante'
-            },
-            {
-                data: 'quantidade_total',
-                title: 'Qtd Total'
-            },
-            {
-                data: 'quantidade_disponivel',
-                title: 'Qtd Disponível'
-            },
-            {
-                data: 'quantidade_minima',
-                title: 'Qtd Mínima'
-            },
-            {
-                data: 'quantidade_maxima',
-                title: 'Qtd Máxima'
-            },
-            {
-                data: 'localizacao',
-                title: 'Localização'
-            },
-            {
-                data: 'acao',
-                title: 'Ação',
-                orderable: false, // Desabilita ordenação
-                searchable: false // Desabilita pesquisa na coluna
-            }, // Ação
-        ];
-
-        montaDatatableYajra('tabela-estoque', columns, getEstoques);
-
-    </script>
+   <div id="dataView"
+    data-get-estoques="{{route('yajra.service.estoques.get')}}"
+    ></div>
+  
 @endsection

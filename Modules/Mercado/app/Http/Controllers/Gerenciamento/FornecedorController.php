@@ -140,13 +140,14 @@ class FornecedorController extends ControllerBaseMercado
             );
 
             $this->getDb()->commit();
-            return response()->json(['message' => 'Fornecedor cadastrado com sucesso.']);
+            session()->flash('success', 'Fornecedor cadastrado com sucesso.');
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
 
             Log::error($e);
-            return response()->json(['message' => 'Erro ao cadastrar fornecedor! Erro: ' . $e->getMessage()], 500);
+            session()->flash('error', 'Erro ao cadastrar fornecedor! Erro: ' . $e->getMessage());
         }
+        return redirect()->back();
     }
 
     /**
@@ -215,7 +216,6 @@ class FornecedorController extends ControllerBaseMercado
             $this->getDb()->rollBack();
             session()->flash('success', 'Erro ao atualizar fornecedor: ', $e->getMessage());
             return redirect()->back();
-
         }
     }
 
@@ -246,7 +246,7 @@ class FornecedorController extends ControllerBaseMercado
                 'text' => $f->nomeFormatado()
             ];
         });
-        
+
         return response()->json($select, 200);
     }
 }

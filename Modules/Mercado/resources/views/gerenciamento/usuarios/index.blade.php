@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de usuários']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/usuarios/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3 class="card-title">Lista de usuários</h3>
@@ -43,10 +45,10 @@
             </a>
         </div>
     </div>
-    <script>
-        const ROTA = @json(route('gecon.usuarios.obter'));
-        montaDatatable("tabela-listagem-usuarios-mercado", ROTA);
-    </script>
+        <div id="dataView"
+    data-rota-usuarios-obter ="{{route('gecon.usuarios.obter')}}"
+    ></div>
+
     @include('admin.usuarios.show')
 @endsection
 

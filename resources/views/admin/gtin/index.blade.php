@@ -1,7 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('admin.empresa.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Lista de Gtins']]])
 
 @section('content')
-    @vite('resources/js/views/admin/gtins.js', 'build/.vite')
+    @vite('resources/js/views/admin/gtin/index.js', 'build/.vite')
 
     <div class="cabecalho">
         <div class="page-header">

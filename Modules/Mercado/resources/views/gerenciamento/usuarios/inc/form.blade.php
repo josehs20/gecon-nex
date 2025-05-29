@@ -1,3 +1,5 @@
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/usuarios/inc/form.js', 'build/.vite')
+
 <div class="card card-body table-responsive elevated">
     <h5>Dados pessoais</h5>
 
@@ -91,7 +93,7 @@
             <input required type="text" name="login" id="login"
                 value="{{ isset($user) ? $user->login : '' }}" class="form-control">
         </div>
-        
+
         <div class="form-group col-md-3 col-12">
             <label for="tipo_usuario_id">Tipo de usuário <span style="color: red">*</span></label>
             <select required class="form-control" name="tipo_usuario_id" id="tipo_usuario_id">
@@ -124,7 +126,7 @@
             <select required class="form-control" name="status_id" id="status_id">
                 <option value="0" {{ !isset($user) ? 'selected' : '' }}>Selecione ... </option>
                 @foreach (obterStatusApresentavel() as $status => $status_id)
-                    <option value="{{ $status_id }}" 
+                    <option value="{{ $status_id }}"
                         {{ (isset($user) && $user->usuarioMercado->status_id == $status_id) ? 'selected' : '' }}>
                         {{ strtoupper($status) }}
                     </option>
@@ -256,91 +258,4 @@
     </button>
 </div>
 
-<script>
-    $(document).ready(function() {
-        toggleSwithSelecionadoAtivo();
-        toggleSwithSelecionadoAbrirCaixa();
-        buscarCep('cep', 'botaoBuscarCep', 'logradouro', 'bairro', 'cidade', 'uf', 'complemento');
-        aplicarMascaras();
-    });
-
-    function aplicarMascaras() {
-        /* cpf */
-        $('#documento').mask('000.000.000-00');
-
-        /* celular */
-        $('#celular').mask('(00) 0 0000-0000');
-
-        /* telefone */
-        $('#telefone').mask('(00) 0000-0000');
-
-        /* cep */
-        $('#cep').mask('00.000-000');
-
-        aplicarMascaraData('#data_nascimento', 'Data de nascimento');
-        aplicarMascaraData('#data_admissao', 'Data de admissão');
-        aplicarMascaraData('#data_demissao', 'Data de demissão');
-    }
-
-    function aplicarMascaraData(selector, campo) {
-        $(selector).mask('00/00/0000', {
-            onComplete: function(val) {
-                const [dia, mes, ano] = val.split('/');
-                const dataInvalida = ((dia > 31) || (mes > 12));
-
-                if (dataInvalida) {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: campo + ' inválida!',
-                        icon: 'warning',
-                        confirmButtonColor: '#6c757d',
-                        confirmButtonText: 'Fechar',
-                    });
-                    $(selector).val('');
-                }
-            }
-        });
-    }
-
-    function toggleSwithSelecionadoAbrirCaixa() {
-        $('#permite_abrir_caixa').on('change', function() {
-            const isChecked = $(this).is(':checked');
-            var opcao = isChecked ? 'Sim' : 'Não';
-            $('#label_permite_abrir_caixa').html(opcao);
-        });
-    }
-
-    function toggleSwithSelecionadoAtivo() {
-        $('#ativo').on('change', function() {
-            const isChecked = $(this).is(':checked');
-            var opcao = isChecked ? 'Sim' : 'Não';
-            $('#label_ativo').html(opcao);
-        });
-    }
-
-    const ROTA = @json(route('gecon.usuarios.obter_lojas_por_empresa', 'EMPRESA_ID'));
-
-    function formatarCampo(input) {
-        let cursorPos = input.selectionStart;
-
-        let valorSemFormatacao = input.value.replace(/[^\d,]/g, '');
-        let valorFormatado = formatarValor(valorSemFormatacao);
-
-        input.value = valorFormatado;
-
-        // Ajusta o cursor para o final (opcional, para manter a usabilidade)
-        input.setSelectionRange(valorFormatado.length, valorFormatado.length);
-    }
-
-    function formatarValor(valor) {
-        valor = valor.replace(/[^\d,]/g, '');
-
-        let partes = valor.split(',');
-        let parteInteira = partes[0];
-        let parteDecimal = partes.length > 1 ? ',' + partes[1].slice(0, 2) : '';
-
-        parteInteira = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-        return parteInteira + parteDecimal;
-    }
-</script>
+<div id="dataView" data-empresa-lojas="{{ route('gecon.usuarios.obter_lojas_por_empresa', 'EMPRESA_ID') }}"></div>

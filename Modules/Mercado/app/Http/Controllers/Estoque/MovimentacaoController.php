@@ -49,6 +49,7 @@ class MovimentacaoController extends ControllerBaseMercado
     public function getEstoque(Request $request)
     {
         $estoque = EstoqueRepository::getEstoqueById(Post::anti_injection($request->id));
+
         return response()->json(['estoque' => $estoque], 200);
     }
 
@@ -241,7 +242,7 @@ class MovimentacaoController extends ControllerBaseMercado
 
             if ($finalizar == true) {
                 $historicoRequest->setAcaoId(config('config.acoes.finalizou_movimentacao.id'));
-                $movimentacao = MovimentacaoEstoqueApplication::finalizarMovimentacao($request->movimentacao_id, $historicoRequest);
+                $movimentacao = MovimentacaoEstoqueApplication::finalizarMovimentacao($movimentacao->id, $historicoRequest);
                 session()->flash('success', 'Movimentação concluída com sucesso.');
             }else {
                 session()->flash('success', 'Movimentação salva com sucesso.');

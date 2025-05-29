@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 const $ = jQuery;
-import { montaDatatable } from '../../gerais.js';
+import { montaDatatable } from '../../../gerais.js';
 
 const ROTA_BUSCAR_PERMISSOES = '/usuarios/permissao/buscar_permissoes/TIPO_USUARIO_ID';
 const ROTA_BUSCAR_PERMISSOES_POR_TIPO_USUARIO = '/usuarios/permissao/buscar_permissoes_por_tipo_usuario/TIPO_USUARIO_ID';
@@ -9,6 +9,20 @@ const ROTA_REMOVER = '/usuarios/permissao/remover/__processo_id__/__tipo_usuario
 
 iniciarTabelas();
 selecionarTipoUsuario();
+document.addEventListener('click', function(event) {
+    const button = event.target.closest('button[data-acao]');
+    if (!button) return;
+
+    const acao = button.dataset.acao;
+    const processo_id = button.dataset.processoId;
+    const tipo_usuario_id = button.dataset.tipoUsuarioId;
+
+    if (acao === 'adicionarPermissao') {
+        adicionarPermissao(processo_id, tipo_usuario_id);
+    } else if (acao === 'removerPermissao') {
+        removerPermissao(processo_id, tipo_usuario_id);
+    }
+});
 
 function getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -26,7 +40,7 @@ function selecionarTipoUsuario() {
 async function buscarPermissoes(tipo_usuario_id) {
     try {
         const URL_TODAS_PERMISSOES = ROTA_BUSCAR_PERMISSOES.replace('TIPO_USUARIO_ID', tipo_usuario_id);
-        const URL_PERMISSAO_TIPO_USUARIO = ROTA_BUSCAR_PERMISSOES.replace('TIPO_USUARIO_ID',
+        const URL_PERMISSAO_TIPO_USUARIO = ROTA_BUSCAR_PERMISSOES_POR_TIPO_USUARIO.replace('TIPO_USUARIO_ID',
             tipo_usuario_id);
 
         $("#tabela-permissoes-sistema").DataTable().clear().draw();

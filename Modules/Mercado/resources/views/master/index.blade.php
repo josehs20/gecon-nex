@@ -1,149 +1,108 @@
 @extends('mercado::layouts.app')
 
 @section('content')
-<style>
-    .card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        margin: 20px;
-        background: #ffffff;
-    }
-    .card-header {
-        background: linear-gradient(45deg, #0A0A1A, #1c2526) !important;
-        color: white;
-        border-radius: 15px 15px 0 0;
-        padding: 20px;
-    }
-    .card-title {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.5rem;
-    }
-    .card-body {
-        padding: 30px;
-    }
-    .chart-container {
-        margin: 20px 0;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        transition: transform 0.2s;
-    }
-    .chart-container:hover {
-        transform: translateY(-5px);
-    }
-    .chart-title {
-        font-size: 1.3rem;
-        color: #2c3e50;
-        margin-bottom: 15px;
-        text-align: center;
-        font-weight: 500;
-    }
-    .btn-success {
-        margin: 5px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-        transition: background 0.3s;
-    }
-    .btn-success:hover {
-        background: #218838;
-    }
-    .btn-success i {
-        margin-right: 5px;
-    }
-    .small-chart {
-        height: 200px !important;
-    }
-    .large-chart {
-        height: 400px !important;
-    }
-    @media (max-width: 768px) {
-        .chart-container {
-            margin: 10px 0;
-        }
-        .btn-success {
-            font-size: 0.8rem;
-            padding: 8px 10px;
-        }
-    }
-</style>
+    <!-- Menu Sections com Tiles -->
+    <div class="container py-5">
+        @if (session()->has('menu') && auth()->user())
+            @php
+                // Agrupa itens que não têm submenus
+                $menus_unicos = [];
+                foreach (session('menu') as $chave => $valor) {
+                    if (!is_array($valor['subMenus'])) {
+                        $menus_unicos[] = $valor['subMenus'];
+                    }
 
-<div class="">
-    <div class="card-header text-center">
-        <h5 class="card-title">Home Cliente Master - Dashboard Financeiro</h5>
+                }
+                $menus_unicos = array_reverse($menus_unicos);
+            @endphp
+
+            <!-- Seção para Menus Únicos -->
+            @if (!empty($menus_unicos))
+                <div class="mb-5">
+                    <h2 class="mb-4" style="color: white">Menu Rápido</h2>
+                    <div class="row">
+
+                        @foreach ($menus_unicos as $index => $processo)
+                            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                <a href="{{ route($processo->rota) }}" class="text-decoration-none">
+                                    <div class="card text-center h-100 shadow-sm border-0 tile-{{ $index % 5 }}">
+                                        <div class="card-body d-flex flex-column justify-content-center">
+                                            <!-- Ícone do Bootstrap Icons -->
+                                            <i class="{{ $processo->icon ?? ($defaultIcons[$processo->nome] ?? 'bi bi-gear') }} mb-2 tile-icon-{{ $index % 5 }}"
+                                               style="font-size: 3rem;"></i>
+                                            <!-- Nome do submenu -->
+                                            <h5 class="card-title tile-text-{{ $index % 5 }}">{{ $processo->nome }}</h5>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- Categorias com SubMenus -->
+            @foreach (session('menu') as $key => $menu)
+                @if (isset($menu['subMenus']) && is_array($menu['subMenus']))
+                    <div class="mb-5">
+                        {{-- <h2 class="mb-4" style="color: white">{{ $menu['nome'] }}</h2> --}}
+                        @foreach ($menu['subMenus'] as $subMenuName => $subMenus)
+                            <div class="mb-4">
+                                <h3 class="mb-3" style="color: white">{{ ucfirst($subMenuName) }}</h3>
+                                <div class="row">
+                                    @foreach ($subMenus as $index => $processo)
+                                        <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                            <a href="{{ route($processo->rota) }}" class="text-decoration-none">
+                                                <div class="card text-center h-100 shadow-sm border-0 tile-{{ $index % 5 }}">
+                                                    <div class="card-body d-flex flex-column justify-content-center">
+                                                        <!-- Ícone do Bootstrap Icons -->
+                                                        <i class="{{ $processo->icon ?? ($defaultIcons[$processo->nome] ?? 'bi bi-gear') }} mb-2 tile-icon-{{ $index % 5 }}"
+                                                           style="font-size: 3rem;"></i>
+                                                        <!-- Nome do submenu -->
+                                                        <h5 class="card-title tile-text-{{ $index % 5 }}">{{ $processo->nome }}</h5>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            @endforeach
+        @endif
     </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- Filtro para Gráfico de Linhas -->
-            <div class="col-md-12 text-center mb-4">
-                <button class="btn btn-success" onclick="toggleLineData('revenue')">
-                    <i class="bi bi-currency-dollar"></i> Receita
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('profit')">
-                    <i class="bi bi-graph-up"></i> Lucro
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('expenses')">
-                    <i class="bi bi-wallet2"></i> Despesas
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('investments')">
-                    <i class="bi bi-bar-chart-line"></i> Investimentos
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('grossMargin')">
-                    <i class="bi bi-pie-chart"></i> Margem Bruta
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('cashFlow')">
-                    <i class="bi bi-cash-stack"></i> Fluxo de Caixa
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('averageTicket')">
-                    <i class="bi bi-ticket"></i> Ticket Médio
-                </button>
-                <button class="btn btn-success" onclick="toggleLineData('averageTicket')">
-                    <i class="bi bi-database-fill-exclamation"></i> Análisar histórico de transações detalhadamente
-                </button>
-            </div>
-            <!-- Gráfico de Linhas (Grande) -->
-            <div class="col-md-8">
-                <div class="chart-container">
-                    <div class="chart-title">Dados Mensais </div>
-                    <div id="lineChart" class="large-chart" style="height: 400px; width: 100%;"></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-title">Clientes por Segmento</div>
-                    <div id="doughnutChart" class="small-chart" style="height: 200px; width: 100%;"></div>
-                </div>
-            </div>
-            <!-- Gráfico de Colunas (Médio) -->
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <div class="chart-title">Vendas por Categoria </div>
-                    <div id="columnChart" style="height: 150px; width: 100%;"></div>
-                </div>
-                <div style="height: 500px; width: 100%;" class="chart-container">
-                    <div class="chart-title">Distribuição de Lucro </div>
-                    <div  id="areaChart" class="large-chart" ></div>
-                </div>
-            </div>
 
-            <!-- Gráfico de Rosca (Pequeno) -->
-            <div class="col-md-6">
-                {{-- <div class="chart-container">
-                    <div class="chart-title">Clientes por Segmento</div>
-                    <div id="doughnutChart" class="small-chart" style="height: 200px; width: 100%;"></div>
-                </div> --}}
-            </div>
-            <!-- Gráfico de Barras Empilhadas (Pequeno) -->
-            <div class="col-md-12">
-                <div class="chart-container">
-                    <div class="chart-title">Fontes de Receita </div>
-                    <div id="stackedBarChart" class="small-chart" style="height: 200px; width: 100%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- CSS Customizado para estilizar os tiles -->
+    <style>
+        /* Estilo dos tiles */
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
 
-<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+        /* Cores variadas para os tiles */
+        .tile-0 { background-color: #007bff; } /* Azul */
+        .tile-1 { background-color: #28a745; } /* Verde */
+        .tile-2 { background-color: #6f42c1; } /* Roxo */
+        .tile-3 { background-color: #fd7e14; } /* Laranja */
+        .tile-4 { background-color: #dc3545; } /* Vermelho */
 
+        /* Cores das fontes para contraste */
+        .tile-text-0, .tile-icon-0 { color: #ffffff; }
+        .tile-text-1, .tile-icon-1 { color: #ffffff; }
+        .tile-text-2, .tile-icon-2 { color: #ffffff; }
+        .tile-text-3, .tile-icon-3 { color: #212529; }
+        .tile-text-4, .tile-icon-4 { color: #ffffff; }
+
+        /* Ajuste para responsividade */
+        @media (max-width: 576px) {
+            .card-title { font-size: 0.9rem; }
+            .card i { font-size: 2rem; }
+        }
+    </style>
 @endsection

@@ -19,7 +19,7 @@ class HomeController extends Controller
         //MANIPULAÇAO DE ONDE VAI CADA USUARIO QUE LOGAR
         $rotaRedirect = false;
         self::carregaSessionMenu();
-        
+
         if (auth()->user() && auth()->user()->isAdmin()) {
             $rotaRedirect = redirect()->route('admin.empresa.index');
         } elseif (auth()->user()->isUsuarioGecon()) {
@@ -50,7 +50,6 @@ class HomeController extends Controller
         $menusPrincipal = config('config.processos');
         $array = [];
         $posicoesMenus = self::getPosicoesMenu();
-
         foreach ($menusPrincipal as $grupo => $submenu) {
             $contem_submenus = collect($submenu)->contains(function($sub){
                 return is_array($sub);
@@ -127,6 +126,9 @@ class HomeController extends Controller
     public function getPosicoesMenu()
     {
         return [
+            'inicio' => [
+                config('config.processos.inicio.id')
+            ],
             'Dashboard' => [
                 config('config.processos.dashboard.id')
             ],

@@ -8,7 +8,7 @@ import {
     bloquear,
     desbloquear,
     msgToastr
-} from '../../gerais.js';
+} from '../../../../gerais.js';
 var routeGetDataEmpresa = '/admin/admin/empresa/api/brasil/get';
 
 constructSelect2('status');

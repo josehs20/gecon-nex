@@ -1,7 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Caixas']]])
 
-
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/caixa/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Caixas</h3>
@@ -47,18 +48,7 @@
             </a>
         </div>
     </div>
-
+    <div id="objetoView" data-route-yajra-caixa-get="{{route('yajra.service.gerenciamento.caixa.get')}}"></div>
     <br>
-    <script>
-        const columns = [
-            ['id', '#'],
-            ['nome', 'Nome'],
-            ['loja_id', 'Loja'],
-            ['ativo', 'Ativo'],
-            ['acao', 'Ação', false, false],
-        ];
 
-        const routeGetCaixas = @json(route('yajra.service.gerenciamento.caixa.get'));
-        montaDatatableYajra("tabela-caixas", montaColunasParaYajra(columns), routeGetCaixas);
-    </script>
 @endsection

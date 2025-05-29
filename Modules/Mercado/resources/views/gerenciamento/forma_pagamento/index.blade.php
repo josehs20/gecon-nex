@@ -1,6 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicia'], ['titulo' => 'Formas de pagamento']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/forma_pagamento/index.js', 'build/.vite')
     <div class="row justify-content-center">
         <div class="col-md">
             <div class="cabecalho">
@@ -53,17 +54,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        const columns = [
-            ['id', '#'],
-            ['descricao', 'Nome'],
-            ['loja.nome', 'Loja'],
-            ['ativo', 'Ativo'],
-
-        ];
-
-        var routeGetFormasPagamento = @json(route('yajra.service.gerenciamento.forma_pagamento.get'));
-        montaDatatableYajra('tabela-forma-pagamento', montaColunasParaYajra(columns), routeGetFormasPagamento);
-    </script>
+    <div id="dataView" data-route-get-formas-pagamento="{{ route('yajra.service.gerenciamento.forma_pagamento.get') }}">
+    </div>
 @endsection

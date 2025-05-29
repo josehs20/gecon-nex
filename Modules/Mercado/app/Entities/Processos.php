@@ -12,7 +12,8 @@ class Processos extends ModelBase
         'descricao',
         'tipo',
         'rota',
-        'posicao_menu'
+        'posicao_menu',
+        'icon',
     ];
 
     public function processo_usuarios()

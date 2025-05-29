@@ -1,3 +1,5 @@
+@vite('resources/js/views/admin/lojas/inc/form_lojas.js', 'build/.vite')
+
 <div class="card card-body">
     <h5>{{ $loja ? 'Editar loja' : 'Cadastro de loja' }}</h5>
     @if ($loja)

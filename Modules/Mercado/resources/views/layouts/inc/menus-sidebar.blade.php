@@ -3,10 +3,7 @@
 
         <div class="nav-menu">
             <ul class="nav flex-column">
-                {{-- <li class="nav-item ml-3" style="display: flex; align-items:center;">
-                    <h6 style="margin: 0"><strong>DASHBOARD</strong></h6>
-                </li> --}}
-                {{-- <br> --}}
+        
 
                 @foreach (session('menu') as $key => $menu)
                     @php

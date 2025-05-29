@@ -11,44 +11,53 @@ class PreencherListagemUsuariosDatatables
 
     public function __construct(PreencherListagemUsuariosDatatablesRequest $request)
     {
-       $this->request = $request;
+        $this->request = $request;
     }
 
     public function handle()
     {
-       return $this->preencherDadosDosUsuarios();
+        return $this->preencherDadosDosUsuarios();
     }
 
-    private function preencherDadosDosUsuarios(){        
-        return $this->request->getUsuarios()->map(function($usuario){
-            if($this->verificarUsuarioLogadoParaSaberQuaisUsuariosExibir($usuario)){
-                
+    private function preencherDadosDosUsuarios()
+    {
+        return $this->request->getUsuarios()->map(function ($usuario) {
+            if ($this->verificarUsuarioLogadoParaSaberQuaisUsuariosExibir($usuario)) {
+
                 $dados = $this->request->isAdmin()
                     ? $this->renderizarTabelaUsuariosParaAdmin($usuario)
                     : $this->renderizarTabelaUsuariosParaOutrosUsuarios($usuario);
-                
-                $dados[] = $this->renderizarBotao($usuario);    
+
+                $dados[] = $this->renderizarBotao($usuario);
 
                 return $dados;
             }
         })->filter()->values();
     }
 
-    private function verificarUsuarioLogadoParaSaberQuaisUsuariosExibir(User $usuario){
-        if($this->request->isAdmin()){ /** Se admin */
-            return true; /** Exibi todos usuários */
+    private function verificarUsuarioLogadoParaSaberQuaisUsuariosExibir(User $usuario)
+    {
+        if ($this->request->isAdmin()) {
+            /** Se admin */
+            return true;
+            /** Exibi todos usuários */
         }
-        if($this->request->isUsuarioMaster()){ /** Se cliente master */
-            return !$usuario->isAdmin(); /**Ignora admin */
+        if ($this->request->isUsuarioMaster()) {
+            /** Se cliente master */
+            return !$usuario->isAdmin();
+            /**Ignora admin */
         }
-        return !$usuario->isAdmin() && !$usuario->isUsuarioMaster(); /** Se usuario qualquer: Ignora admin e cliente master */
+        return !$usuario->isAdmin() && !$usuario->isUsuarioMaster();
+        /** Se usuario qualquer: Ignora admin e cliente master */
     }
 
-    private function renderizarBotao(User $usuario){
+    private function renderizarBotao(User $usuario)
+    {
         return $this->botaoEditar($usuario->id) . $this->botaoVisualizar($usuario);
     }
 
-    private function botaoEditar(int $usuario_master_cod){
+    private function botaoEditar(int $usuario_master_cod)
+    {
         return "
             <a class='btn btn-warning' title='Editar' href='" . route('gecon.usuarios.edit', ['usuario_master_cod' => $usuario_master_cod]) . "'>
                 <i class='bi bi-pencil'></i>
@@ -56,16 +65,20 @@ class PreencherListagemUsuariosDatatables
         ";
     }
 
-    private function botaoVisualizar(User $usuario){
-        $usuario = htmlspecialchars(json_encode($usuario), ENT_QUOTES, 'UTF-8');
+    private function botaoVisualizar(User $usuario)
+    {
+        $json = json_encode($usuario, JSON_HEX_APOS | JSON_HEX_QUOT);
         return "
-            <button type='button' class='btn btn-info' title='Visualizar' onclick='showUsuario($usuario)'>
-                <i class='bi bi-eye'></i>
-            </button>
+        <button type='button' class='btn btn-info' title='Visualizar'
+            data-user='" . htmlspecialchars($json, ENT_QUOTES, 'UTF-8') . "'>
+            <i class='bi bi-eye'></i>
+        </button>
         ";
+
     }
 
-    private function renderizarTabelaUsuariosParaAdmin(User $usuario){
+    private function renderizarTabelaUsuariosParaAdmin(User $usuario)
+    {
         return [
             $usuario->id,
             $usuario->name,
@@ -78,7 +91,8 @@ class PreencherListagemUsuariosDatatables
         ];
     }
 
-    private function renderizarTabelaUsuariosParaOutrosUsuarios(User $usuario){
+    private function renderizarTabelaUsuariosParaOutrosUsuarios(User $usuario)
+    {
         return [
             $usuario->id,
             $usuario->name,
@@ -88,5 +102,4 @@ class PreencherListagemUsuariosDatatables
             getSpanAtivo($usuario->usuarioMercado->ativo)
         ];
     }
-
 }

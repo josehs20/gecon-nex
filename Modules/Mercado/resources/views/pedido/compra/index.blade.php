@@ -1,6 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicia'], ['titulo' => 'Compras']]])
 
 @section('content')
+    @vite('Modules/Mercado/resources/assets/js/views/pedido/compra/index.js', 'build/.vite')
     <div class="cabecalho">
         <div class="page-header">
             <h3>Compras</h3>
@@ -52,19 +53,5 @@
             </a>
         </div>
     </div>
-
-    <script>
-        var getCompras = @json(route('yajra.service.compra.get'));
-        const columns = [
-            ['id', 'ID'],
-            ['usuario_id', 'Usuário'],
-            ['status.descricao', 'Status'],
-            ['cotacao.data_abertura', 'Data criação'],
-            ['cot_fornecedor.previsao_entrega', 'Previsão entrega'],
-            ['cot_fornecedor.observacao', 'Descrição'],
-            ['acao', 'Ação', false, false]
-        ];
-
-        montaDatatableYajra('tabela-compras', montaColunasParaYajra(columns), getCompras);
-    </script>
+    <div id="dataView" data-get-compras="{{ route('yajra.service.compra.get') }}"></div>
 @endsection
