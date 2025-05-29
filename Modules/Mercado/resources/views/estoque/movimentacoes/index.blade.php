@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Movimentação']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/estoque/movimentacoes/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Movimentações</h3>
@@ -50,19 +52,8 @@
         </div>
     </div>
 
+   <div id="dataView"
+    data-get-movimentacoes="{{route('yajra.service.estoques.movimentacoes.get')}}"
+    ></div>
 
-    <script>
-        var getMovimentacoes = @json(route('yajra.service.estoques.movimentacoes.get'));
-        var columns = [
-                ['id', 'ID'],
-                ['usuario_id', 'Usuário'],
-                ['status.descricao', 'Status'],
-                ['qtd_itens', 'Qtd itens'],
-                ['created_at', 'Data de criação'],
-                ['observacao', 'Observação'],
-                ['acao', 'Ação', false, false],
-        ];
-
-        montaDatatableYajra('tabela-movimentacao', montaColunasParaYajra(columns), getMovimentacoes);
-    </script>
 @endsection

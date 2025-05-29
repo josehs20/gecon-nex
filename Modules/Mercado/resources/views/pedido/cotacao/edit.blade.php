@@ -15,9 +15,9 @@
         @if (
             $cotacao &&
                 $cotacao->status_id != config('config.status.comprado') &&
-                $cotacao->status_id != config('config.status.cancelado') &&
-                $cotacao->status_id != config('config.status.cotado'))
-            <button onclick="cancelarCotacao({{ $cotacao->id }})" type="button" class="btn btn-danger">
+                $cotacao->status_id != config('config.status.cancelado'))
+
+            <button data-cancelar-cotacao="{{$cotacao->id}}" type="button" class="btn btn-danger">
                 <i class="bi bi-trash"></i> Cancelar cotação
             </button>
             <form action="{{ route('cadastro.cotacao.delete', ['cotacao_id' => $cotacao->id]) }}" id="cancelarCotacao"

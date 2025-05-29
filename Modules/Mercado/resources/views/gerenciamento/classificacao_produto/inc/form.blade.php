@@ -1,3 +1,4 @@
+
 <div class="card card-body">
     @php
         $classificacao = isset($classificacao) ? $classificacao : null; // ou qualquer valor padrão adequado

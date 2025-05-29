@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicia'], ['titulo' => 'Pedidos']]])
 
 @section('content')
+    @vite('Modules/Mercado/resources/assets/js/views/pedido/pedido/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Pedidos</h3>
@@ -48,19 +50,6 @@
             </a>
         </div>
     </div>
+    <div id="dataView" data-get-pedidos="{{ route('yajra.service.pedidos.get') }}"></div>
 
-    <script>
-        var getPedidos = @json(route('yajra.service.pedidos.get'));
-        const columns = [
-                    ['id', 'ID'],
-                    ['usuario_id', 'Usuário'],
-                    ['status.descricao', 'Status'],
-                    ['data_limite', 'Data limite'],
-                    ['qtd_itens', 'Qtd Itens'],
-                    ['observacao', 'Observação'],
-                    ['acao', 'Ação', false, false]
-                ];
-
-                montaDatatableYajra('tabela-pedidos', montaColunasParaYajra(columns), getPedidos);
-    </script>
 @endsection

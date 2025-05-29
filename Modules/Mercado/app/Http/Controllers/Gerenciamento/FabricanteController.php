@@ -72,17 +72,15 @@ class FabricanteController extends ControllerBaseMercado
                     $empresa_master_cod
                 )
             );
-        
+
             $this->getDb()->commit();
             session()->flash('success', 'Fabricante cadastrado com sucesso!');
-
-            return response()->json('Fabricante tualizado com sucesso');
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
             session()->flash('error', 'Não foi possível cadastrar o fabricante. Motivo: ' . $e->getMessage());
             Log::error($e);
-            return response()->json('Não foi possível atualizar os dados do fabricante! Motivo: ' . $e->getMessage());
         }
+        return redirect()->back();
     }
 
     /**
@@ -93,9 +91,9 @@ class FabricanteController extends ControllerBaseMercado
     public function edit($fabricante_id)
     {
         $fabricante = FabricanteRepository::getFabricantePorId($fabricante_id);
-        
+
         $endereco = $fabricante->endereco ? EnderecoRepository::getEnderecoById($fabricante->endereco_id) : null;
-        
+
         return view('mercado::gerenciamento.fabricante.edit', ['fabricante' => $fabricante, 'endereco' => $endereco]);
     }
 
@@ -113,10 +111,10 @@ class FabricanteController extends ControllerBaseMercado
             $parans = (object)Post::anti_injection_array($request->all());
             $empresa_master_cod = auth()->user()->empresa_id;
             $historico = $this->getCriarHistoricoRequest($request);
-            $endereco = $this->gerarOuAtualizarEndereco($endereco_id,$parans, $historico);
+            $endereco = $this->gerarOuAtualizarEndereco($endereco_id, $parans, $historico);
             $ativo = filter_var($parans->ativo, FILTER_VALIDATE_BOOLEAN);
 
-            FabricanteApplication::atualizarFabricante(
+            $fabricante = FabricanteApplication::atualizarFabricante(
                 new AtualizarFabricanteRequest(
                     $fabricante_id,
                     $historico,
@@ -134,21 +132,22 @@ class FabricanteController extends ControllerBaseMercado
                     $empresa_master_cod
                 )
             );
-            
+
             $this->getDb()->commit();
             session()->flash('success', 'Fabricante atualizado com sucesso!');
-            return response()->json();
+            return redirect()->back();
         } catch (\Exception $e) {
-            debugException($e);
+
             $this->getDb()->rollBack();
             session()->flash('error', 'Não foi possível atualizar os dados do fabricante!. Motivo: ' . $e->getMessage());
             Log::error($e);
-            return response()->json();
+            return redirect()->back();
         }
     }
 
-    private function gerarOuAtualizarEndereco(int $endereco_id, $parans, $historico){
-        if($endereco_id == 0){
+    private function gerarOuAtualizarEndereco(int $endereco_id, $parans, $historico)
+    {
+        if ($endereco_id == 0) {
             return $this->gerarEndereco($parans, $historico);
         } else {
             return EnderecoApplication::atualizarEndereco(
@@ -161,7 +160,9 @@ class FabricanteController extends ControllerBaseMercado
                     $parans->cep,
                     $parans->numero,
                     $parans->complemento
-                ), $endereco_id);
+                ),
+                $endereco_id
+            );
         }
     }
 
@@ -174,12 +175,13 @@ class FabricanteController extends ControllerBaseMercado
             $parans->uf,
             $parans->cep
         ];
-
+        $gerar = true;
         if (!$this->verificarExistenciaDeEnderecoNoRequest($parans, $campos)) {
-            throw new \Exception("Para salvar com endereço, somente o número e o complemento são opcionais! Para salvar sem endereço, deixe todos os campos vazios!", 1);
+            // throw new \Exception("Para salvar com endereço, somente o número e o complemento são opcionais! Para salvar sem endereço, deixe todos os campos vazios!", 1);
+            $gerar = false;
         }
-      
-        if(!($this->contagemDeCampos($campos) === 0)){
+
+        if ($gerar) {
             return EnderecoApplication::criarEndereco(
                 new EnderecoRequest(
                     $historico,
@@ -202,7 +204,8 @@ class FabricanteController extends ControllerBaseMercado
         return $this->contagemDeCampos($campos) === 0 || $this->contagemDeCampos($campos) === count($campos);
     }
 
-    private function contagemDeCampos($campos){
+    private function contagemDeCampos($campos)
+    {
         return count(array_filter($campos, fn($campo) => !empty($campo)));
     }
 
@@ -215,5 +218,4 @@ class FabricanteController extends ControllerBaseMercado
     {
         //
     }
-
 }

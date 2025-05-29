@@ -13,7 +13,7 @@
     </div>
     <div class="d-flex justify-content-end mb-2">
         @if ($pedido && $pedido->status_id == config('config.status.aberto') || $pedido && $pedido->status_id == config('config.status.aguardando_cotacao'))
-            <button onclick="cancelarPedido({{ $pedido->id }})" type="button" class="btn btn-danger">
+            <button data-cancelar-pedido="{{$pedido->id}}" type="button" class="btn btn-danger">
                 <i class="bi bi-trash"></i> Cancelar pedido
             </button>
             <form action="{{ route('pedido.cadastro.delete', ['pedido_id' => $pedido->id]) }}"

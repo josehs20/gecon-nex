@@ -191,16 +191,15 @@ class BalancoController extends ControllerBaseMercado
             if ($finalizar == true) {
                 $historicoRequest->setAcaoId(config('config.acoes.finalizou_balanco.id'));
                 $balanco = BalancoApplication::finalizarBalanco($serviceUseCase, $balanco->id, $parans->observacao);
-                session()->flash('success', 'Movimentação finalizado com sucesso!');
+                session()->flash('success', 'Balanço finalizado com sucesso!');
             } else {
-                session()->flash('success', 'Movimentação salva com sucesso!');
+                session()->flash('success', 'Balanço salva com sucesso!');
             }
 
             $this->getDb()->commit();
             return redirect()->route('estoque.balanco.index');
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-            dd($e);
             session()->flash('error', $e->getMessage());
             return redirect()->back();
         }

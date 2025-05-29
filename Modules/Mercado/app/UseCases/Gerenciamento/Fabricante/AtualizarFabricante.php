@@ -2,6 +2,7 @@
 
 namespace Modules\Mercado\UseCases\Gerenciamento\Fabricante;
 
+use Exception;
 use Modules\Mercado\Application\EnderecoApplication;
 use Modules\Mercado\Repository\Fabricante\FabricanteRepository;
 use Modules\Mercado\UseCases\Gerenciamento\Endereco\Requests\EnderecoRequest;
@@ -18,9 +19,17 @@ class AtualizarFabricante
 
     public function handle()
     {
+
+        $this->validate();
         return $this->atualizar();
     }
 
+    private function validate() {
+        $fabricante = FabricanteRepository::getFabricantePorCnpj($this->request->getCnpj(), auth()->user()->empresa_id);
+        if (!$fabricante) {
+            throw new Exception("Fabricante não existe cadastrado em sua empresa.", 1);
+        }
+    }
     private function atualizar(){
         return FabricanteRepository::atualizar(
             $this->request->getFabricanteId(),

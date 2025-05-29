@@ -1,7 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['rota' => route('cadastro.classificacao_produto.index'), 'titulo' => 'Classificação de produto'], ['titulo' => 'Editar classificação de produto']]])
 
 @section('content')
-    >
+    
     <div class="cabecalho">
         <div class="page-header">
             <h3>Editar classificação de produto</h3>

@@ -8,6 +8,9 @@ import 'select2';  // IMPORTANTE: isso adiciona o método select2 ao jQuery
 import 'select2/dist/css/select2.min.css';
 import dt from 'datatables.net-bs5';  // ou datatables.net
 import { initSidebar } from './vendor/siedBar/js/main.js';
+import Swal from 'sweetalert2';
+window.Swal = Swal;
+
 // Importa o script geral
 // import './gerais.js';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';

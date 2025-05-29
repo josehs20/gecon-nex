@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Classificações de produto']]])
 
 @section('content')
+    @vite('Modules/Mercado/resources/assets/js/views/gerenciamento/classificacao_produto/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Classificação de produtos</h3>
@@ -46,14 +48,6 @@
         </div>
     </div>
 
-    <br>
-    <script>
-        const columns = [
-            ['id', '#'],
-            ['descricao', 'Nome'],
-            ['acao', 'Ação', false, false]
-        ];
-        var routeGetClassificacaoProduto = @json(route('yajra.service.gerenciamento.classificao_produto.get'));
-        montaDatatableYajra('tabela-classificacoes', montaColunasParaYajra(columns), routeGetClassificacaoProduto);
-    </script>
+    <div id="dataView" data-route-getClassificacao-produto="{{route('yajra.service.gerenciamento.classificao_produto.get')}}"></div>
+
 @endsection

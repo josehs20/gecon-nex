@@ -23,14 +23,14 @@ class FabricanteRepository
         return Fabricante::create([
             'nome' => $nome,
             'descricao' => $descricao,
-            'cnpj' => $cnpj, 
-            'razao_social' => $razao_social, 
-            'inscricao_estadual' => $inscricao_estadual, 
-            'endereco_id' => $endereco_id, 
-            'celular' => $celular, 
-            'telefone' => $telefone, 
-            'email' => $email, 
-            'site' => $site, 
+            'cnpj' => $cnpj,
+            'razao_social' => $razao_social,
+            'inscricao_estadual' => $inscricao_estadual,
+            'endereco_id' => $endereco_id,
+            'celular' => $celular,
+            'telefone' => $telefone,
+            'email' => $email,
+            'site' => $site,
             'ativo' =>$ativo,
             'empresa_master_cod' =>$empresa_master_cod,
         ]);
@@ -81,17 +81,21 @@ class FabricanteRepository
       $fabricante->update([
         'nome' => $nome,
         'descricao' => $descricao,
-        'cnpj' => $cnpj, 
-        'razao_social' => $razao_social, 
-        'inscricao_estadual' => $inscricao_estadual, 
-        'endereco_id' => $endereco_id, 
-        'celular' => $celular, 
-        'telefone' => $telefone, 
-        'email' => $email, 
-        'site' => $site, 
+        'cnpj' => $cnpj,
+        'razao_social' => $razao_social,
+        'inscricao_estadual' => $inscricao_estadual,
+        'endereco_id' => $endereco_id,
+        'celular' => $celular,
+        'telefone' => $telefone,
+        'email' => $email,
+        'site' => $site,
         'ativo' =>$ativo,
         'empresa_master_cod' =>$empresa_master_cod,
-      ]);  
+      ]);
       return $fabricante;
+    }
+
+    public static function getFabricantePorCnpj(string $cnpj, int $empresa_master_cod){
+        return Fabricante::where('cnpj', $cnpj)->where('empresa_master_cod', $empresa_master_cod)->first();
     }
 }

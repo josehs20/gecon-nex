@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Produtos']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/produtos/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Lista de produtos</h3>
@@ -60,53 +62,8 @@
     </div>
 
     <br>
-    <script>
-        // montaDatatable('tabela-produto');
-        var getProdutosYajra = @json(route('cadastro.produto.get.yajra'));
-        const columns = [{
-                data: 'id',
-                title: 'ID'
-            }, // Coluna ID
-            {
-                data: 'nome',
-                title: 'Nome'
-            }, // Nome do produto
-            {
-                data: 'loja_nome',
-                title: 'Loja'
-            }, // Nome da loja
-            {
-                data: 'custo',
-                title: 'Custo'
-            }, // Custo
-            {
-                data: 'preco',
-                title: 'Preço'
-            }, // Preço
-            {
-                data: 'fabricante_nome',
-                title: 'Fabricante'
-            }, // Nome do fabricante
-            {
-                data: 'cod_aux',
-                title: 'Código Auxiliar'
-            }, // Código Auxiliar
-            {
-                data: 'sigla',
-                title: 'UN'
-            }, // Unidade de medida (Sigla)
-            {
-                data: 'classificacao',
-                title: 'Classificação'
-            }, // Classificação do produto
-            {
-                data: 'acao',
-                title: 'Ação',
-                orderable: false, // Desabilita ordenação
-                searchable: false // Desabilita pesquisa na coluna
-            }, // Ação
-        ];
+    <div id="dataView"
+    data-get-produtos-yajra ="{{route('cadastro.produto.get.yajra')}}"
+    ></div>
 
-        montaDatatableYajra('tabela-produto', columns, getProdutosYajra);
-    </script>
 @endsection

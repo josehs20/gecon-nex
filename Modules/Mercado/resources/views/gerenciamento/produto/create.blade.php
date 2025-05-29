@@ -16,10 +16,10 @@
                     <a class="nav-link active" id="produto-tab" data-bs-toggle="tab" href="#produto" role="tab"
                         aria-controls="produto" aria-selected="true">Produto</a>
                 </li>
-                <li class="nav-item" role="presentation">
+                {{-- <li class="nav-item" role="presentation">
                     <a class="nav-link" id="fiscal-tab" data-bs-toggle="tab" href="#fiscal" role="tab"
                         aria-controls="fiscal" aria-selected="false">Fiscal</a>
-                </li>
+                </li> --}}
             </ul>
         </div>
         <!-- Tab Content -->

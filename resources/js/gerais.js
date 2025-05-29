@@ -15,7 +15,7 @@ select2(jQuery);  // <- ***ESSENCIAL!*** Anexa o plugin ao jQuery
 const $ = jQuery;  // pode ou não, dependendo do seu uso local
 
 
-function montaNomeProduto(produto) {
+export function montaNomeProduto(produto) {
     if (!produto) return '';
 
     const nome = produto.nome || '';
@@ -196,6 +196,8 @@ function recarregarDataTableYajra(tableId) {
 export function montaDatatableYajra(tabelaId, columns, urlAjax, dataAjax) {
 
     columns = montaColunasParaYajra(columns);
+    console.log(urlAjax);
+
     const table = $(`#${tabelaId}`).DataTable({
         processing: true,
         serverSide: true,
@@ -415,29 +417,29 @@ export function constructSelect2(idElemento, url, vaiEstarEmAlgumModal = false, 
     }
 }
 
-function isNanOrEmpty(value) {
+export function isNanOrEmpty(value) {
     // Verifica se é NaN ou vazio
     return value === '' || Number.isNaN(Number(value));
 }
-function maskDinehiroReturnVal(valor) {
+export function maskDinehiroReturnVal(valor) {
     return parseFloat(valor).toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
-function maskDinheiro(idElemento) {
+export function maskDinheiro(idElemento) {
     $("#" + idElemento).mask('000.000.000.000.000,00', {
         reverse: true // para que o valor seja inserido da direita para a esquerda
     });
 }
 
-function maskDinheiroByClass(classElement) {
+export function maskDinheiroByClass(classElement) {
     $("." + classElement).mask('000.000.000.000.000,00', {
         reverse: true // para que o valor seja inserido da direita para a esquerda
     });
 }
 
-function maskPorcentagem(idElemento, limite) {
+export function maskPorcentagem(idElemento, limite) {
     $("#" + idElemento).mask('##0,00', {
         translation: {
             '#': {
@@ -459,11 +461,11 @@ function maskPorcentagem(idElemento, limite) {
         }
     });
 }
-function maskQtd(idElemento) {
+export function maskQtd(idElemento) {
     $('#' + idElemento).mask('#.##0,000', { reverse: true });
 }
 
-function maskQtdByClass(classElement) {
+export function maskQtdByClass(classElement) {
     // Aplicar a máscara inicial
     $("." + classElement).mask('#.##0,000', { reverse: true });
 
@@ -490,7 +492,7 @@ function maskQtdByClass(classElement) {
 }
 
 
-function buscarCep(idInputCep, idBotaoBuscar, idInputLogradouro, idInputBairro, idInputCidade, idInputUf, idInputComplemento) {
+export function buscarCep(idInputCep, idBotaoBuscar, idInputLogradouro, idInputBairro, idInputCidade, idInputUf, idInputComplemento) {
     $('#' + idBotaoBuscar).on('click', function () {
         let cep = $('#' + idInputCep).val();
         let cepSemCaracteresEspeciais = cep.replace(/[.-]/g, '');
@@ -592,13 +594,19 @@ function aplicarMascaraDataHora(data) {
 }
 
 /* Quando for formulario para editar e ja tiver data registrada, essa função vai formatar a data para o formato brasileiro para exibir no input */
-function formatarData() {
+export function formatarData() {
     var data = $('#data_nascimento').val();
     var partes = data.split('-');
     var dataFormatada = partes[2] + '/' + partes[1] + '/' + partes[0];
     $('#data_nascimento').val(dataFormatada);
 }
-function aplicarMascaraDataNascimento(dataAmericana) {
+
+export function aplicarMascaraDataById(dataId) {
+    $('#' + dataId).mask('00/00/0000');
+}
+
+
+export function aplicarMascaraDataNascimento(dataAmericana) {
     const partes = dataAmericana.split('-'); // Divide a data americana no formato Y-m-d
     return `${partes[2]}/${partes[1]}/${partes[0]}`; // Retorna no formato d/m/Y
 }
@@ -607,9 +615,9 @@ function formatarQuantidade(valor) {
     return parseFloat(valor.replace(/\./g, '').replace('.', ','));
 }
 /* Quando for formulario para editar, formatara o documento para exibir corretamento no input */
-function formatarDocumento(retornar = null) {
+export function formatarDocumento(retornar = null) {
     var documento = $('#documento').val();
-
+    let documentoFormatado = false;
     if (retornar) {
         documento = retornar;
         if (documento.length === 14) {
@@ -634,7 +642,7 @@ function formatarDocumento(retornar = null) {
     }
 }
 
-function converteParaFloat(qtd) {
+export function converteParaFloat(qtd) {
     return parseFloat((qtd.replace(/\./g, '').replace(',', '.')));
 }
 
@@ -644,7 +652,7 @@ export function trocarPontoPorVirgula(valor) {
     }
     return valor.replace(/\./g, ','); // Substitui todos os pontos por vírgulas
 }
-function abreModalAutenticacao() {
+export function abreModalAutenticacao() {
     $('#modalAutenticacaoUsuario').modal('show');
 }
 
@@ -724,11 +732,11 @@ function somenteInteiro(elemento) {
     $('#' + elemento).mask('999');
 }
 
-function somenteInteiroByClass(elemento) {
+export function somenteInteiroByClass(elemento) {
     $('.' + elemento).mask('999999999999999999999999999999999999999999999999999999999999999999999999999');
 }
 
-function centavosParaFloat(valorEmCentavos) {
+export function centavosParaFloat(valorEmCentavos) {
     // Verifica se o valor é um número e não é NaN
     if (isNaN(valorEmCentavos)) {
         throw new Error('O valor deve ser um número válido');
@@ -738,7 +746,7 @@ function centavosParaFloat(valorEmCentavos) {
     return valorEmCentavos / 100;
 }
 
-function centavosParaReais(valorEmCentavos) {
+export function centavosParaReais(valorEmCentavos) {
     // Verifica se o valor é um número e não é NaN
     if (isNaN(valorEmCentavos)) {
         valorEmCentavos = 0;
@@ -754,7 +762,7 @@ function centavosParaReais(valorEmCentavos) {
     });
 }
 
-function floatParaCentavos(valorEmFloat) {
+export function floatParaCentavos(valorEmFloat) {
     // Verifica se o valor é um número e não é NaN
     if (isNaN(valorEmFloat)) {
         throw new Error('O valor deve ser um número válido');
@@ -763,7 +771,7 @@ function floatParaCentavos(valorEmFloat) {
     // Multiplica por 100 e arredonda para evitar problemas de precisão
     return Math.round(valorEmFloat * 100);
 }
-function validarInput(event) {
+export function validarInput(event) {
     const input = event.target;
     const cursorPosition = input.selectionStart;
     let value = input.value;

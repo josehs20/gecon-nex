@@ -2,6 +2,7 @@
 
 namespace Modules\Mercado\UseCases\Gerenciamento\Cliente;
 
+use Modules\Mercado\Application\EnderecoApplication;
 use Modules\Mercado\Entities\Cliente;
 use Modules\Mercado\Repository\Cliente\ClienteRepository;
 use Modules\Mercado\Repository\Endereco\EnderecoRepository;
@@ -21,7 +22,7 @@ class AtualizarCliente
     public function handle()
     {
         $cliente = $this->atualizarCliente();
-        $this->atualizarEnderecoCliente();
+        $this->atualizarEnderecoCliente($cliente);
         $this->criarOrAtualizaCredito($cliente);
         return $cliente;
     }
@@ -45,8 +46,12 @@ class AtualizarCliente
             $this->getEnderecoClienteId()
         );
     }
-    public function atualizarEnderecoCliente(){
-        return EnderecoRepository::update($this->request->getCriarHistoricoRequest(), $this->request->getEndereco(), $this->getEnderecoClienteId());
+    public function atualizarEnderecoCliente($cliente){
+        if (!$cliente->endereco_id) {
+            return EnderecoApplication::criarEndereco($this->request->getEndereco());
+        }else {
+            return EnderecoApplication::atualizarEndereco($this->request->getEndereco(), $cliente->endereco_id);
+        }
     }
 
     public function getEnderecoClienteId(){

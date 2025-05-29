@@ -1,3 +1,5 @@
+@vite('Modules/Mercado/resources/assets/js/views/estoque/estoque/inc/form.js', 'build/.vite')
+
 <div class="card card-body">
     <div class="row">
         <div class="col-md-6">
@@ -55,22 +57,4 @@
         </button>
     </div>
 </div>
-
-
-
-<script>
-    $(window).on('load', function() {
-        maskQtd('quantidade_total');
-        maskQtd('quantidade_disponivel');
-        maskQtd('quantidade_minima');
-        maskQtd('quantidade_maxima');
-    });
-
-    $(document).ready(function() {
-        maskQtd('quantidade_total');
-        maskQtd('quantidade_disponivel');
-        maskQtd('quantidade_minima');
-        maskQtd('quantidade_maxima');
-    });
-</script>
 </div>

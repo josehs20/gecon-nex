@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Balanço']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/estoque/balanco/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Balanço</h3>
@@ -29,7 +31,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                     
+
                     </tbody>
                     <tfoot>
                         <tr>
@@ -53,18 +55,8 @@
         </div>
     </div>
 
-    <script>
-        var getBalancos = @json(route('yajra.service.estoque.balanco.get'));
-        const columns = [
-            ['id', 'ID'],
-            ['usuario_id', 'Usuário'],
-            ['status.descricao', 'Status'],
-            ['qtd_itens', 'Qtd itens'],
-            ['created_at', 'Data de criação'],
-            ['observacao', 'Observação'],
-            ['acao', 'Ação', false, false],
-        ];
+    <div id="dataView"
+    data-get-balanco="{{route('yajra.service.estoque.balanco.get')}}"
+    ></div>
 
-        montaDatatableYajra('tabela-balanco', montaColunasParaYajra(columns), getBalancos);
-    </script>
 @endsection

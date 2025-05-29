@@ -555,12 +555,14 @@ class YajraMercadoController
             })
             ->addColumn('acao', function ($fabricante) {
                 // Gerando o HTML do botão de edição
+                $fabricanteJson = htmlspecialchars(json_encode($fabricante), ENT_QUOTES, 'UTF-8');
+
                 return '<a href="' . route('cadastro.fabricante.edit', ['fabricante_id' => $fabricante->id]) . '" class="btn btn-warning">
-                            <i class="bi bi-pencil"></i>
-                        </a>' .
-                    '<button class="btn btn-info ml-1" onclick="mostrarFabricante(' . htmlspecialchars(json_encode($fabricante), ENT_QUOTES, 'UTF-8') . ')">
-                            <i class="bi bi-eye"></i>
-                        </button>';
+                <i class="bi bi-pencil"></i>
+            </a>' .
+                    '<button class="btn btn-info ml-1 btn-mostrar-fabricante" data-fabricante="' . $fabricanteJson . '">
+                <i class="bi bi-eye"></i>
+            </button>';
             })
             ->rawColumns(['acao', 'ativo'])  // Informa ao DataTables que a coluna 'acao' e 'ativo' contêm HTML
             ->make(true);

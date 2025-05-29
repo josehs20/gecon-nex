@@ -1,6 +1,7 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicial'], ['titulo' => 'Unidade de medidas']]])
 
 @section('content')
+@vite('Modules/Mercado/resources/assets/js/views/gerenciamento/unidade_medida/index.js', 'build/.vite')
     <div class="cabecalho">
         <div class="page-header">
             <h3>Unidades de medidas</h3>
@@ -65,17 +66,8 @@
             </a>
         </div>
     </div>
+    <div id="dataView"
+    data-get-unidade-medidas ="{{route('yajra.service.unidade_medida.get')}}"
+    ></div>
 
-    <script>
-        var getUnidadeMedidas = @json(route('yajra.service.unidade_medida.get'));
-        const columns = [
-            ['id', 'ID'],
-            ['descricao', 'Nome'],
-            ['sigla', 'Sigla'],
-            ['pode_ser_float', 'Pode ser fracionado'],
-            ['acao', 'Ação', false, false]
-        ];
-
-        montaDatatableYajra('tabela-unidade-media', montaColunasParaYajra(columns), getUnidadeMedidas);
-    </script>
 @endsection

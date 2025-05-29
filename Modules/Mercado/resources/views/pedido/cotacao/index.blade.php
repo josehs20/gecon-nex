@@ -1,6 +1,8 @@
 @extends('mercado::layouts.app', ['trilhaPaginas' => [['rota' => route('home.index'), 'titulo' => 'Página inicia'], ['titulo' => 'Cotações']]])
 
 @section('content')
+    @vite('Modules/Mercado/resources/assets/js/views/pedido/cotacao/index.js', 'build/.vite')
+
     <div class="cabecalho">
         <div class="page-header">
             <h3>Cotações</h3>
@@ -53,18 +55,8 @@
         </div>
     </div>
 
-    <script>
-        var getCotacoes = @json(route('yajra.service.cotacao.get'));
-        const columns = [
-            ['id', 'ID'],
-            ['usuario_id', 'Usuário'],
-            ['status.descricao', 'Status'],
-            ['data_abertura', 'Data criação'],
-            ['data_encerramento', 'Data limite'],
-            ['descricao', 'Descrição'],
-            ['acao', 'Ação', false, false]
-        ];
+    <div id="dataView"
+    data-get-cotacoes="{{route('yajra.service.cotacao.get')}}"
+    ></div>
 
-        montaDatatableYajra('tabela-cotacoes', montaColunasParaYajra(columns), getCotacoes);
-    </script>
 @endsection

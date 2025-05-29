@@ -48,18 +48,7 @@
             </a>
         </div>
     </div>
-
+    <div id="objetoView" data-route-yajra-caixa-get="{{route('yajra.service.gerenciamento.caixa.get')}}"></div>
     <br>
-    <script>
-        const columns = [
-            ['id', '#'],
-            ['nome', 'Nome'],
-            ['loja_id', 'Loja'],
-            ['ativo', 'Ativo'],
-            ['acao', 'Ação', false, false],
-        ];
 
-        const routeGetCaixas = @json(route('yajra.service.gerenciamento.caixa.get'));
-        montaDatatableYajra("tabela-caixas", montaColunasParaYajra(columns), routeGetCaixas);
-    </script>
 @endsection
