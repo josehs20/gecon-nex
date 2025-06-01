@@ -332,21 +332,23 @@ function getEstadosBrasileiros()
     ];
 }
 
-function getSpanAtivo(bool $ativo){
-    if($ativo){
+function getSpanAtivo(bool $ativo)
+{
+    if ($ativo) {
         return "<a class='w-100 badge badge-success'>Ativo</a>";
     }
     return "<a class='w-100 badge badge-danger'>Inativo</a>";
 }
 
-function obterStatusApresentavel(){
+function obterStatusApresentavel()
+{
     $status = config('config.status');
-    
-    $formatar_chaves = function($key) {
+
+    $formatar_chaves = function ($key) {
         $palavra = ucwords($key);
         return (str_replace('_', ' ', $palavra));
     };
-    
+
     return array_combine(
         array_map($formatar_chaves, array_keys($status)),
         array_values($status)
@@ -355,21 +357,23 @@ function obterStatusApresentavel(){
 
 function moedaBrToMoedaPadraoBancoDeDados(?string $valor): float
 {
-    if($valor){
+    if ($valor) {
         return floatval(str_replace(',', '.', str_replace('.', '', $valor)));
     }
     return 0;
 }
 
-function dataStringParaDataBancoDeDados(?string $data): ?string{
-    if($data){
+function dataStringParaDataBancoDeDados(?string $data): ?string
+{
+    if ($data) {
         $data = explode('/', $data);
         return "{$data[2]}-{$data[1]}-{$data[0]}";
     }
     return null;
 }
 
-function dataBancoDeDadosParaDataString(?string $data): ?string {
+function dataBancoDeDadosParaDataString(?string $data): ?string
+{
     if ($data) {
         // Remove a hora, se houver
         $somenteData = explode(' ', $data)[0];
@@ -384,9 +388,10 @@ function dataBancoDeDadosParaDataString(?string $data): ?string {
     return null;
 }
 
-function formatarDataPadraoBancoDeDados(string $data){
+function formatarDataPadraoBancoDeDados(string $data)
+{
 
-    if(!empty($data)){
+    if (!empty($data)) {
         $data = rtrim($data, '/');
 
         $partes = array_filter(explode('/', $data), function ($p) {
@@ -414,7 +419,8 @@ function wrapWithTooltip($value)
     return '<span title="' . e($value) . '">' . e($value) . '</span>';
 }
 
-function getStatusBadgePedidos(int $status_id){
+function getStatusBadgePedidos(int $status_id)
+{
     switch ($status_id) {
         case config('config.status.aberto'):
             return 'badge badge-secondary';
@@ -428,9 +434,14 @@ function getStatusBadgePedidos(int $status_id){
         case config('config.status.cotado'):
             return 'badge badge-success';
             break;
-        
+
         default:
             return 'badge badge-danger';
             break;
     }
+}
+
+function gerarToken()
+{
+    return bin2hex(random_bytes(32));
 }

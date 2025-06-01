@@ -180,4 +180,11 @@ class CaixaApplication
         $interact = new DeletePermissaoCaixa($caixa_permissao_id, $criarHistoricoRequest);
         return $interact->handle();
     }
+
+    //--------------------nova verção-----------------------------//
+    public static function suprir_caixa(CriarEvidenciaRequest $criarEvidenciaRequest, )
+    {
+        $interact = new SuprirCaixa($caixa_permissao_id, $criarHistoricoRequest);
+        return $interact->handle();
+    }
 }

@@ -4,48 +4,54 @@ namespace Modules\Mercado\Entities;
 
 class VendaPagamento extends ModelBase
 {
-    protected $table = 'venda_pagamentos';
     protected $connection = 'mercado';
+    protected $table = 'venda_pagamentos';
+    // Campos que podem ser preenchidos em massa
     protected $fillable = [
         'venda_id',
         'forma_pagamento_id',
         'especie_pagamento_id',
         'loja_id',
-        'parcela',
         'valor',
-        'valor_pago',
-        'troco',
-        'status_id'
+        'cliente_id',
+        'parcelado',
+        'quantidade_parcelas',
+        'caixa_diario_id',
     ];
+
 
     public function venda()
     {
         return $this->belongsTo(Venda::class, 'venda_id');
     }
 
-    public function forma()
+    public function formaPagamento()
     {
         return $this->belongsTo(FormaPagamento::class, 'forma_pagamento_id');
     }
 
-    public function especie()
+    public function especiePagamento()
     {
         return $this->belongsTo(EspeciePagamento::class, 'especie_pagamento_id');
     }
 
-    public function venda_pagamento_devolucao()
+    public function loja()
     {
-        return $this->hasMany(VendaPagamentoDevolucao::class, 'venda_pagamento_id');
+        return $this->belongsTo(Loja::class, 'loja_id');
     }
 
-    public function status()
+    public function cliente()
     {
-        return $this->belongsTo(Status::class, 'status_id');
+        return $this->belongsTo(Cliente::class, 'cliente_id');
     }
 
-    public function getValor()
+    public function caixaDiario()
     {
-        return $this->valor - $this->venda_pagamento_devolucao->sum('valor');
+        return $this->belongsTo(CaixaDiario::class, 'caixa_diario_id');
     }
 
+      public function vendaParcelas()
+    {
+        return $this->hasMany(VendaParcela::class, 'venda_pagamento_id');
+    }
 }

@@ -12,16 +12,14 @@ class AbrirCaixaRequest extends ServiceUseCase
     private int $valorInicial;
     private string $senha;
     private int $usuario_id;
-    private Request $request;
 
-    public function __construct(CriarHistoricoRequest $historicoRequest, float $valorInicial, string $senha, int $loja_id, int $usuario_id, Request $request)
+    public function __construct(CriarHistoricoRequest $historicoRequest, float $valorInicial, string $senha, int $loja_id, int $usuario_id)
     {
         parent::__construct($historicoRequest);
         $this->loja_id = $loja_id;
         $this->valorInicial = $valorInicial;
         $this->senha = $senha;
         $this->usuario_id = $usuario_id;
-        $this->request = $request;
     }
 
     public function getCaixaId()
@@ -66,6 +64,6 @@ class AbrirCaixaRequest extends ServiceUseCase
 
     public function getCriarEvidenciaRequest()
     {
-        return new CriarEvidenciaRequest($this->request, $this->getCriarHistoricoRequest(), $this->getCaixaId(), $this->getUsuarioId(), $this->valorInicial, null, null, $this->getCriarHistoricoRequest()->getComentario());
+        return new CriarEvidenciaRequest($this->getCriarHistoricoRequest(), $this->getCaixaId(), $this->getCriarHistoricoRequest()->getAcaoId(), $this->getUsuarioId(), config('config.caixa.recursos.abertura.id'), $this->valorInicial, $this->valorInicial, $this->getCriarHistoricoRequest()->getComentario());
     }
 }

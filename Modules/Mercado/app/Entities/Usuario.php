@@ -3,6 +3,8 @@
 namespace Modules\Mercado\Entities;
 
 use App\Models\User;
+use Exception;
+use Illuminate\Support\Facades\Hash;
 
 class Usuario extends ModelBase
 {
@@ -55,17 +57,28 @@ class Usuario extends ModelBase
         return $this->hasMany(MovimentacaoEstoque::class);
     }
 
-    public function enderecos(){
+    public function enderecos()
+    {
         return $this->belongsTo(Endereco::class, 'endereco_id');
     }
 
-    public function caixa_permissoes(){
+    public function caixa_permissoes()
+    {
         return $this->hasMany(CaixaPermissao::class, 'usuario_id');
     }
 
-      public function caixa_permissoes_loja(){
-        return $this->hasMany(CaixaPermissao::class, 'usuario_id')->whereHas('caixa', function($q){
+    public function caixa_permissoes_loja()
+    {
+        return $this->hasMany(CaixaPermissao::class, 'usuario_id')->whereHas('caixa', function ($q) {
             $q->where('loja_id', auth()->user()->getUserModulo->loja_id);
         });
+    }
+
+    public function verificaSenha($senha)
+    {
+        if (!Hash::check($senha, $this->master->password)) {
+            throw new Exception("Senha incorreta!.", 1);
+        }
+        return true;
     }
 }

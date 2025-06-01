@@ -44,6 +44,16 @@ class Caixa extends ModelBase
 
     public function permissoes()
     {
-        return $this->hasMany(CaixaPermissao::class,'caixa_id');
+        return $this->hasMany(CaixaPermissao::class, 'caixa_id');
+    }
+
+    public function diario_atual()
+    {
+        return $this->hasOne(CaixaDiario::class, 'caixa_id', 'id')->latest('id');
+    }
+
+    public function ultima_evidencia()
+    {
+        return $this->hasOne(CaixaEvidencia::class, 'caixa_id', 'id')->latest('id');
     }
 }

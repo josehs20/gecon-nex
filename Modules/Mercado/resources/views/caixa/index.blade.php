@@ -1,7 +1,7 @@
 @extends('mercado::layouts.app')
 
 @section('content')
-    @vite('Modules/Mercado/resources/assets/js/views/pdv/caixa/index.js', 'build/.vite')
+    @vite('Modules/Mercado/resources/assets/js/views/pdv/index.js', 'build/.vite')
     <div class="trilha-paginas-acessadas">
         <a href="{{ route('home.index') }}">Página inicial</a>
         <span>&nbsp;-&nbsp;</span>
@@ -52,7 +52,7 @@
                 <div class="alert alert-info d-flex align-items-center m-3" role="alert">
                     <i class="bi bi-info-circle-fill me-2" style="font-size: 1rem;"></i>
                     <div class="mx-2" style="font-size: 0.9rem;">
-                        Se esta guia for fechada ou aberta em outro local/dispositivo, será necessário confirmar ou trocar o
+                        Se esta guia for fechada ou aberta em outro local/dispositivo, depois que o caixa estiver aberto, será necessário confirmar a troca de
                         dispositivo.
                     </div>
                 </div>
