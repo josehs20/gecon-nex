@@ -10,51 +10,49 @@ class CaixaEvidencia extends ModelBase
         'caixa_id',
         'acao_id',
         'usuario_id',
-        'ip_address',
-        'sistema_operacional',
-        'localizacao',
-        'ativo',
-        'token',
-        'valor_abertura',
-        'valor_fechamento',
-        'valor_sangria',
-        'data_abertura',
-        'data_fechamento',
-        'descricao'
+        'valor_total',
+        'valor_dinheiro',
+        'caixa_recurso_id',
+        'descricao',
     ];
 
+    /**
+     * Relacionamento com a tabela caixas.
+     */
     public function caixa()
     {
-        return $this->belongsTo(Caixa::class, 'caixa_id', 'id');
+        return $this->belongsTo(Caixa::class);
     }
 
-    public function usuario()
-    {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'id');
-    }
-
+    /**
+     * Relacionamento com a tabela acoes.
+     */
     public function acao()
     {
-        return $this->belongsTo(Acoes::class, 'acao_id', 'id');
+        return $this->belongsTo(Acoes::class);
     }
 
-    public function evidencias()
+    /**
+     * Relacionamento com a tabela usuarios.
+     */
+    public function usuario()
     {
-        return $this->hasMany(CaixaEvidencia::class, 'caixa_id', 'caixa_id');
+        return $this->belongsTo(Usuario::class);
     }
 
-    public function devolucoes()
+    /**
+     * Relacionamento opcional com a tabela caixa_recursos.
+     */
+    public function caixaRecurso()
     {
-        return $this->hasMany(Devolucao::class, 'caixa_evidencia_id', 'id');
+        return $this->belongsTo(CaixaRecurso::class);
     }
 
-    public function vendas()
+    public function evidenciaAnterior()
     {
-        return $this->hasMany(Venda::class, 'caixa_evidencia_id', 'id');
-    }
-
-    public function pagamentos()
-    {
-        return $this->hasMany(Pagamento::class, 'caixa_evidencia_id', 'id');
+        return self::where('caixa_id', $this->caixa_id)
+            ->where('id', '<', $this->id)
+            ->orderBy('id', 'desc')
+            ->first();
     }
 }

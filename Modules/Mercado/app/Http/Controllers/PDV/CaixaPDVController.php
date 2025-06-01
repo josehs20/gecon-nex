@@ -12,6 +12,9 @@ use Jenssegers\Agent\Facades\Agent;
 use Modules\Mercado\Application\CaixaApplication;
 use Modules\Mercado\Application\ClienteApplication;
 use Modules\Mercado\Application\PagamentoApplication;
+use Modules\Mercado\Application\PDVApplication;
+use Modules\Mercado\Entities\CaixaItemTemp;
+use Modules\Mercado\Entities\Estoque;
 use Modules\Mercado\Http\Controllers\ControllerBaseMercado;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\Devolucao\DevolucaoRepository;
@@ -73,25 +76,9 @@ class CaixaPDVController extends ControllerBaseMercado
 
     public function venda(Request $request)
     {
-        $user = auth()->user()->load('empresa', 'usuarioMercado');
-        $caixaJaAberto = $user->usuarioMercado->caixa;
-
-        if (!$caixaJaAberto) {
-            session()->flash('error', 'Caixa Expirado!');
-
-            return redirect()->route('caixa.autenticacao');
-        }
-
-        $formaPagamentos = PagamentoRepository::getAllFormaPagamentos();
-        $formaDevolucoes = DevolucaoRepository::getAllTipoDevolucoes();
-
         $mobile = Agent::isMobile();
-        return view('mercado::caixa.venda', [
-            'caixa' => auth()->user()->usuarioMercado->caixa,
-            'formaPagamentos' => $formaPagamentos,
-            'mobile' => $mobile,
-            'formaDevolucoes' => $formaDevolucoes,
-            // 'imagemCupom' =>  gerarImagemBase64('app/public/'.$user->empresa->cnpj.'/gecom.png')
+        return view('mercado::pdv.caixa', [
+            'caixa' => Auth::user()->usuarioMercado->caixa
         ]);
     }
 
@@ -110,7 +97,8 @@ class CaixaPDVController extends ControllerBaseMercado
                 $historicoRequest = $this->getCriarHistoricoRequest($request);
                 $historicoRequest->setComentario($comentario);
 
-                $caixa = CaixaApplication::abrir_caixa(new AbrirCaixaRequest(
+                // $caixa = CaixaApplication::abrir_caixa(new AbrirCaixaRequest(
+                $caixa = PDVApplication::abrir_caixa(new AbrirCaixaRequest(
                     $historicoRequest,
                     $valor_inicial,
                     $parans->senha,
@@ -118,7 +106,7 @@ class CaixaPDVController extends ControllerBaseMercado
                     $usuario_id,
                     $request
                 ));
-                dd($caixa);
+
                 session()->flash('success', 'Caixa aberto!');
             } else {
                 $usuario = auth()->user()->getUserModulo;
@@ -140,7 +128,7 @@ class CaixaPDVController extends ControllerBaseMercado
             $this->getDb()->commit();
             return redirect()->route('caixa.venda');
         } catch (\Exception $e) {
-            dd($e);
+
             $this->getDb()->rollBack();
             Log::error($e);
             session()->flash('error', 'error: ' . $e->getMessage());
@@ -194,52 +182,45 @@ class CaixaPDVController extends ControllerBaseMercado
     }
 
     public function finalizar_venda(Request $request)
-    {
+    { //insere itens na temp
+        // $estoques = Estoque::whereIn('id', [1, 2, 3])->get()->map(function ($item) {
+        //     $quantidade = number_format(mt_rand(100, 1000) / 10, 3, '.', '');
+        //     // Exemplo: de 10.0 até 100.0 kg, com 3 casas decimais
+        //     $preco = $item->preco; // ou calcule conforme necessário
+        //     $total = (int) round($preco * $quantidade);
+
+        //     return CaixaItemTemp::create([
+        //         'estoque_id' => $item->id,
+        //         'produto_id' => $item->produto_id,
+        //         'caixa_id' => Auth::user()->getUserModulo->caixa->id,
+        //         'quantidade' => $quantidade,
+        //         'preco' => $preco,
+        //         'total' => $total,
+        //     ]);
+        // });
+
         $this->getDb()->begin();
-
         try {
-            $parans = (object) Post::anti_injection_array($request->except('itens'));
-            $historicoRequest = $this->getCriarHistoricoRequest($request);
-            $usuario = auth()->user()->getUserModulo;
-            $usuario_id = $usuario->id;
-            $itens = json_decode($request->itens, true);
-            $itens = Post::anti_injection_array($itens);
-            $caixa = $usuario->caixa;
-            $caixa_id = $caixa->id;
-            $caixa_evidencia_id = $caixa->ultimo_registro->id;
-            $loja_id = $usuario->loja_id;
-            $status_id = config('config.status.concluido');
-            $formaPagamento_id = $parans->formaPagamento;
-            $desconto_porcentagem = $request->desconto ? converteDinheiroParaFloat($parans->desconto) : null;
-            $cliente_id = $request->cliente ? $parans->cliente : null;
-            $venda_id = $request->venda_id ? $parans->venda_id : null;
-            $valorRecebido = $request->valorRecebido ? converteDinheiroParaFloat($parans->valorRecebido) : null;
+            $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
 
-            $criarVendaRequest = new CriarVendaRequest(
-                $historicoRequest,
-                $itens,
-                $caixa_id,
-                $caixa_evidencia_id,
-                $loja_id,
-                $usuario_id,
-                $status_id,
-                $cliente_id,
-                $formaPagamento_id,
-                $desconto_porcentagem,
-                $venda_id,
-                $valorRecebido,
-                now()
-            );
+            $historicoRequest = $this->getCriarHistoricoRequest($request);
+            $caixa = Auth::user()->getUserModulo->caixa;
 
             $finalizarVendaRequest = new FinalizarVendaRequest(
-                $criarVendaRequest
+                $historicoRequest,
+                $caixa->id,
+                $parans->cliente_id,
+                $parans->formas_pagamento,
+                $parans->desconto_percentual
             );
 
-            $venda = CaixaApplication::finalizar_venda($finalizarVendaRequest);
+            $venda = PDVApplication::finalizar_venda($finalizarVendaRequest);
             $venda->usuario->master;
+
             $this->getDb()->commit();
-            $venda = VendaRepository::getVendaById($venda->id);
-            return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !', 'status' => $venda->caixa->getStatus(), 'caixa' => $venda->caixa, 'venda' => $venda]);
+            //falta processo de impressao elgin
+            return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !']);
         } catch (Exception $e) {
             $this->getDb()->rollBack();
             Log::error($e);
@@ -415,7 +396,6 @@ class CaixaPDVController extends ControllerBaseMercado
 
     public function get_vendas_devolucao(Request $request)
     {
-
         $busca = Post::anti_injection($request->q) ?? '';
 
         $vendas = CaixaApplication::getVendaDevolucao($busca);
@@ -428,42 +408,45 @@ class CaixaPDVController extends ControllerBaseMercado
         $this->getDb()->begin();
 
         try {
-            $parans = (object) Post::anti_injection_array($request->except('itens'));
-            $itens = json_decode($request->itens, true);
+            $parans = (object) Post::anti_injection_array($request->except('data.itens_quantidades'));
+            $parans = $parans->data;
+            //validações antes da transaction efetiva de itens no banco
+            if (!isset($parans['motivo'])) {
+                throw new Exception("Motivo da devolução é obrigatório.", 1);
+            }
+
+            if (!isset($request->data['itens_quantidades'])) {
+                throw new Exception("Nenhum item foi adicionado há devolução.", 1);
+            }
+
+            if (!isset($parans['vendaId'])) {
+                throw new Exception("Venda ID não específicada, comunique ao suporte.", 1);
+            }
+            //itens e historico padrão
+            $itens = json_decode($request->data['itens_quantidades'], true);
             $itens = Post::anti_injection_array($itens);
-            $usuario = auth()->user()->getUserModulo;
-            $loja_id = $usuario->loja_id;
-            $caixa = $usuario->caixa;
-            $caixa_id = $caixa->id;
-            $caixa_evidencia_id = $caixa->ultimo_registro->id;
-            $usuario_id = $usuario->id;
-            $formaDevolucoes = $parans->vendas_pagamento_devolucao;
             $historicoRequest = $this->getCriarHistoricoRequest($request);
-            $historicoRequest->setComentario($parans->motivo);
-            $devolucaoRequest = new DevolucaoVendaRequest($parans->venda_id, $loja_id, $caixa_id, $caixa_evidencia_id, $usuario_id, $formaDevolucoes, $itens, $historicoRequest);
+            $historicoRequest->setComentario($parans['motivo']);
 
             /**
              * executa
              */
-            $venda = CaixaApplication::devolucao_venda($devolucaoRequest);
-            $devolucao = $venda->devolucoes->last();
-            $devolucao->itens = $devolucao->devolucao_itens->map(function ($item) {
-                return (object)[
-                    'nome' => $item->produto->getNomeCompleto(),
-                    'cod_aux' => $item->produto->cod_aux,
-                    'quantidade' => $item->quantidade,
-                    'preco' => $item->preco,
-                    'total' => $item->total,
-                ];
-            });
-            $devolucao->n_venda = $devolucao->venda->n_venda;
-            $devolucao->cliente = $devolucao->venda->cliente->nome;
+            // $venda = CaixaApplication::devolucao_venda(new DevolucaoVendaRequest());
+            $devolucao = PDVApplication::devolucao_venda(new DevolucaoVendaRequest(
+                $historicoRequest,
+                $parans['vendaId'],
+                $request->attributes->get('caixa_id'),
+                $request->attributes->get('loja_id'),
+                $historicoRequest->getUsuarioId(),
+                $parans->forma_pagamento_devolucao
+            ));
+            dd(4);
             $this->getDb()->commit();
 
             return response()->json(['success' => true, 'msg' => 'Devolução realizada com sucesso', 'caixa' => $usuario->caixa, 'devolucao' => $devolucao]);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-
+            dd($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
@@ -761,7 +744,8 @@ class CaixaPDVController extends ControllerBaseMercado
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
-    public function venda_teste()
+
+    public function teste_recursos(Request $request)
     {
         try {
             $venda = VendaRepository::getVendaById(4);

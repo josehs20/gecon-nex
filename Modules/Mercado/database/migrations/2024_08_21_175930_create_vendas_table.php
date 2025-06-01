@@ -16,18 +16,18 @@ class CreateVendasTable extends Migration
         Schema::connection('mercado')->create('vendas', function (Blueprint $table) {
             $table->id();
             $table->string('n_venda');
-            $table->foreignId('cliente_id');
-            $table->foreignId('caixa_id');
-            $table->foreignId('caixa_evidencia_id')->nullable();
-            $table->foreignId('loja_id');
-            $table->foreignId('usuario_id');
-            $table->foreignId('status_id');
-            $table->foreignId('forma_pagamento_id')->nullable();
+            $table->unsignedBigInteger('cliente_id');
+            $table->unsignedBigInteger('caixa_id');
+            $table->unsignedBigInteger('caixa_evidencia_id');
+            $table->unsignedBigInteger('loja_id');
+            $table->unsignedBigInteger('usuario_id');
+            $table->unsignedBigInteger('status_id');
+            // $table->unsignedBigInteger('forma_pagamento_id')->nullable();
             $table->bigInteger('sub_total');
             $table->bigInteger('total');
             $table->decimal('desconto_porcentagem', 10, 2)->nullable();
             $table->bigInteger('desconto_dinheiro')->nullable();
-            $table->foreignId('caixa_diario_id')->nullable();
+            $table->unsignedBigInteger('caixa_diario_id');
 
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade');
             $table->foreign('caixa_id')->references('id')->on('caixas')->onDelete('cascade');
@@ -35,7 +35,7 @@ class CreateVendasTable extends Migration
             $table->foreign('loja_id')->references('id')->on('lojas')->onDelete('cascade');
             $table->foreign('usuario_id')->references('id')->on('usuarios')->onDelete('cascade');
             $table->foreign('status_id')->references('id')->on('status')->onDelete('cascade');
-            $table->foreign('forma_pagamento_id')->references('id')->on('forma_pagamentos')->onDelete('cascade');
+            // $table->foreign('forma_pagamento_id')->references('id')->on('forma_pagamentos')->onDelete('cascade');
             $table->foreign('caixa_diario_id')->references('id')->on('caixa_diario')->onDelete('cascade');
 
             $table->timestamps();

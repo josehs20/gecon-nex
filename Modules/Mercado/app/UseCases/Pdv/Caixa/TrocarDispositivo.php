@@ -51,7 +51,7 @@ class TrocarDispositivo
     {
         $caixa = CaixaRepository::getCaixaById($this->request->getCaixaId());
         $valor_abertura = $caixa->ultimo_registro->valor_abertura;
-        return CaixaApplication::criar_evidencias(new CriarEvidenciaRequest($this->request->getRequest(), $this->request->getCriarHistoricoRequest(),$this->request->getCaixaId(), $this->request->getUsuarioId(), $valor_abertura));
+        return CaixaApplication::criar_evidencias(new CriarEvidenciaRequest($this->request->getRequest(), $this->request->getCriarHistoricoRequest(), $this->request->getCaixaId(), $this->request->getUsuarioId(), $valor_abertura));
     }
 
     private function atualizaCaixa()
@@ -67,9 +67,9 @@ class TrocarDispositivo
 
     // //calcula os novos valores do caixa atual ao fazer a transferencia de dispositivo
     // private function calculaNovosValores() {
-    //     //pega a data de abertura mais recente do caixa 
+    //     //pega a data de abertura mais recente do caixa
     //     return CaixaApplication::calculaFechamento($this->request->getCaixaId());
-    // }   
+    // }
 
     private function getSangria()
     {

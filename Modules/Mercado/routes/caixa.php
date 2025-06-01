@@ -33,7 +33,6 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
         Route::get('/caixa/get/recebimentos', [CaixaPDVController::class, 'get_recebimentos'])->name('caixa.recebimento.venda.get');
         Route::get('/caixa/get/cliente/venda/recebimentos', [CaixaPDVController::class, 'get_venda_recebimentos'])->name('caixa.recebimento.cliente.venda.get');
         Route::post('/caixa/venda/recebimentos', [CaixaPDVController::class, 'receber_venda'])->name('caixa.recebimento.cliente.venda.post')->defaults('acao_id', config('config.acoes.recebeu_venda_caixa.id'));;
-
     });
 });
 Route::middleware(['processo:' . config('config.processos.pdv.fechamento_caixa.id')])->group(function () {

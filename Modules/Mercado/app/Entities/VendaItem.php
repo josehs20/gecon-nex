@@ -9,6 +9,7 @@ class VendaItem extends ModelBase
         'venda_id',
         'caixa_id',
         'caixa_evidencia_id',
+        'caixa_diario_id',
         'estoque_id',
         'loja_id',
         'produto_id',

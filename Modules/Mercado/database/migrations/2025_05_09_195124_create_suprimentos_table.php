@@ -32,6 +32,6 @@ class CreateSuprimentosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('suprimentos');
+        Schema::connection('mercado')->dropIfExists('suprimentos');
     }
 }

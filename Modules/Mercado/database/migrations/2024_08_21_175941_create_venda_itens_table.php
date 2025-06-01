@@ -15,15 +15,18 @@ class CreateVendaItensTable extends Migration
     {
         Schema::connection('mercado')->create('venda_itens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('venda_id');
-            $table->foreignId('caixa_id');
-            $table->foreignId('estoque_id');
-            $table->foreignId('loja_id');
-            $table->foreignId('produto_id');
-            $table->bigInteger('quantidade');
+            $table->unsignedBigInteger('venda_id');
+            $table->unsignedBigInteger('caixa_id');
+            $table->unsignedBigInteger('estoque_id');
+            $table->unsignedBigInteger('loja_id');
+            $table->unsignedBigInteger('produto_id');
+            $table->decimal('quantidade', 15, 3);
+
             $table->bigInteger('preco');
             $table->bigInteger('total');
-            $table->foreignId('caixa_diario_id');
+            $table->unsignedBigInteger('caixa_diario_id');
+            $table->unsignedBigInteger('caixa_evidencia_id');
+
 
             $table->foreign('venda_id')->references('id')->on('vendas')->onDelete('cascade');
             $table->foreign('loja_id')->references('id')->on('lojas')->onDelete('cascade');
@@ -31,6 +34,7 @@ class CreateVendaItensTable extends Migration
             $table->foreign('produto_id')->references('id')->on('produtos')->onDelete('cascade');
             $table->foreign('caixa_id')->references('id')->on('caixas')->onDelete('cascade');
             $table->foreign('caixa_diario_id')->references('id')->on('caixa_diario')->onDelete('cascade');
+            $table->foreign('caixa_evidencia_id')->references('id')->on('caixa_evidencias')->onDelete('cascade');
 
             $table->timestamps();
         });

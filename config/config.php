@@ -2,32 +2,36 @@
 return [
     'caixa' => [
         'recursos' => [
-            'venda' => [
+            'abertura' => [
                 'id' => 1,
+                'descricao' => 'Realiza a abertura do caixa'
+            ],
+            'venda' => [
+                'id' => 2,
                 'descricao' => 'Realiza venda no caixa.'
             ],
             'devolucao' => [
-                'id' => 2,
+                'id' => 3,
                 'descricao' => 'Realiza devolução de mercadorias.'
             ],
             'orcamento' => [
-                'id' => 3,
+                'id' => 4,
                 'descricao' => 'Gera orçamentos para o cliente.'
             ],
             'recebimento' => [
-                'id' => 4,
+                'id' => 5,
                 'descricao' => 'Recebe valores de contas ou crediário.'
             ],
             'sangria' => [
-                'id' => 5,
+                'id' => 6,
                 'descricao' => 'Retira valores do caixa (sangria).'
             ],
             'suprimentos' => [
-                'id' => 6,
+                'id' => 7,
                 'descricao' => 'Insere valores no caixa (suprimento).'
             ],
             'fechamento' => [
-                'id' => 7,
+                'id' => 8,
                 'descricao' => 'Realiza o fechamento do caixa.'
             ],
         ],
@@ -375,7 +379,7 @@ return [
                 'descricao' => 'PDV/Caixa',
                 'rota' => 'caixa.autenticacao',
                 'posicao_menu' => 5000,
-                'icon' => 'bi bi-cash-register',
+                'icon' => 'bi bi-shop',
             ],
             'fechamento_caixa' => [
                 'id' => 18,

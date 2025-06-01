@@ -209,36 +209,22 @@ class CaixaRepository
 
     public static function criarEvidencia(
         CriarHistoricoRequest $criarHistoricoRequest,
-        int $caixa_id,
-        int $acao_id,
-        int $usuario_id,
-        mixed $ip_address,
-        mixed $sistema_operacional,
-        mixed $localizacao,
-        bool $ativo,
-        string $sessionToken,
-        int $valor_abertura,
-        mixed $data_abertura = null,
-        ?int $valor_fechamento = null,
-        ?int $valor_sangria = null,
-        mixed $data_fechamento = null,
-        ?string $descricao
+        $caixa_id,
+        $acao_id,
+        $usuario_id,
+        $caixa_recurso_id,
+        $valor_total = null,
+        $valor_dinheiro = null,
+        $descricao = null
     ) {
         CaixaEvidencia::setHistorico($criarHistoricoRequest);
         return CaixaEvidencia::create([
             'caixa_id' => $caixa_id,
             'acao_id' => $acao_id,
             'usuario_id' => $usuario_id,
-            'ip_address' => $ip_address,
-            'sistema_operacional' => $sistema_operacional,
-            'localizacao' => $localizacao,
-            'ativo' => $ativo,
-            'token' => $sessionToken,
-            'valor_abertura' => $valor_abertura,
-            'valor_fechamento' => $valor_fechamento,
-            'data_abertura' => $data_abertura,
-            'valor_sangria' => $valor_sangria,
-            'data_fechamento' => $data_fechamento,
+            'valor_total' => $valor_total,
+            'valor_dinheiro' => $valor_dinheiro,
+            'caixa_recurso_id' => $caixa_recurso_id,
             'descricao' => $descricao,
         ]);
     }

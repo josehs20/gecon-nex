@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CaixaMiddleware;
 use App\Http\Middleware\EtapaProcessoMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'processo' => EtapaProcessoMiddleware::class,
+            'caixa' => CaixaMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
