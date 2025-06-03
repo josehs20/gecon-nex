@@ -222,7 +222,7 @@ class FinalizarVenda
 
         $pagamentoEmDinheiro = $pagamentoEmDinheiro ? $pagamentoEmDinheiro->valor : 0;
         $totais = $venda->venda_pagamentos->sum('valor');
-        $evidenciaAnterior = $evidencia->evidenciaAnterior();
+        $evidenciaAnterior = $evidencia->evidenciaAnterior;
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
             'valor_total' => $evidenciaAnterior->valor_total + $totais,

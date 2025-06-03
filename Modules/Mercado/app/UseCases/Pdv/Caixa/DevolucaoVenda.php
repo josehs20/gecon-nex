@@ -40,7 +40,8 @@ class DevolucaoVenda
         $devolucao = $this->criaDevolucao($evidencia);
         $itensDevolvidos = $this->criaDevolucaoItens($devolucao, $evidencia);
         $this->movimentaEstoques($itensDevolvidos);
-        $caixa = $this->atualizaStatusCaixa();
+        $this->atualizaValoresEvidencia($evidencia, $devolucao);
+        $this->atualizaStatusCaixa();
 
         return $devolucao;
     }
@@ -54,6 +55,20 @@ class DevolucaoVenda
             $this->request->getUsuarioId(),
             config('config.caixa.recursos.devolucao.id')
         ));
+    }
+
+    private function atualizaValoresEvidencia($evidencia, $devolucao)
+    {
+        $devolucaoEmDinheiro = $devolucao->formaPagamento->especie_pagamento_id == config('config.especie_pagamento.dinheiro.id');
+
+        $devolucaoEmDinheiro = $devolucaoEmDinheiro ? $devolucao->total_devolvido : 0;
+        $totalDevolvido = $devolucao->total_devolvido;
+        $evidenciaAnterior = $evidencia->evidenciaAnterior();
+
+        return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
+            'valor_total' => $evidenciaAnterior->valor_total - $totalDevolvido,
+            'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro - $totalDevolvido,
+        ]);
     }
 
     private function validate()
@@ -182,7 +197,7 @@ class DevolucaoVenda
         foreach ($itensDevolvidos as $key => $item) {
             $estoqueId = $item->estoque_destino_id;
             $qtd = $item->quantidade;
- 
+
             MovimentacaoEstoqueApplication::movimentar(new MovimentacaoEstoqueItemRequest(
                 $estoqueId,
                 $movimentacao->id,
