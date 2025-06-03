@@ -4,17 +4,24 @@ namespace Modules\Mercado\UseCases\Pdv\Caixa;
 
 use Exception;
 use Modules\Mercado\Application\CaixaApplication;
+use Modules\Mercado\Application\EstoqueApplication;
 use Modules\Mercado\Application\MovimentacaoEstoqueApplication;
+use Modules\Mercado\Application\PDVApplication;
 use Modules\Mercado\Application\VendaApplication;
 use Modules\Mercado\Entities\Devolucao;
 use Modules\Mercado\Entities\DevolucaoItem;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\Cliente\ClienteRepository;
 use Modules\Mercado\Repository\Devolucao\DevolucaoRepository;
+use Modules\Mercado\Repository\Estoque\EstoqueRepository;
+use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
 use Modules\Mercado\Repository\Produto\ProdutoRepository;
 use Modules\Mercado\Repository\Venda\VendaRepository;
+use Modules\Mercado\UseCases\Gerenciamento\Estoque\Requests\CriarEstoqueRequest;
+use Modules\Mercado\UseCases\Gerenciamento\Estoque\Requests\UpdateQtdDisponivelRequest;
 use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\MovimentacaoEstoqueItemRequest;
 use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\MovimentacaoEstoqueRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\EditarStatusCaixaRequest;
 
@@ -29,287 +36,141 @@ class DevolucaoVenda
     public function handle()
     {
         $this->validate();
-        $devolucao = $this->criaOrAtualizaDevolucao();
-        $itensDevolvidos = $this->criaDevolucaoItens($devolucao);
-        $vendaPagamentoDevolucao = $this->criaVendaPagamentoDevolucao($devolucao);
-        $venda = $this->atualizaVendaParaDevolucao($devolucao);
-
+        $evidencia = $this->criaEvidencia();
+        $devolucao = $this->criaDevolucao($evidencia);
+        $itensDevolvidos = $this->criaDevolucaoItens($devolucao, $evidencia);
+        $this->movimentaEstoques($itensDevolvidos);
         $caixa = $this->atualizaStatusCaixa();
 
-        return $venda;
+        return $devolucao;
+    }
+
+    private function criaEvidencia()
+    {
+        return PDVApplication::criar_evidencias(new CriarEvidenciaRequest(
+            $this->request->getCriarHistoricoRequest(),
+            $this->request->getCaixaId(),
+            $this->request->getCriarHistoricoRequest()->getAcaoId(),
+            $this->request->getUsuarioId(),
+            config('config.caixa.recursos.devolucao.id')
+        ));
     }
 
     private function validate()
     {
         $itens = [];
-
-        foreach ($this->request->getItens() as $key => $item) {
-            if (array_key_exists('devolucao', $item) && isset($item['quantidade_devolucao'])) {
-
-                $quantidadeDevolucao = converteDinheiroParaFloat($item['quantidade_devolucao']);
-                if ($quantidadeDevolucao == 0) {
-                    throw new Exception("A quantidade de devolução deve ser maior que 0", 1);
-                }
-
-                $item['quantidade_devolucao'] =  $quantidadeDevolucao;
-                $itens[] = $item;
-            }
-        }
-        $this->request->setItens($itens); //atualiza os itens request com a quantidade convertida
-
-        if (count($itens) == 0) {
+        if ($this->request->getItens() == 0) {
             throw new Exception("Nenhum item foi selecionado para devolução", 1);
         }
+
 
         if (!$this->request->getCriarHistoricoRequest()->getComentario()) {
             throw new Exception("Informe o motivo", 1);
         }
-        $produtosIds = array_column($this->request->getItens(), 'produtoId');
-        $produtos = ProdutoRepository::getProdutoByIds($produtosIds);
 
-        foreach ($this->request->getItens() as $key => $itemDevolucao) {
+        $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
+        $estoques = EstoqueRepository::getEstoqueByIds($estoqueIds);
 
-            $produtoDevolucao = $produtos->first(function ($produto) use ($itemDevolucao) {
-                return $produto->id == $itemDevolucao['produtoId'];
+        foreach ($this->request->getItens() as $key => $item) {
+            $estoque = $estoques->first(function ($e) use ($item) {
+                return $e->id == $item['estoqueId'];
             });
-            $valor = $itemDevolucao['quantidade_devolucao'];
+
+            $valor = $item['quantidade'];
             $isFloat = intval($valor) != $valor;
-
-            if (!$produtoDevolucao->pode_ser_float && $isFloat) {
-                throw new Exception("O valor do material " . $produtoDevolucao->nome . 'não pode ser um valor fracionado. Unidade de medida: ' . $produtoDevolucao->sigla, 1);
+            if (!$estoque->produto->unidade_medida->pode_ser_float && $isFloat) {
+                throw new Exception("O valor do material " . $estoque->produto->nome . 'não pode ser um valor fracionado. Unidade de medida: ' . $estoque->produto->unidade_medida->sigla, 1);
             }
         }
     }
 
-    private function atualizaVendaParaDevolucao(Devolucao $devolucao)
+    private function criaDevolucao($evidencia)
     {
-        $status_id = config('config.status.devolucao');
-        $venda = $devolucao->venda;
-
-        $quantidadeTotaDevolvida = $venda->devolucao_itens->sum('quantidade');
-        $quantidadeTotaItens = $venda->venda_itens->sum('quantidade');
-
-        if ($quantidadeTotaItens != $quantidadeTotaDevolvida) {
-            $status_id = config('config.status.devolucao_parcial');
-        }
-
-        // $this->atualizaValorToralDevolvido($devolucao);
-
-        return VendaApplication::atualiza_status_venda($this->request->getVendaId(), $status_id, $this->request->getCriarHistoricoRequest());
+        $totalDevolvido = $this->calculaValoresDevolucao();
+        return CaixaPDVRepository::criarDevolucaoAttrs($this->request->getCriarHistoricoRequest(), [
+            'venda_id' => $this->request->getVendaId(),
+            'caixa_id' => $this->request->getCaixaId(),
+            'loja_id' => $this->request->getLojaId(),
+            'usuario_id' => $this->request->getUsuarioId(),
+            'motivo' => $this->request->getCriarHistoricoRequest()->getComentario(),
+            'data_devolucao' => now(),
+            'total_devolvido' => $totalDevolvido,
+            'forma_pagamento_id' => $this->request->getFormaPagamentoId(),
+            'caixa_diario_id' => $evidencia->caixa->diario_atual->id,
+            'caixa_evidencia_id' => $evidencia->id,
+        ]);
     }
 
-    private function criaOrAtualizaDevolucao()
+    private function calculaValoresDevolucao()
     {
-        $devolucao = DevolucaoRepository::getDevolucaoVendaByCaixa($this->request->getVendaId(), $this->request->getCaixaId(), $this->request->getCaixaEvidenciaId());
+        $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
+        $venda = CaixaPDVRepository::getVendaById($this->request->getVendaId());
+        $venda_itens = $venda->venda_itens;
+        $total = 0; // Inicializa o total antes do loop
 
-        $data = now();
-        $totalDevolvido = $this->calculaVendaPagamentosDevolucao();
-
-        if (!$devolucao) {
-            return DevolucaoRepository::criar_devolucao(
-                $this->request->getVendaId(),
-                $this->request->getCaixaId(),
-                $this->request->getCaixaEvidenciaId(),
-                $this->request->getLojaId(),
-                $this->request->getUsuarioId(),
-                $data,
-                $totalDevolvido,
-                $this->request->getCriarHistoricoRequest()->getComentario(),
-                $this->request->getCriarHistoricoRequest()
-            );
-        } else {
-
-            return DevolucaoRepository::atualiza_devolucao(
-                $devolucao->id,
-                $devolucao->venda_id,
-                $this->request->getCaixaId(),
-                $this->request->getCaixaEvidenciaId(),
-                $this->request->getLojaId(),
-                $this->request->getUsuarioId(),
-                $data,
-                ($devolucao->total_devolvido + $totalDevolvido),
-                $this->request->getCriarHistoricoRequest()->getComentario(),
-                $this->request->getCriarHistoricoRequest()
-            );
-        }
-    }
-
-    private function criaVendaPagamentoDevolucao(Devolucao $devolucao)
-    {
-        $vendaPagamentos = $devolucao->venda->venda_pagamentos;
-        // $totalDevolvido = $devolucao->venda->devolucoes->sum('total_devolvido'); // Total já devolvido
-        // $valorTotalDevolucao = intval($totalDevolvido); // Total permitido (em centavos)
-        // $sobra = $valorTotalDevolucao;
-        $sobra = $devolucao->total_devolvido;
-
-        $vendaPagamentosDevolucao = [];
-
-        foreach ($vendaPagamentos as $vp) {
-            // Valor já devolvido para este pagamento em todos os caixas que a venda já passou
-            $jaDevolvidoPorPagamento = $vp->venda_pagamento_devolucao()->get()->sum('valor');
-
-            // Valor disponível para devolução nessa forma de pagamento
-            $valorDisponivel = $vp->valor - $jaDevolvidoPorPagamento;
-
-            // Se não há sobra, interrompe a execução
-            if ($sobra <= 0) {
-                break;
-            }
-
-            $vendaPagamentoDevolucaoPorCaixa = $vp->venda_pagamento_devolucao()->where('caixa_evidencia_id', $this->request->getCaixaEvidenciaId())->first();
-            if ($vendaPagamentoDevolucaoPorCaixa) {
-                $sobra -=  $vendaPagamentoDevolucaoPorCaixa->valor;
-            }
-            // Valor a ser devolvido, respeitando o disponível e a sobra
-            $valorProporcional = min($valorDisponivel, $sobra);
-
-            if ($valorProporcional > 0) {
-
-                if (!$vendaPagamentoDevolucaoPorCaixa) {
-
-                    $vendaPagamentosDevolucao[] = DevolucaoRepository::criar_venda_pagamento_devolucao(
-                        $vp->loja_id,
-                        $vp->venda_id,
-                        $this->request->getCaixaId(),
-                        $this->request->getCaixaEvidenciaId(),
-                        $devolucao->id,
-                        $vp->id,
-                        $valorProporcional,
-                        $this->request->getCriarHistoricoRequest()
-                    );
-                } else {
-
-                    $valorProporcionalAtualizado = ($valorProporcional + $vendaPagamentoDevolucaoPorCaixa->valor);
-
-                    $vendaPagamentosDevolucao[] = DevolucaoRepository::atualiza_venda_pagamento_devolucao(
-                        $vendaPagamentoDevolucaoPorCaixa->id,
-                        $vp->loja_id,
-                        $this->request->getCaixaId(),
-                        $this->request->getCaixaEvidenciaId(),
-                        $vp->venda_id,
-                        $devolucao->id,
-                        $vp->id,
-                        $valorProporcionalAtualizado,
-                        $this->request->getCriarHistoricoRequest()
-                    );
-                }
-
-                if ($vp->especie->credito_loja) {
-                    $this->retornaCreditoEmLoja($valorProporcional, $vp->venda->cliente_id);
-                }
-
-                // Subtrai o valor devolvido da sobra
-                $sobra -= $valorProporcional;
-            }
-        }
-        // dd($vendaPagamentosDevolucao);
-        return $vendaPagamentosDevolucao;
-    }
-
-    private function calculaVendaPagamentosDevolucao()
-    {
-        $devolucoesItens = array_column($this->request->getItens(), null, 'vendaItemId');
-
-        //pega somente os itens que foram devolvidos da vendaItem
-        $vendaItens = VendaRepository::getVendaItemByIds($this->request->getLojaId(), array_keys($devolucoesItens));
-        $valorTotalDevolvido = 0;
-        $desconto = $vendaItens->first()->venda->desconto_porcentagem ?? 0;
-        foreach ($vendaItens as $key => $item) {
-            $valorTotalDevolvido += $item->preco * $devolucoesItens[$item->id]['quantidade_devolucao'];
+        foreach ($this->request->getItens() as $key => $item) {
+            //regra de negocio decidir devolucao com valor atual ou valor de venda
+            $vendaItem = $venda_itens->first(function ($v) use ($item) {
+                return $v->estoque_id == $item['estoqueId'];
+            });
+            $valor = $vendaItem->preco * $item['quantidade'];
+            $total += $valor; // Adiciona o valor do item ao total
         }
 
-        $valorDesconto = ($desconto / 100) * $valorTotalDevolvido;
-        $valorTotalDevolvido -= $valorDesconto;
-
-        return round($valorTotalDevolvido);
+        return $total; // Retorna o total calculado
     }
 
-    private function criaDevolucaoItens(Devolucao $devolucao)
+    private function criaDevolucaoItens($devolucao, $evidencia)
     {
-        $devolucoesItens = array_column($this->request->getItens(), null, 'vendaItemId');
+        $itens = $this->request->getItens();
+        $venda_itens = $devolucao->venda->venda_itens;
+        $devolucoesItens = [];
+        foreach ($itens as $key => $i) {
+            $vi = $venda_itens->first(function ($v) use ($i) {
+                return $v->estoque_id == $i['estoqueId'];
+            });
+            $estoqueDestino = $vi->produto->estoques()->where('loja_id', $this->request->getLojaId())->first();
 
-        //pega somente os itens que foram devolvidos da vendaItem
-        $vendaItens = VendaRepository::getVendaItemByIds($this->request->getLojaId(), array_keys($devolucoesItens));
-        $venda = $vendaItens->first()->venda;
-
-        // Recupera os itens de devolução já existentes colocando a chave de venda_item_id como index
-        // $devolucaoItensExistentes = $venda->devolucao_itens()->get();
-        $devolucoesExistentesNaEvidenciaAtual = $venda->devolucao_itens()->where('caixa_evidencia_id', $this->request->getCaixaEvidenciaId())->get()->keyBy('venda_item_id');;
-
-        $dataAtual = now();
-        $itensDevolvidos = $vendaItens->map(function ($item) use ($devolucao, $devolucoesItens, $dataAtual, $devolucoesExistentesNaEvidenciaAtual) {
-            $quantidadeDevolvida = $devolucoesItens[$item->id]['quantidade_devolucao']; //pega a quantidade devolvida
-            $devolucaoItem = null;
-            if ($devolucoesExistentesNaEvidenciaAtual->has($item->id)) {
-
-                $devolucaoItemExistente = $devolucoesExistentesNaEvidenciaAtual->get($item->id);
-                $quantidadeDevolvida = $devolucaoItemExistente->quantidade + $quantidadeDevolvida;
-
-                // Calcula o valor bruto (antes do desconto)
-                $valorBruto = $quantidadeDevolvida * $item->preco;
-
-                // Aplica o desconto percentual
-                $porcentagemDesconto = $devolucao->venda->desconto_porcentagem ?? 0; // Considera 0 se não houver desconto
-                $valorDesconto = ($valorBruto * $porcentagemDesconto) / 100;
-
-                // Calcula o valor final considerando o desconto
-                $totalDevolvido = $valorBruto - $valorDesconto;
-
-                $devolucaoItem = DevolucaoRepository::atualiza_devolucao_item(
-                    $devolucaoItemExistente->id,
-                    $devolucao->id,
-                    $devolucao->loja_id,
-                    $item->venda_id,
-                    $this->request->getCaixaId(),
-                    $this->request->getCaixaEvidenciaId(),
-                    $item->id,
-                    $item->estoque_id,
-                    $item->estoque->id, //pega com query em loja logada
-                    $item->produto_id,
-                    $dataAtual,
-                    $quantidadeDevolvida,
-                    $item->preco,
-                    $totalDevolvido,
+            if (!$estoqueDestino) {
+                $estoqueDestino = EstoqueApplication::criarEstoque(new CriarEstoqueRequest(
+                    $vi->estoque->custo,
+                    $vi->estoque->preco,
+                    $vi->estoque->produto_id,
+                    $this->request->getLojaId(),
+                    $i['quantidade'],
+                    $i['quantidade'],
+                    null,
+                    null,
+                    null,
                     $this->request->getCriarHistoricoRequest()
-                );
+                ));
             } else {
-                // Calcula o valor bruto (antes do desconto)
-                $valorBruto = $quantidadeDevolvida * $item->preco;
-
-                // Aplica o desconto percentual
-                $porcentagemDesconto = $devolucao->venda->desconto_porcentagem ?? 0; // Considera 0 se não houver desconto
-                $valorDesconto = ($valorBruto * $porcentagemDesconto) / 100;
-
-                // Calcula o valor final considerando o desconto
-                $totalDevolvido = $valorBruto - $valorDesconto;
-                $devolucaoItem = DevolucaoRepository::criar_devolucao_item(
-                    $devolucao->id,
-                    $devolucao->loja_id,
-                    $item->venda_id,
-                    $this->request->getCaixaId(),
-                    $this->request->getCaixaEvidenciaId(),
-                    $item->id,
-                    $item->estoque_id,
-                    $item->estoque->id, //pega com query em loja logada
-                    $item->produto_id,
-                    $dataAtual,
-                    $quantidadeDevolvida,
-                    $item->preco,
-                    $totalDevolvido,
-                    $this->request->getCriarHistoricoRequest()
-                );
+                $qtdTotal = $estoqueDestino->quantidade_total + $i['quantidade'];
+                $qtdDisponivel = $estoqueDestino->quantidade_disponivel + $i['quantidade'];
+                $estoqueDestino = EstoqueApplication::updateQtdDisponivel(new UpdateQtdDisponivelRequest($estoqueDestino->id, $qtdDisponivel, $qtdTotal, $this->request->getCriarHistoricoRequest()));
             }
-            $devolucaoItem->quantidade_devolucao =$devolucoesItens[$item->id]['quantidade_devolucao'];
-            return $devolucaoItem;
-        });
-        $this->movimentaEstoques($itensDevolvidos);
-        return $itensDevolvidos;
-    }
 
+            $devolucoesItens[] = CaixaPDVRepository::criarDevolucaoItensAttrs($this->request->getCriarHistoricoRequest(), [
+                'devolucao_id' => $devolucao->id,
+                'loja_id' => $devolucao->loja_id,
+                'venda_id' => $devolucao->venda_id,
+                'caixa_id' => $devolucao->caixa_id,
+                'caixa_evidencia_id' => $evidencia->id,
+                'venda_item_id' => $vi->id,
+                'estoque_origem_id' => $vi->estoque_id,
+                'estoque_destino_id' => $estoqueDestino->id,
+                'produto_id' => $vi->produto_id,
+                'data_devolucao' => now(),
+                'quantidade' => $i['quantidade'],
+                'preco' => $vi->preco,
+                'total' => $vi->preco * $i['quantidade']
+            ]);
+        }
+        return $devolucoesItens;
+    }
 
     private function movimentaEstoques($itensDevolvidos)
     {
-
         $movimentacao = MovimentacaoEstoqueApplication::criarMovimentacaoEstoque(new MovimentacaoEstoqueRequest(
             $this->request->getLojaId(),
             config('config.status.concluido'),
@@ -320,8 +181,8 @@ class DevolucaoVenda
 
         foreach ($itensDevolvidos as $key => $item) {
             $estoqueId = $item->estoque_destino_id;
-            $qtd = $item->quantidade_devolucao;
-
+            $qtd = $item->quantidade;
+ 
             MovimentacaoEstoqueApplication::movimentar(new MovimentacaoEstoqueItemRequest(
                 $estoqueId,
                 $movimentacao->id,
@@ -339,11 +200,10 @@ class DevolucaoVenda
         $cliente = ClienteRepository::getClienteById($clienteId);
         $adicionarCredito = null;
 
-        //caso entre aqui satisfaz todo o credito que o cliente tem consumido então zera ele 
+        //caso entre aqui satisfaz todo o credito que o cliente tem consumido então zera ele
         if ($cliente->credito->credito_loja_usado <= $valorRetornar) {
             $valorRetornar = 0;
             $adicionarCredito = ($cliente->credito->credito_loja_usado - $valorRetornar) + $cliente->credito->credito_loja;
-     
         } else {
             $valorRetornar = $cliente->credito->credito_loja_usado - $valorRetornar;
         }
@@ -353,6 +213,8 @@ class DevolucaoVenda
 
     private function atualizaStatusCaixa()
     {
-        return CaixaApplication::editar_status(new EditarStatusCaixaRequest($this->request->getCriarHistoricoRequest(), $this->request->getCaixaId(), config('config.status.livre'), $this->request->getCriarHistoricoRequest()->getUsuarioId()));
+        return CaixaPDVRepository::editaAttrsCaixa($this->request->getCriarHistoricoRequest(), $this->request->getCaixaId(), [
+            'status_id' => config('config.status.livre')
+        ]);
     }
 }

@@ -30,8 +30,8 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CancelarVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarSangriaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FecharCaixaRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\OrcamentoRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\TrocarDispositivoRequest;
-use Modules\Mercado\UseCases\Pdv\Venda\Requests\CriarVendaRequest;
 
 class CaixaPDVController extends ControllerBaseMercado
 {
@@ -183,22 +183,7 @@ class CaixaPDVController extends ControllerBaseMercado
 
     public function finalizar_venda(Request $request)
     { //insere itens na temp
-        // $estoques = Estoque::whereIn('id', [1, 2, 3])->get()->map(function ($item) {
-        //     $quantidade = number_format(mt_rand(100, 1000) / 10, 3, '.', '');
-        //     // Exemplo: de 10.0 até 100.0 kg, com 3 casas decimais
-        //     $preco = $item->preco; // ou calcule conforme necessário
-        //     $total = (int) round($preco * $quantidade);
-
-        //     return CaixaItemTemp::create([
-        //         'estoque_id' => $item->id,
-        //         'produto_id' => $item->produto_id,
-        //         'caixa_id' => Auth::user()->getUserModulo->caixa->id,
-        //         'quantidade' => $quantidade,
-        //         'preco' => $preco,
-        //         'total' => $total,
-        //     ]);
-        // });
-
+        // $estoques = this->insereItensTemp();
         $this->getDb()->begin();
         try {
             $parans = (object) Post::anti_injection_array($request->all());
@@ -228,44 +213,45 @@ class CaixaPDVController extends ControllerBaseMercado
         }
     }
 
-    public function salvar_venda(Request $request)
+    public function orcamento(Request $request)
     {
+        // $this->insereItensTemp();
+        //os itens estarão gravados na caixaitenstemp
         $this->getDb()->begin();
 
         try {
-            $parans = (object) Post::anti_injection_array($request->except('itens'));
-            $usuario = auth()->user()->getUserModulo;
-            $usuario_id = $usuario->id;
+            $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
+
+            if (!isset($parans->cliente_id)) {
+                throw new Exception("Cliente é obrigatório para ser indentificado nos orçamentos.", 1);
+            }
+
+            $desconto = isset($parans->desconto_porcentagem) ? $parans->desconto_porcentagem : 0;
+            $descricao = isset($parans->descricao) ? $parans->descricao : null;
+            $usuario = Auth::user();
+            $status_id = config('config.status.aberto');
             $historicoRequest = $this->getCriarHistoricoRequest($request);
+            $historicoRequest->setComentario($descricao);
 
-            $itens = json_decode($request->itens, true);
-            $itens = Post::anti_injection_array($itens);
-            $caixa_id = $usuario->caixa->id;
-            $caixa_evidencia_id = $usuario->caixa->ultimo_registro->id;
-            $loja_id = $usuario->loja_id;
-            $status_id = config('config.status.salvo');
-            $formaPagamento_id = null;
-            $desconto_porcentagem = null;
-            $cliente_id = $parans->cliente;
-
-            $criarVendaRequest = new CriarVendaRequest(
-                $historicoRequest,
-                $itens,
-                $caixa_id,
-                $caixa_evidencia_id,
-                $loja_id,
-                $usuario_id,
+            $orcamentoRequest = new OrcamentoRequest(
+                $this->getCriarHistoricoRequest($request),
+                $request->attributes->get('loja_id'),
+                $usuario->id,
+                $usuario->empresa->id,
+                $request->attributes->get('caixa_id'),
                 $status_id,
-                $cliente_id,
-                $formaPagamento_id,
-                $desconto_porcentagem,
-                $request->venda_id
+                $parans->cliente_id,
+                $parans->forma_pagamento,
+                $desconto,
+                $descricao
             );
 
-            $vendaSalva = CaixaApplication::salvar_venda($criarVendaRequest);
+            // $vendaSalva = CaixaApplication::salvar_venda($criarVendaRequest);
+            $orcamento = PDVApplication::criar_orcamento($orcamentoRequest);
 
             $this->getDb()->commit();
-            return response()->json(['success' => true, 'msg' => 'Venda salva comsucesso, caixa livre para nova venda!', 'status' => $vendaSalva->caixa->getStatus(), 'caixa' => $vendaSalva->caixa]);
+            return response()->json(['success' => true, 'msg' => 'Orçamento criado com sucesso.']);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
 
@@ -275,6 +261,24 @@ class CaixaPDVController extends ControllerBaseMercado
         }
     }
 
+    private function insereItensTemp()
+    {
+        return Estoque::whereIn('id', [1, 2, 3])->get()->map(function ($item) {
+            $quantidade = number_format(mt_rand(100, 1000) / 10, 3, '.', '');
+            // Exemplo: de 10.0 até 100.0 kg, com 3 casas decimais
+            $preco = $item->preco; // ou calcule conforme necessário
+            $total = (int) round($preco * $quantidade);
+
+            return CaixaItemTemp::create([
+                'estoque_id' => $item->id,
+                'produto_id' => $item->produto_id,
+                'caixa_id' => Auth::user()->getUserModulo->caixa->id,
+                'quantidade' => $quantidade,
+                'preco' => $preco,
+                'total' => $total,
+            ]);
+        });
+    }
     public function get_vendas(Request $request)
     {
         $busca = $request->q ? Post::anti_injection($request->q) : '';
@@ -422,6 +426,11 @@ class CaixaPDVController extends ControllerBaseMercado
             if (!isset($parans['vendaId'])) {
                 throw new Exception("Venda ID não específicada, comunique ao suporte.", 1);
             }
+
+            if (!isset($parans['forma_pagamento_devolucao'])) {
+                throw new Exception("Forma de pagamento da devolução não indentificada.", 1);
+            }
+
             //itens e historico padrão
             $itens = json_decode($request->data['itens_quantidades'], true);
             $itens = Post::anti_injection_array($itens);
@@ -438,12 +447,13 @@ class CaixaPDVController extends ControllerBaseMercado
                 $request->attributes->get('caixa_id'),
                 $request->attributes->get('loja_id'),
                 $historicoRequest->getUsuarioId(),
-                $parans->forma_pagamento_devolucao
+                $parans['forma_pagamento_devolucao'],
+                $itens
             ));
-            dd(4);
+
             $this->getDb()->commit();
 
-            return response()->json(['success' => true, 'msg' => 'Devolução realizada com sucesso', 'caixa' => $usuario->caixa, 'devolucao' => $devolucao]);
+            return response()->json(['success' => true, 'msg' => 'Devolução realizada com sucesso']);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
             dd($e);

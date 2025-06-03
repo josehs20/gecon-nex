@@ -47,7 +47,7 @@ class FinalizarVenda
 
     private function validate()
     {
-        $itens = CaixaPDVRepository::getItensCaixa($this->request->getCaixaId());
+        $itens = CaixaPDVRepository::getItensCaixaTemp($this->request->getCaixaId());
         if ($itens->count() == 0) {
             throw new Exception("Não existe itens na venda.", 1);
         }

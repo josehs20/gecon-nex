@@ -24,9 +24,12 @@ class CreateDevolucaoItensTable extends Migration
             $table->foreignId('estoque_destino_id');
             $table->foreignId('produto_id');
             $table->bigInteger('quantidade');
+            $table->dateTime('data_devolucao');
             $table->bigInteger('preco');
             $table->bigInteger('total');
             $table->foreignId('caixa_diario_id')->nullable();
+            $table->unsignedBigInteger('caixa_evidencia_id');
+
             $table->timestamps();
 
             $table->foreign('devolucao_id')->references('id')->on('devolucoes')->onDelete('cascade');
@@ -38,6 +41,7 @@ class CreateDevolucaoItensTable extends Migration
             $table->foreign('estoque_destino_id')->references('id')->on('estoques')->onDelete('cascade');
             $table->foreign('produto_id')->references('id')->on('produtos')->onDelete('cascade');
             $table->foreign('caixa_diario_id')->references('id')->on('caixa_diario')->onDelete('cascade');
+            $table->foreign('caixa_evidencia_id')->references('id')->on('caixa_evidencias')->onDelete('cascade');
 
         });
     }

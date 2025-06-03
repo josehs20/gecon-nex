@@ -22,12 +22,16 @@ class UpdateEstoque
 
     public function update()
     {
-        return EstoqueRepository::updateQtdEstoque(
+        return EstoqueRepository::update(
             $this->request->getId(),
+            $this->request->getCusto(),
+            $this->request->getPreco(),
+            $this->request->getProdutoId(),
+            $this->request->getLojaId(),
             $this->request->getQuantidadeTotal(),
             $this->request->getQuantidadeDisponivel(),
             $this->request->getQuantidadeMinima(),
-            $this->request->getQuantidadeMinima(),
+            $this->request->getQuantidadeMaxima(),
             $this->request->getLocalizacao(),
             $this->request->getHistoricoRequest()
         );

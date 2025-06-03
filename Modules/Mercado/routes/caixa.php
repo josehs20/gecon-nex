@@ -16,7 +16,7 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
         Route::get('/venda', [CaixaPDVController::class, 'venda'])->name('caixa.venda');
         Route::get('/caixa/produto/get', [CaixaPDVController::class, 'get_produtos'])->name('caixa.produto.get');
         Route::post('/caixa/finalizar/venda', [CaixaPDVController::class, 'finalizar_venda'])->name('caixa.finalizar.venda')->defaults('acao_id', config('config.acoes.finalizou_venda.id'));
-        Route::post('/caixa/salvar/venda', [CaixaPDVController::class, 'salvar_venda'])->name('caixa.salvar.venda')->defaults('acao_id', config('config.acoes.salvou_venda_caixa.id'));
+        Route::post('/caixa/orcamento', [CaixaPDVController::class, 'orcamento'])->name('caixa.orcamento.venda')->defaults('acao_id', config('config.acoes.orcamento.id'));
         Route::get('/caixa/get/vendas', [CaixaPDVController::class, 'get_vendas'])->name('caixa.get.vendas');
         Route::get('/caixa/voltar/venda', [CaixaPDVController::class, 'get_venda_voltar'])->name('caixa.voltar.venda');
         Route::post('/caixa/cancelar/venda', [CaixaPDVController::class, 'cancelar_venda'])->name('caixa.cancelar.venda')->defaults('acao_id', config('config.acoes.cancelou_venda_salva.id'));

@@ -88,7 +88,7 @@ class CaixaRepository
     public static function getCaixaById(
         int $id
     ) {
-        $caixas = Caixa::with(['recursos'])->find($id);
+        $caixas = Caixa::with(['recursos', 'diario_atual'])->find($id);
         return $caixas;
     }
 

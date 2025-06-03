@@ -492,9 +492,9 @@ return [
             'id' => 18,
             'descricao' => 'Realizou a devolucao'
         ],
-        'salvou_venda_caixa' => [
+        'orcamento' => [
             'id' => 19,
-            'descricao' => 'Salvou uma venda'
+            'descricao' => 'Realizou orçamento.'
         ],
         'criou_forma_pagamento' => [
             'id' => 20,

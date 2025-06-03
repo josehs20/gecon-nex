@@ -4,8 +4,8 @@ namespace Modules\Mercado\Application;
 
 use Modules\Mercado\UseCases\Pdv\Caixa\AbrirCaixa;
 use Modules\Mercado\UseCases\Pdv\Caixa\CalculaTotaisVendaTemp;
-use Modules\Mercado\UseCases\Pdv\Caixa\CriarCaixaDiario;
 use Modules\Mercado\UseCases\Pdv\Caixa\CriarEvidencia;
+use Modules\Mercado\UseCases\Pdv\Caixa\CriarOrcamento;
 use Modules\Mercado\UseCases\Pdv\Caixa\CriarOuAtualizaCaixaDiario;
 use Modules\Mercado\UseCases\Pdv\Caixa\DevolucaoVenda;
 use Modules\Mercado\UseCases\Pdv\Caixa\FinalizarVenda;
@@ -15,6 +15,7 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarCaixaDiarioRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FinalizarVendaRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\OrcamentoRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SuprirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\SuprirCaixa;
 
@@ -56,7 +57,6 @@ class PDVApplication
         return $interact->handle();
     }
 
-
     public static function calculaTotaisVendaTemp(int $caixa_id, ?float $desconto_percentual)
     {
         $interact = new CalculaTotaisVendaTemp($caixa_id, $desconto_percentual);
@@ -66,6 +66,12 @@ class PDVApplication
     public static function gerarNumeroVenda(int $loja_id)
     {
         $interact = new GerarNumeroVenda($loja_id);
+        return $interact->handle();
+    }
+
+    public static function criar_orcamento(OrcamentoRequest $request)
+    {
+        $interact = new CriarOrcamento($request);
         return $interact->handle();
     }
 }
