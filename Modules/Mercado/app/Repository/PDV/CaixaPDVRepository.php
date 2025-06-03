@@ -6,7 +6,11 @@ use Modules\Mercado\Entities\Caixa;
 use Modules\Mercado\Entities\CaixaDiario;
 use Modules\Mercado\Entities\CaixaEvidencia;
 use Modules\Mercado\Entities\CaixaItemTemp;
+use Modules\Mercado\Entities\Devolucao;
+use Modules\Mercado\Entities\DevolucaoItem;
 use Modules\Mercado\Entities\FichaCliente;
+use Modules\Mercado\Entities\Orcamento;
+use Modules\Mercado\Entities\OrcamentoItem;
 use Modules\Mercado\Entities\Suprimento;
 use Modules\Mercado\Entities\Venda;
 use Modules\Mercado\Entities\VendaItem;
@@ -89,7 +93,7 @@ class CaixaPDVRepository
         return FichaCliente::create($atributos);
     }
 
-    public static function getItensCaixa(int $caixa_id)
+    public static function getItensCaixaTemp(int $caixa_id)
     {
         return CaixaItemTemp::where('caixa_id', $caixa_id)->get();
     }
@@ -109,5 +113,35 @@ class CaixaPDVRepository
         }
 
         return null;
+    }
+
+    public static function criarDevolucaoAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        Devolucao::setHistorico($criarHistoricoRequest);
+        return Devolucao::create($atributos);
+    }
+
+
+    public static function criarDevolucaoItensAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        DevolucaoItem::setHistorico($criarHistoricoRequest);
+        return DevolucaoItem::create($atributos);
+    }
+
+    public static function criarOrcamentoAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        Orcamento::setHistorico($criarHistoricoRequest);
+        return Orcamento::create($atributos);
+    }
+
+    public static function criarOrcamentoItemAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        OrcamentoItem::setHistorico($criarHistoricoRequest);
+        return OrcamentoItem::create($atributos);
+    }
+
+    public static function getVendaById(int $vendaId)
+    {
+        return Venda::with('venda_itens.estoque.produto')->find($vendaId);
     }
 }

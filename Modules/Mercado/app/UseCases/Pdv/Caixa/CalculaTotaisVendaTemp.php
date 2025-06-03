@@ -21,7 +21,7 @@ class CalculaTotaisVendaTemp
 
     private function calcular()
     {
-        $itens = CaixaPDVRepository::getItensCaixa($this->caixa_id);
+        $itens = CaixaPDVRepository::getItensCaixaTemp($this->caixa_id);
         $subTotal = $itens->sum('total');  // Já está em centavos? Se sim, mantém.
 
         // Calcula desconto em reais

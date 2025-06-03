@@ -12,8 +12,9 @@ class DevolucaoVendaRequest extends ServiceUseCase
     private $loja_id;
     private $usuario_id;
     private $forma_pagamento_id;
+    private $itens;
 
-    public function __construct(CriarHistoricoRequest $criarHistoricoRequest,$venda_id, $caixa_id, $loja_id, $usuario_id, $forma_pagamento_id)
+    public function __construct(CriarHistoricoRequest $criarHistoricoRequest, $venda_id, $caixa_id, $loja_id, $usuario_id, $forma_pagamento_id, $itens)
     {
         parent::__construct($criarHistoricoRequest);
         $this->venda_id = $venda_id;
@@ -21,6 +22,17 @@ class DevolucaoVendaRequest extends ServiceUseCase
         $this->loja_id = $loja_id;
         $this->usuario_id = $usuario_id;
         $this->forma_pagamento_id = $forma_pagamento_id;
+        $this->itens = $itens;
+    }
+
+    public function getItens()
+    {
+        return $this->itens;
+    }
+
+    public function setItens($itens)
+    {
+        $this->itens = $itens;
     }
 
     public function getVendaId()

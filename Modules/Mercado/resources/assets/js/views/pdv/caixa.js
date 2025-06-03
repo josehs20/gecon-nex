@@ -1,98 +1,78 @@
 import * as gerais from '@/gerais.js';
-var rotaFinalizarVenda = $('#dataView').data('rotaFinalizarVenda');
-var rotaDevolucaoVenda = $('#dataView').data('rotaDevolucaoVenda');
-//-------------------finalizar venda-----------------//
-$('#finalizaVenda').on('click', function () {
+
+const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+const rotas = {
+    finalizarVenda: $('#dataView').data('rotaFinalizarVenda'),
+    devolucaoVenda: $('#dataView').data('rotaDevolucaoVenda'),
+    orcamentoVenda: $('#dataView').data('rotaOrcamentoVenda'),
+};
+
+function ajaxPost(button, url, requestData, texto = null) {
+    const $btn = $(button);
     $.ajax({
-        url: rotaFinalizarVenda,
+        url: url,
         type: 'POST',
         data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            data: montaRequestFinalizarVenda()
+            _token: csrfToken,
+            data: requestData
         },
         beforeSend: function () {
-            $('#finalizaVenda').prop('disabled', true).text('Finalizando...');
+            $btn.prop('disabled', true).text('Aguarde...');
         },
         success: function (response) {
-            // alert('Venda finalizada com sucesso!');
-            // Redireciona ou limpa os campos
+            // Pode redirecionar ou limpar campos aqui
         },
         error: function (xhr) {
-            // alert('Erro ao finalizar venda!');
+            console.error(`Erro ao ${texto.toLowerCase()}:`, xhr);
         },
         complete: function () {
-            $('#finalizaVenda').prop('disabled', false).text('Finalizar Venda');
+            $btn.prop('disabled', false).text(texto);
         }
     });
-});
-
-function montaRequestFinalizarVenda() {
-    let cliente_id = 1;
-    let desconto_percentual = 10;
-    let formas_pagamento = [
-        {
-            id: 1,
-            valor: 100000
-        },
-        {
-            id: 5,
-            valor: 180082,
-            parcelas: 3
-        }
-    ];
-
-    return {
-        cliente_id: cliente_id,
-        desconto_percentual: desconto_percentual,
-        formas_pagamento: formas_pagamento
-    }
 }
-//-------------------devolução venda-----------------//
-$('#devolucaoVenda').on('click', function () {
-    $.ajax({
-        url: rotaDevolucaoVenda,
-        type: 'POST',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            data: montaRequestDevolucaoVenda()
-        },
-        beforeSend: function () {
-            $('#devolucaoVenda').prop('disabled', true).text('Finalizando...');
-        },
-        success: function (response) {
-            // alert('Venda finalizada com sucesso!');
-            // Redireciona ou limpa os campos
-        },
-        error: function (xhr) {
-            // alert('Erro ao finalizar venda!');
-        },
-        complete: function () {
-            $('#finalizaVenda').prop('disabled', false).text('Finalizar Venda');
-        }
-    });
-});
+
+function montaVendaRequest() {
+    return {
+        cliente_id: 1,
+        desconto_percentual: 10,
+        formas_pagamento: [
+            { id: 1, valor: 100000 },
+            { id: 5, valor: 180082, parcelas: 3 }
+        ]
+    };
+}
 
 function montaRequestDevolucaoVenda() {
-    let vendaId = 41;
-    let forma_pagamento_devolucao = 1
-    let itens_quantidades = JSON.stringify([
-        {
-            estoqueId: 1,
-            quantidade: '1.551',
-        },
-        {
-            estoqueId: 2,
-            quantidade: '40.299',
-        }
-    ]);
-    let motivo = 'motivo teste';
     return {
-        vendaId: vendaId,
-        forma_pagamento_devolucao: forma_pagamento_devolucao,
-        itens_quantidades: itens_quantidades,
-        motivo: motivo
-    }
+        vendaId: 41,
+        forma_pagamento_devolucao: 1,
+        itens_quantidades: JSON.stringify([
+            { estoqueId: 1, quantidade: '1.551' },
+            { estoqueId: 2, quantidade: '40.299' }
+        ]),
+        motivo: 'motivo teste'
+    };
 }
 
+function montaRequestOrcamento() {
+    return {
+        forma_pagamento: null,
+        cliente_id: 1 ,
+        desconto_porcentagem : 10,
+        descricao: 'teste'
+    };
+}
 
+$('#finalizaVenda').on('click', function () {
+    ajaxPost(this, rotas.finalizarVenda, montaVendaRequest(), 'Finalizar Venda');
+});
+
+$('#devolucaoVenda').on('click', function () {
+    ajaxPost(this, rotas.devolucaoVenda, montaRequestDevolucaoVenda(), 'Devolução Venda');
+});
+
+$('#orcamentoVenda').on('click', function () {
+    ajaxPost(this, rotas.orcamentoVenda, montaRequestOrcamento(), 'Orçamento Venda');
+});
 

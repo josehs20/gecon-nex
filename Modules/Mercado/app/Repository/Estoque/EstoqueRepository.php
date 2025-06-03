@@ -34,6 +34,34 @@ class EstoqueRepository
         ]);
     }
 
+    public static function update(
+        $id,
+        $custo,
+        $preco,
+        $produto_id,
+        $loja_id,
+        $quantidade_total,
+        $quantidade_disponivel,
+        $quantidade_minima,
+        $quantidade_maxima,
+        $localizacao,
+        CriarHistoricoRequest $criarHistoricoRequest
+    ): ?Estoque {
+        $estoque = Estoque::find($id);
+        Estoque::setHistorico($criarHistoricoRequest);
+        return $estoque->update([
+            'custo' => $custo,
+            'preco' => $preco,
+            'produto_id' => $produto_id,
+            'loja_id' => $loja_id,
+            'quantidade_total' => $quantidade_total,
+            'quantidade_disponivel' => $quantidade_disponivel,
+            'quantidade_minima' => $quantidade_minima,
+            'quantidade_maxima' => $quantidade_maxima,
+            'localizacao' => $localizacao,
+        ]);
+    }
+
     public static function updateQtdEstoque(
         $id,
         $custo,
@@ -96,7 +124,7 @@ class EstoqueRepository
 
     public static function getEstoqueByIds(array $ids)
     {
-        return Estoque::with('produto')->whereIn('id', $ids)->where('loja_id', auth()->user()->usuarioMercado->loja_id)->get();
+        return Estoque::with('produto.unidade_medida')->whereIn('id', $ids)->where('loja_id', auth()->user()->usuarioMercado->loja_id)->get();
     }
 
     public static function updateQtdDisponivel(
