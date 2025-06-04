@@ -14,21 +14,25 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
 
     Route::middleware('caixa')->group(function () {
         Route::get('/venda', [CaixaPDVController::class, 'venda'])->name('caixa.venda');
-        Route::get('/caixa/produto/get', [CaixaPDVController::class, 'get_produtos'])->name('caixa.produto.get');
         Route::post('/caixa/finalizar/venda', [CaixaPDVController::class, 'finalizar_venda'])->name('caixa.finalizar.venda')->defaults('acao_id', config('config.acoes.finalizou_venda.id'));
         Route::post('/caixa/orcamento', [CaixaPDVController::class, 'orcamento'])->name('caixa.orcamento.venda')->defaults('acao_id', config('config.acoes.orcamento.id'));
+        Route::post('/caixa/devolucao', [CaixaPDVController::class, 'devolucao'])->name('caixa.devolucao.venda')->defaults('acao_id', config('config.acoes.devolucao.id'));
+        Route::post('/caixa/suprir', [CaixaPDVController::class, 'suprir_caixa'])->name('caixa.suprir')->defaults('acao_id', config('config.acoes.supriu_caixa.id'));
+        Route::post('/caixa/sangria/post', [CaixaPDVController::class, 'sangria'])->name('caixa.sangria.post')->defaults('acao_id', config('config.acoes.sangria.id'));
+        Route::post('/caixa/receber/conta/post', [CaixaPDVController::class, 'receber_conta'])->name('caixa.receber.conta.post')->defaults('acao_id', config('config.acoes.recebeu_venda_caixa.id'));
+
+
+        Route::get('/caixa/produto/get', [CaixaPDVController::class, 'get_produtos'])->name('caixa.produto.get');
+        Route::get('/caixa/devolucao/vendas', [CaixaPDVController::class, 'get_vendas_devolucao'])->name('caixa.devolucao.venda.get');
         Route::get('/caixa/get/vendas', [CaixaPDVController::class, 'get_vendas'])->name('caixa.get.vendas');
         Route::get('/caixa/voltar/venda', [CaixaPDVController::class, 'get_venda_voltar'])->name('caixa.voltar.venda');
         Route::post('/caixa/cancelar/venda', [CaixaPDVController::class, 'cancelar_venda'])->name('caixa.cancelar.venda')->defaults('acao_id', config('config.acoes.cancelou_venda_salva.id'));
         Route::get('/caixa/clientes/get/{clienteVenda?}', [CaixaPDVController::class, 'get_clientes'])->name('caixa.clientes.get');
         Route::post('/caixa/cliente/cadastrar', [CaixaPDVController::class, 'cadastrar_cliente'])->name('caixa.clientes.cadastrar')->defaults('acao_id', config('config.acoes.cadastrou_cliente.id'));
-        Route::get('/caixa/devolucao/vendas', [CaixaPDVController::class, 'get_vendas_devolucao'])->name('caixa.devolucao.venda.get');
-        Route::post('/caixa/devolucao', [CaixaPDVController::class, 'devolucao'])->name('caixa.devolucao.venda')->defaults('acao_id', config('config.acoes.devolucao.id'));
         Route::get('/caixa/teste/venda', [CaixaPDVController::class, 'venda_teste'])->name('caixa.teste.venda');
         Route::get('/caixa/fechar/index/{caixa_id}', [CaixaPDVController::class, 'fechar_caixa_index'])->name('caixa.fechar.index');
         Route::get('/caixa/sangria/get', [CaixaPDVController::class, 'get_sangria'])->name('caixa.sangria.get');
         Route::get('/caixa/sangria/segunda/via', [CaixaPDVController::class, 'get_sangria_segunda_via'])->name('caixa.sangria.segunda_via');
-        Route::post('/caixa/sangria/post', [CaixaPDVController::class, 'sangria'])->name('caixa.sangria.post')->defaults('acao_id', config('config.acoes.sangria.id'));
         Route::post('/caixa/fechar/post', [CaixaPDVController::class, 'fechar_caixa'])->name('caixa.fechar.post')->defaults('acao_id', config('config.acoes.fechou_caixa.id'));
         Route::get('/caixa/get/recebimentos', [CaixaPDVController::class, 'get_recebimentos'])->name('caixa.recebimento.venda.get');
         Route::get('/caixa/get/cliente/venda/recebimentos', [CaixaPDVController::class, 'get_venda_recebimentos'])->name('caixa.recebimento.cliente.venda.get');

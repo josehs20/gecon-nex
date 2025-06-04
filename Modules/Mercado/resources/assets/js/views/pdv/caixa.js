@@ -6,6 +6,9 @@ const rotas = {
     finalizarVenda: $('#dataView').data('rotaFinalizarVenda'),
     devolucaoVenda: $('#dataView').data('rotaDevolucaoVenda'),
     orcamentoVenda: $('#dataView').data('rotaOrcamentoVenda'),
+    suprirCaixa: $('#dataView').data('rotaSuprirCaixa'),
+    sangriaCaixa: $('#dataView').data('rotaSangriaCaixa'),
+    rotaReceberConta: $('#dataView').data('rotaReceberConta')
 };
 
 function ajaxPost(button, url, requestData, texto = null) {
@@ -34,11 +37,11 @@ function ajaxPost(button, url, requestData, texto = null) {
 
 function montaVendaRequest() {
     return {
-        cliente_id: 1,
+        cliente_id: 2,
         desconto_percentual: 10,
         formas_pagamento: [
-            { id: 1, valor: 100000 },
-            { id: 5, valor: 180082, parcelas: 3 }
+            { id: 1, valor: '1000,00' },
+            { id: 4, valor: '2.292,67', parcelas: 3 }
         ]
     };
 }
@@ -58,9 +61,38 @@ function montaRequestDevolucaoVenda() {
 function montaRequestOrcamento() {
     return {
         forma_pagamento: null,
-        cliente_id: 1 ,
-        desconto_porcentagem : 10,
+        cliente_id: 1,
+        desconto_porcentagem: 10,
         descricao: 'teste'
+    };
+}
+
+
+function montaRequestSuprirCaixa() {
+    return {
+        motivo: 'suprir teste',
+        valor: '100,55',
+        especie_pagamento_id: 1,
+    };
+}
+
+
+function montaRequestSangriaCaixa() {
+    return {
+        motivo: 'sangria teste',
+        valor: '100,55',
+        especie_pagamento_id: 1,
+    };
+}
+
+function montaRequestReceberConta() {
+    return {
+        observacao: 'observacao receber conta',
+        venda_parcelas: [{
+            venda_parcela_id: 59,
+            valor: '700,00',
+        }],
+        forma_pagamento: 2
     };
 }
 
@@ -76,3 +108,14 @@ $('#orcamentoVenda').on('click', function () {
     ajaxPost(this, rotas.orcamentoVenda, montaRequestOrcamento(), 'Orçamento Venda');
 });
 
+$('#suprirCaixa').on('click', function () {
+    ajaxPost(this, rotas.suprirCaixa, montaRequestSuprirCaixa(), 'Surpir caixa');
+});
+
+$('#sangriaCaixa').on('click', function () {
+    ajaxPost(this, rotas.sangriaCaixa, montaRequestSangriaCaixa(), 'Sangria caixa');
+});
+
+$('#receberConta').on('click', function () {
+    ajaxPost(this, rotas.rotaReceberConta, montaRequestReceberConta(), 'Recebeu conta');
+});

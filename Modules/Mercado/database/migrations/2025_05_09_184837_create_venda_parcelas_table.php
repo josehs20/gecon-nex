@@ -20,6 +20,7 @@ class CreateVendaParcelasTable extends Migration
             $table->foreignId('venda_pagamento_id');
             $table->integer('numero_parcela');
             $table->bigInteger('valor');
+            $table->bigInteger('valor_pago');
             $table->date('data_vencimento');
             $table->date('data_pagamento')->nullable();
             $table->boolean('pago')->default(false);

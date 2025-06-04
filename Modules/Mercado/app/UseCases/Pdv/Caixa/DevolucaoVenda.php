@@ -67,7 +67,7 @@ class DevolucaoVenda
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
             'valor_total' => $evidenciaAnterior->valor_total - $totalDevolvido,
-            'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro - $totalDevolvido,
+            'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro - $devolucaoEmDinheiro,
         ]);
     }
 

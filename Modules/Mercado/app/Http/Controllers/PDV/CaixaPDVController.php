@@ -27,10 +27,14 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\EditarStatusCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FinalizarVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\AbrirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CancelarVendaRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarSangriaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FecharCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\OrcamentoRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\ReceberContaRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SangriaRequest;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SuprirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\TrocarDispositivoRequest;
 
 class CaixaPDVController extends ControllerBaseMercado
@@ -183,7 +187,7 @@ class CaixaPDVController extends ControllerBaseMercado
 
     public function finalizar_venda(Request $request)
     { //insere itens na temp
-        // $estoques = this->insereItensTemp();
+        // $estoques = $this->insereItensTemp();
         $this->getDb()->begin();
         try {
             $parans = (object) Post::anti_injection_array($request->all());
@@ -200,13 +204,12 @@ class CaixaPDVController extends ControllerBaseMercado
                 $parans->desconto_percentual
             );
 
-            $venda = PDVApplication::finalizar_venda($finalizarVendaRequest);
-            $venda->usuario->master;
-
+            $venda = PDVApplication::finalizar_venda($finalizarVendaRequest);;
             $this->getDb()->commit();
             //falta processo de impressao elgin
             return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !']);
         } catch (Exception $e) {
+
             $this->getDb()->rollBack();
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
@@ -501,19 +504,68 @@ class CaixaPDVController extends ControllerBaseMercado
         $this->getDb()->begin();
         try {
             $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
+            if (!isset($parans->motivo)) {
+                throw new Exception("Motivo é obrigatório", 1);
+            }
+            $motivo = $parans->motivo;
+            $historicoRequest = $this->getCriarHistoricoRequest($request);
+            $historicoRequest->setComentario($motivo);
+            $valor = converteExibicaoParaCentavos($parans->valor);
+            // $sangria = CaixaApplication::criarSangria(new CriarSangriaRequest($historicoRequest, $parans->caixa_id, $parans->senha, $parans->valor, $observacao, $request));
+
+            $sangria = PDVApplication::sangria(new SangriaRequest(
+                $historicoRequest,
+                $request->attributes->get('caixa_id'),
+                $valor,
+                $parans->especie_pagamento_id,
+                $motivo
+            ));
+            $this->getDb()->commit();
+
+            return response()->json(['msg' => 'Sangria realizada com sucesso.', 'success' => true], 200);
+        } catch (\Exception $e) {
+            $this->getDb()->rollBack();
+            dd($e);
+            Log::error($e);
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function receber_conta(Request $request)
+    {
+        $this->getDb()->begin();
+        try {
+            $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
+
+            if (!isset($parans->forma_pagamento)) {
+                throw new Exception("Forma de pagamento informada.", 1);
+            }
+            if (!isset($parans->venda_parcelas)) {
+                throw new Exception("Nenhuma parcela selecionada.", 1);
+            }
+
             $observacao = $request->observacao ? $parans->observacao : null;
             $historicoRequest = $this->getCriarHistoricoRequest($request);
             $historicoRequest->setComentario($observacao);
+            // $sangria = CaixaApplication::criarSangria(new CriarSangriaRequest($historicoRequest, $parans->caixa_id, $parans->senha, $parans->valor, $observacao, $request));
+            $usuario = Auth::user()->getUserModulo;
+            $recebimentos = PDVApplication::receber_conta(new ReceberContaRequest(
+                $historicoRequest,
+                $request->attributes->get('loja_id'),
+                $request->attributes->get('caixa_id'),
+                $usuario->id,
+                $parans->venda_parcelas,
+                $parans->forma_pagamento,
+                $observacao
+            ));
 
-            $sangriaRealizada = CaixaRepository::getSangria($parans->caixa_id);
-
-            $sangria = CaixaApplication::criarSangria(new CriarSangriaRequest($historicoRequest, $parans->caixa_id, $parans->senha, $parans->valor, $observacao, $request));
             $this->getDb()->commit();
-
-            return response()->json(['msg' => 'Sangria realizada com sucesso.', 'success' => true, 'sangria' => $sangriaRealizada], 200);
+            return response()->json(['msg' => 'Sangria realizada com sucesso.', 'success' => true], 200);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-
+            dd($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
@@ -764,6 +816,42 @@ class CaixaPDVController extends ControllerBaseMercado
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
 
+            Log::error($e);
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function suprir_caixa(Request $request)
+    {
+        $this->getDb()->begin();
+
+        try {
+            $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
+            $historicoRequest = $this->getCriarHistoricoRequest($request);
+            $historicoRequest->setComentario($parans->motivo);
+            $usuario = Auth::user()->getUserModulo;
+            $recurso = config('config.caixa.recursos.suprimentos.id');
+            $evidencia = PDVApplication::criar_evidencias(new CriarEvidenciaRequest($historicoRequest, $request->attributes->get('caixa_id'), $historicoRequest->getAcaoId(), $usuario->id, $recurso, null, null, $historicoRequest->getComentario()));
+            $diario = $evidencia->caixa->diario_atual;
+            $valor = converteExibicaoParaCentavos($parans->valor);
+
+            $suprimento = PDVApplication::suprir_caixa(new SuprirCaixaRequest($historicoRequest, $request->attributes->get('caixa_id'), $evidencia->id, $diario->id, $usuario->id, $valor, $parans->especie_pagamento_id, $historicoRequest->getComentario()));
+            $suprirEmDinheiro = $suprimento->especie_pagamento_id == config('config.especie_pagamento.dinheiro.id');
+
+            $valorDinhieiro = $suprirEmDinheiro ? $suprimento->valor : 0;
+            $totalSupriu = $suprimento->valor;
+            $evidenciaAnterior = $evidencia->evidenciaAnterior();
+            $total = $evidenciaAnterior->valor_total + $totalSupriu;
+            $valorDinheiro = $evidenciaAnterior->valor_dinheiro + $valorDinhieiro;
+            $evidencia = PDVApplication::editar_valores_evidencia($historicoRequest, $evidencia->id, $total, $valorDinheiro);
+
+            $this->getDb()->commit();
+            //comprovante de supriemntos
+            return response()->json(['success' => true, 'msg' => 'Caixa foi suprido com sucesso']);
+        } catch (\Exception $e) {
+            $this->getDb()->rollBack();
+            debugException($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }

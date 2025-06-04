@@ -13,12 +13,13 @@ class VendaParcela extends ModelBase
         'venda_pagamento_id',
         'numero_parcela',
         'valor',
+        'valor_pago',
+        'status_id',
+        'pago',
         'data_vencimento',
         'data_pagamento',
-        'pago',
         'forma_pagamento_id',
         'cliente_id',
-        'status_id',
         'caixa_diario_id',
     ];
 
@@ -57,5 +58,10 @@ class VendaParcela extends ModelBase
     public function caixaDiario()
     {
         return $this->belongsTo(CaixaDiario::class, 'caixa_diario_id');
+    }
+
+    public function fichasCliente()
+    {
+        return $this->belongsTo(FichaCliente::class, 'venda_pagamento_id');
     }
 }

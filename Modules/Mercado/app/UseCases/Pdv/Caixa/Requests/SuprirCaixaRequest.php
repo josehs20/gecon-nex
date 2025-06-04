@@ -13,6 +13,7 @@ class SuprirCaixaRequest extends ServiceUseCase
     protected $usuario_id;
     protected $valor;
     protected $motivo;
+    protected $especie_pagamento_id;
 
     public function __construct(
         CriarHistoricoRequest $historicoRequest,
@@ -21,11 +22,13 @@ class SuprirCaixaRequest extends ServiceUseCase
         $caixa_diario_id,
         $usuario_id,
         $valor,
+        $especie_pagamento_id,
         $motivo
     ) {
         parent::__construct($historicoRequest);
 
         $this->caixa_id = $caixa_id;
+        $this->especie_pagamento_id = $especie_pagamento_id;
         $this->caixa_evidencia_id = $caixa_evidencia_id;
         $this->caixa_diario_id = $caixa_diario_id;
         $this->usuario_id = $usuario_id;
@@ -33,6 +36,10 @@ class SuprirCaixaRequest extends ServiceUseCase
         $this->motivo = $motivo;
     }
 
+     public function getEspeciePagamentoId()
+    {
+        return $this->caixa_id;
+    }
     // Getter e Setter para caixa_id
     public function getCaixaId()
     {

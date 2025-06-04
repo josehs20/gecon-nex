@@ -3,22 +3,15 @@
 namespace Modules\Mercado\UseCases\Pdv\Caixa;
 
 use Exception;
-use Modules\Mercado\Application\CaixaApplication;
 use Modules\Mercado\Application\MovimentacaoEstoqueApplication;
 use Modules\Mercado\Application\PDVApplication;
-use Modules\Mercado\Application\VendaApplication;
 use Modules\Mercado\Entities\Venda;
-use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\Pagamento\PagamentoRepository;
 use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
-use Modules\Mercado\Repository\Venda\VendaRepository;
 use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\MovimentacaoEstoqueItemRequest;
 use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\MovimentacaoEstoqueRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
-use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarVendaPagamentoRequest;
-use Modules\Mercado\UseCases\Pdv\Caixa\Requests\EditarStatusCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FinalizarVendaRequest;
-use Modules\Mercado\UseCases\Pdv\Venda\Requests\AtualizaVendaRequest;
 
 class FinalizarVenda
 {
@@ -36,7 +29,7 @@ class FinalizarVenda
         $venda = $this->criaVenda($evidencia);
         $vendaItens = $this->criaVendaItens($venda, $itensTemp);
         $pagamentos = $this->criaVendaPagamentos($venda);
-        $fichaCliente = $this->criaFichaCliente($venda);
+        $fichaCliente = $this->criaFichaCliente($venda);//abater credito cliente caso seja credito loja
         $movimentacaoEstoque = $this->movimentaEstoques($venda);
         $evidencia = $this->atualizaTotaisEvidencia($evidencia, $venda);
         $caixa = $this->updateCaixa();
@@ -51,7 +44,17 @@ class FinalizarVenda
         if ($itens->count() == 0) {
             throw new Exception("Não existe itens na venda.", 1);
         }
+        //converte formas de pagamento para centavos
+        $formasPagamento = $this->request->getFormasPagamento();
 
+        $valoresCentavos = array_map(function ($forma) {
+            // Substitui vírgula por ponto, transforma em float e multiplica por 100
+            $valor = $forma['valor'];
+
+            // Mantém outros campos (como parcelas)
+            return array_merge($forma, ['valor' => converteExibicaoParaCentavos($valor)]);
+        }, $formasPagamento);
+        $this->request->setFormasPagamento($valoresCentavos);
         return $itens;
     }
 
@@ -69,6 +72,7 @@ class FinalizarVenda
     private function criaVenda($evidencia)
     {
         $valores = PDVApplication::calculaTotaisVendaTemp($this->request->getCaixaId(), $this->request->getDesconto());
+
         $total_pago = array_sum(array_column($this->request->getFormasPagamento(), 'valor'));
 
         if ($total_pago < $valores['total']) {
@@ -120,7 +124,7 @@ class FinalizarVenda
             $resto = $valor % $parcelas; // ajuste para não perder centavos
 
             $parcelasValores = [];
-            //cria a venda pagamentos sendo eles os tipos de pagamentos que foram efetuados
+            //cria a venda pagamentos sendo eles os tipos de pagamentos que foram
             $formaPagamento = PagamentoRepository::getFormaPagamentoById($fp['id']);
             $vendaPagamento = CaixaPDVRepository::criarVendaPagamentoAttrs($this->request->getCriarHistoricoRequest(), [
                 'venda_id' => $venda->id,
@@ -147,20 +151,37 @@ class FinalizarVenda
                 ];
             }
 
-            //agora cria de fato o que foi pago e as parcelas de cada forma de pagamento
+            //agora cria de fato as parcelas e se foi pago
             foreach ($parcelasValores as $key => $pv) {
+                $creditoLoja = $pv['forma_pagamento_id'] == config('config.especie_pagamento.credito_loja.id');
+                $data_vencimento = now();
+                $data_pagamento = now();
+                $pago = true;
+                $status_id = config('config.status.pago');
+                $valor_pago = $pv['valor'];
+
+                //caso seja o tipo de pagamento credito em loja
+                if ($creditoLoja) {
+                    $data_vencimento = $data_vencimento->addDays(30);
+                    $data_pagamento = null;
+                    $pago = false;
+                    $status_id = config('config.status.aberto');
+                    $valor_pago = 0;
+                }
+
                 CaixaPDVRepository::criarVendaParcelaAttrs($this->request->getCriarHistoricoRequest(), [
                     'venda_id' => $venda->id,
                     'loja_id' => $venda->loja_id,
                     'venda_pagamento_id' => $vendaPagamento->id,
                     'numero_parcela' => $pv['parcela'],
                     'valor' => $pv['valor'],
-                    'data_vencimento' => now(),
-                    'data_pagamento' => now(),
-                    'pago' => true,
+                    'valor_pago' => $valor_pago,
+                    'data_vencimento' => $data_vencimento, //validar caso cada cliente tenha uma data específica de pagamento
+                    'data_pagamento' => $data_pagamento,
+                    'pago' => $pago,
                     'forma_pagamento_id' => $vendaPagamento->forma_pagamento_id,
                     'cliente_id' => $this->request->getClienteId(),
-                    'status_id' => config('config.status.pago'),
+                    'status_id' => $status_id,
                     'caixa_diario_id' => $venda->caixa->diario_atual->id,
                 ]);
             }
@@ -171,17 +192,47 @@ class FinalizarVenda
 
     private function criaFichaCliente(Venda $venda)
     {
+        //agora cria de fato o que foi pago e as parcelas de cada forma de pagamento
         return $venda->venda_pagamentos->map(function ($vp) {
-            return $vp->vendaParcelas->map(function ($v) {
-                return CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), [
-                    'cliente_id' => $v->cliente_id,
-                    'loja_id' => $v->loja_id,
-                    'venda_id' => $v->venda_id,
-                    'valor' => $v->valor,
-                    'venda_pagamento_id' => $v->venda_pagamento_id,
-                    'venda_parcela_id' => $v->id,
-                    'caixa_diario_id' => $v->venda->caixa->diario_atual->id,
-                ]);
+            return $vp->vendaParcelas->map(function ($v) use ($vp) {
+                if ($v->pago == true) {
+                    return CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), [
+                        'cliente_id' => $v->cliente_id,
+                        'loja_id' => $v->loja_id,
+                        'venda_id' => $v->venda_id,
+                        'valor' => $v->valor,
+                        'venda_pagamento_id' => $v->venda_pagamento_id,
+                        'venda_parcela_id' => $v->id,
+                        'caixa_diario_id' => $v->venda->caixa->diario_atual->id,
+                        'forma_pagamento_id' => $v->venda->caixa->diario_atual->id,
+                        'caixa_evidencia_id' => $vp->caixa_evidencia_id,
+                    ]);
+                } else {
+                    //o desconto de credito do cliente é feito com base na ficha dele
+                    $cliente = $v->cliente;
+                    if ($cliente->documento == '00000000000') {
+                        throw new Exception("Cliente padrão não permitido para venda em crédito loja.", 1);
+                    }
+
+                    if (!$cliente || !$cliente->credito) {
+                        // Caso não tenha cliente
+                        throw new Exception("Cliente não encontrado", 1);
+                    }
+
+                    $creditoAve = $cliente->credito->credito_ave;
+                    $creditoLoja = $cliente->credito->credito_loja;
+                    $creditoUsado = $cliente->credito->credito_loja_usado;
+
+                    $creditoSobrando = ($creditoLoja - $creditoUsado) + $creditoAve;
+                    if ($creditoSobrando <= $v->valor) {
+                        throw new Exception("Credito do cliente insuficiente." . converterParaReais($creditoSobrando), 1);
+                    }
+
+                    //realiza o desconto no credito do cliente
+                    CaixaPDVRepository::editaClienteCreditoAttrs($this->request->getCriarHistoricoRequest(), $cliente->id, [
+                        'credito_loja_usado' => ($creditoUsado + $v->valor)
+                    ]);
+                }
             });
         });
     }
@@ -222,7 +273,7 @@ class FinalizarVenda
 
         $pagamentoEmDinheiro = $pagamentoEmDinheiro ? $pagamentoEmDinheiro->valor : 0;
         $totais = $venda->venda_pagamentos->sum('valor');
-        $evidenciaAnterior = $evidencia->evidenciaAnterior;
+        $evidenciaAnterior = $evidencia->evidenciaAnterior();
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
             'valor_total' => $evidenciaAnterior->valor_total + $totais,

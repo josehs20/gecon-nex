@@ -15,6 +15,7 @@ class Suprimento extends ModelBase
         'usuario_id',
         'valor',
         'motivo',
+        'especie_pagamento_id',
     ];
 
     /**

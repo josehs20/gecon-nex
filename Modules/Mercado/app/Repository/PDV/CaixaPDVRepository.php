@@ -6,11 +6,13 @@ use Modules\Mercado\Entities\Caixa;
 use Modules\Mercado\Entities\CaixaDiario;
 use Modules\Mercado\Entities\CaixaEvidencia;
 use Modules\Mercado\Entities\CaixaItemTemp;
+use Modules\Mercado\Entities\CreditoCliente;
 use Modules\Mercado\Entities\Devolucao;
 use Modules\Mercado\Entities\DevolucaoItem;
 use Modules\Mercado\Entities\FichaCliente;
 use Modules\Mercado\Entities\Orcamento;
 use Modules\Mercado\Entities\OrcamentoItem;
+use Modules\Mercado\Entities\Sangria;
 use Modules\Mercado\Entities\Suprimento;
 use Modules\Mercado\Entities\Venda;
 use Modules\Mercado\Entities\VendaItem;
@@ -61,6 +63,12 @@ class CaixaPDVRepository
     {
         Suprimento::setHistorico($criarHistoricoRequest);
         return Suprimento::create($atributos);
+    }
+
+    public static function criarSangriaAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        Sangria::setHistorico($criarHistoricoRequest);
+        return Sangria::create($atributos);
     }
 
     public static function criarVendaAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
@@ -115,6 +123,36 @@ class CaixaPDVRepository
         return null;
     }
 
+    public static function editaAttrsVendaParcela(CriarHistoricoRequest $criarHistoricoRequest, int $id, array $atributos)
+    {
+        VendaParcela::setHistorico($criarHistoricoRequest);
+        $updated = VendaParcela::where('id', $id)->update($atributos);
+
+        if ($updated) {
+            return VendaParcela::find($id);
+        }
+
+        return null;
+    }
+
+    public static function editaClienteCreditoAttrs(CriarHistoricoRequest $criarHistoricoRequest, int $id, array $atributos)
+    {
+        CreditoCliente::setHistorico($criarHistoricoRequest);
+        $updated = CreditoCliente::where('id', $id)->update($atributos);
+
+        if ($updated) {
+            return CreditoCliente::find($id);
+        }
+
+        return null;
+    }
+
+    public static function criarCriarEvidenciaAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
+    {
+        CaixaEvidencia::setHistorico($criarHistoricoRequest);
+        return CaixaEvidencia::create($atributos);
+    }
+
     public static function criarDevolucaoAttrs(CriarHistoricoRequest $criarHistoricoRequest, array $atributos)
     {
         Devolucao::setHistorico($criarHistoricoRequest);
@@ -143,5 +181,10 @@ class CaixaPDVRepository
     public static function getVendaById(int $vendaId)
     {
         return Venda::with('venda_itens.estoque.produto')->find($vendaId);
+    }
+
+    public static function getVendaParcelaById(int $vendaId)
+    {
+        return VendaParcela::with('vendaPagamento.venda')->find($vendaId);
     }
 }
