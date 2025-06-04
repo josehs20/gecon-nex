@@ -22,6 +22,10 @@ class CreateFichaClienteTable extends Migration
             $table->foreignId('venda_pagamento_id')->nullable();
             $table->foreignId('venda_parcela_id')->nullable();
             $table->foreignId('caixa_diario_id')->nullable();
+            $table->foreignId('caixa_evidencia_id')->nullable();
+            $table->foreignId('forma_pagamento_id')->nullable();
+
+
             $table->timestamps();
 
 
@@ -31,6 +35,8 @@ class CreateFichaClienteTable extends Migration
             $table->foreign('venda_pagamento_id')->references('id')->on('venda_pagamentos')->onDelete('cascade');
             $table->foreign('venda_parcela_id')->references('id')->on('venda_parcelas')->onDelete('cascade');
             $table->foreign('caixa_diario_id')->references('id')->on('caixa_diario')->onDelete('cascade');
+            $table->foreign('caixa_evidencia_id')->references('id')->on('caixa_evidencias')->onDelete('cascade');
+            $table->foreign('forma_pagamento_id')->references('id')->on('forma_pagamentos')->onDelete('cascade');
 
         });
     }

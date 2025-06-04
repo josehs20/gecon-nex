@@ -12,6 +12,7 @@ class FichaCliente extends ModelBase
         'loja_id',
         'venda_id',
         'valor',
+        'caixa_evidencia_id',
         'venda_pagamento_id',
         'venda_parcela_id',
         'caixa_diario_id',

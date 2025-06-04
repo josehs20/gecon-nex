@@ -29,7 +29,7 @@ class AbrirCaixa
         $caixa = self::abrir_caixa();
         $diario = $this->criar_caixa_diario($evidencia, $caixa);
         $suprimentos = $this->suprir_caixa($evidencia, $diario);
-        
+
         return $caixa;
     }
 
@@ -53,6 +53,7 @@ class AbrirCaixa
             $diario->id,
             $this->request->getUsuarioId(),
             $this->request->getValorInicial(),
+            config('config.especie_pagamento.dinheiro.id'),
             $this->request->getCriarHistoricoRequest()->getComentario()
         ));
     }

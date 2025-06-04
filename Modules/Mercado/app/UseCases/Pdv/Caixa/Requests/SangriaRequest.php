@@ -2,28 +2,32 @@
 
 namespace Modules\Mercado\UseCases\Pdv\Caixa\Requests;
 
-use Illuminate\Http\Request;
 use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 use Modules\Mercado\UseCases\ServiceUseCase;
 
-class CriarSangriaRequest extends ServiceUseCase
+class SangriaRequest extends ServiceUseCase
 {
     private int $caixa_id;
-    private string $senha;
-    private ?string $descricao;
-    private ?int $valorSangria;
-    private Request $request;
+    private string $descricao;
+    private int $valorSangria;
+    private int $especie_pagamento_id;
 
     // Construtor para inicializar os campos
-    public function __construct(CriarHistoricoRequest $historicoRequest, int $caixa_id, string $senha, ?int $valorSangria = null, ?string $descricao = null,Request $request)
+    public function __construct(CriarHistoricoRequest $historicoRequest, int $caixa_id, $valorSangria, int $especie_pagamento_id, string $descricao)
     {
         parent::__construct($historicoRequest);
         $this->caixa_id = $caixa_id;
-        $this->senha = $senha;
+        $this->especie_pagamento_id = $especie_pagamento_id;
         $this->valorSangria = $valorSangria;
         $this->descricao = $descricao;
-        $this->request = $request;
+        $this->especie_pagamento_id = $especie_pagamento_id;
     }
+
+        public function getEspeciePagamentoId(): int
+    {
+        return $this->especie_pagamento_id;
+    }
+
 
     // Método get para caixa_id
     public function getCaixaId(): int
@@ -35,18 +39,6 @@ class CriarSangriaRequest extends ServiceUseCase
     public function setCaixaId(int $caixa_id): void
     {
         $this->caixa_id = $caixa_id;
-    }
-
-    // Método get para senha
-    public function getSenha(): string
-    {
-        return $this->senha;
-    }
-
-    // Método set para senha
-    public function setSenha(string $senha): void
-    {
-        $this->senha = $senha;
     }
 
     public function getValorSangria(): ?int
@@ -68,9 +60,5 @@ class CriarSangriaRequest extends ServiceUseCase
     {
         $this->descricao = $descricao;
     }
-    // Método get para acessar a instância de Request
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
+
 }

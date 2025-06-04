@@ -18,6 +18,7 @@ class CreateSangriasTable extends Migration
             $table->foreignId('caixa_id')->constrained()->onDelete('cascade');
             $table->foreignId('caixa_evidencia_id')->nullable()->constrained('caixa_evidencias')->onDelete('cascade');
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('especie_pagamento_id')->constrained('especie_pagamento')->onDelete('cascade');
             $table->bigInteger('valor');
             $table->string('motivo')->nullable();
             $table->foreignId('caixa_diario_id')->nullable()->constrained('caixa_diario')->onDelete('cascade');

@@ -6,12 +6,8 @@ use App\Application\UsuarioApplication;
 use App\Models\Empresa;
 use App\Models\User;
 use App\UseCases\Usuario\Requests\UsuarioRequest;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Modules\Mercado\Entities\Endereco;
-use Modules\Mercado\Entities\Usuario;
 use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 
 class UsuariosFakeSeeder extends Seeder

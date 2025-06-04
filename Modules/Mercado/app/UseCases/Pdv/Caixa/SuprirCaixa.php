@@ -33,6 +33,7 @@ class SuprirCaixa
             'usuario_id' => $this->request->getUsuarioId(),
             'valor' => $this->request->getValor(),
             'motivo' => $this->request->getMotivo(),
+            'especie_pagamento_id' => $this->request->getEspeciePagamentoId(),
         ]);
     }
 }

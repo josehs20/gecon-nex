@@ -162,7 +162,7 @@ return [
             'nome' => 'Crédito em loja',
             'afeta_troco' => false,
             'credito_loja' => true,
-            'contem_parcela' => false
+            'contem_parcela' => true
         ],
         'cartao_credito' => [
             'id' => 5,
@@ -679,6 +679,10 @@ return [
         'excluiu_permissao_caixa' => [
             'id' => 65,
             'descricao' => 'Excluiu permissão do caixa.'
+        ],
+        'supriu_caixa' => [
+            'id' => 66,
+            'descricao' => 'Supriu o caixa.'
         ]
     ],
 
