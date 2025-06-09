@@ -20,7 +20,6 @@ class Venda extends ModelBase
         'total',
         'desconto_porcentagem',
         'desconto_dinheiro',
-        'data_concluida',
     ];
 
     public function venda_itens()

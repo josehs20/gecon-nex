@@ -5,7 +5,6 @@ namespace Modules\Mercado\Http\Controllers\Gerenciamento;
 use App\System\Post;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Mercado\Application\UnidadeMedidaApplication;
 use Modules\Mercado\Http\Controllers\ControllerBaseMercado;

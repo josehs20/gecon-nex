@@ -116,7 +116,7 @@ class VendaRepository
 
     public static function getVendaItemByIds(int $loja_id, array $ids)
     {
-        return VendaItem::with(['estoque', 'venda'])->where('loja_id', $loja_id)->whereIn('id', $ids)->get();
+        return VendaItem::with(['estoque.produto.unidade_medida', 'venda'])->where('loja_id', $loja_id)->whereIn('id', $ids)->get();
     }
     public static function atualizaStatusVenda(
         $venda_id,

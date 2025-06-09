@@ -3,19 +3,11 @@
 namespace Modules\Mercado\UseCases\Pdv\Caixa;
 
 use Exception;
-use Modules\Mercado\Application\CaixaApplication;
 use Modules\Mercado\Application\EstoqueApplication;
 use Modules\Mercado\Application\MovimentacaoEstoqueApplication;
 use Modules\Mercado\Application\PDVApplication;
-use Modules\Mercado\Application\VendaApplication;
-use Modules\Mercado\Entities\Devolucao;
-use Modules\Mercado\Entities\DevolucaoItem;
-use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\Cliente\ClienteRepository;
-use Modules\Mercado\Repository\Devolucao\DevolucaoRepository;
-use Modules\Mercado\Repository\Estoque\EstoqueRepository;
 use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
-use Modules\Mercado\Repository\Produto\ProdutoRepository;
 use Modules\Mercado\Repository\Venda\VendaRepository;
 use Modules\Mercado\UseCases\Gerenciamento\Estoque\Requests\CriarEstoqueRequest;
 use Modules\Mercado\UseCases\Gerenciamento\Estoque\Requests\UpdateQtdDisponivelRequest;
@@ -23,7 +15,6 @@ use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\Moviment
 use Modules\Mercado\UseCases\Gerenciamento\MovimentacaoEstoque\Requests\MovimentacaoEstoqueRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
-use Modules\Mercado\UseCases\Pdv\Caixa\Requests\EditarStatusCaixaRequest;
 
 class DevolucaoVenda
 {
@@ -42,7 +33,6 @@ class DevolucaoVenda
         $this->movimentaEstoques($itensDevolvidos);
         $this->atualizaValoresEvidencia($evidencia, $devolucao);
         $this->atualizaStatusCaixa();
-
         return $devolucao;
     }
 
@@ -83,16 +73,19 @@ class DevolucaoVenda
             throw new Exception("Informe o motivo", 1);
         }
 
-        $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
-        $estoques = EstoqueRepository::getEstoqueByIds($estoqueIds);
+        $vendaItensDevolvidos = array_column($this->request->getItens(), 'venda_item_id');
+        // $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
+        // $estoques = EstoqueRepository::getEstoqueByIds($estoqueIds);
+        $vendaItensDevolvidos = VendaRepository::getVendaItemByIds($this->request->getLojaId(), $vendaItensDevolvidos);
 
         foreach ($this->request->getItens() as $key => $item) {
-            $estoque = $estoques->first(function ($e) use ($item) {
-                return $e->id == $item['estoqueId'];
-            });
+            $estoque = $vendaItensDevolvidos->first(function ($vi) use ($item) {
+                return $vi->id == $item['venda_item_id'];
+            })->estoque;
 
             $valor = $item['quantidade'];
             $isFloat = intval($valor) != $valor;
+
             if (!$estoque->produto->unidade_medida->pode_ser_float && $isFloat) {
                 throw new Exception("O valor do material " . $estoque->produto->nome . 'não pode ser um valor fracionado. Unidade de medida: ' . $estoque->produto->unidade_medida->sigla, 1);
             }
@@ -118,7 +111,6 @@ class DevolucaoVenda
 
     private function calculaValoresDevolucao()
     {
-        $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
         $venda = CaixaPDVRepository::getVendaById($this->request->getVendaId());
         $venda_itens = $venda->venda_itens;
         $total = 0; // Inicializa o total antes do loop
@@ -126,13 +118,25 @@ class DevolucaoVenda
         foreach ($this->request->getItens() as $key => $item) {
             //regra de negocio decidir devolucao com valor atual ou valor de venda
             $vendaItem = $venda_itens->first(function ($v) use ($item) {
-                return $v->estoque_id == $item['estoqueId'];
+                return $v->id == $item['venda_item_id'];
             });
-            $valor = $vendaItem->preco * $item['quantidade'];
+            // Converte a string de quantidade para um formato numérico com ponto decimal
+            $quantidadeNumerica = formatarQtdRequest($item['quantidade']);
+
+            $valor = $vendaItem->preco * $quantidadeNumerica; // Use a quantidade numérica
             $total += $valor; // Adiciona o valor do item ao total
         }
 
-        return $total; // Retorna o total calculado
+        $desconto_porcentagem = $venda->desconto_porcentagem ?? 0;
+
+        // Calcula o valor do desconto em reais
+        $valor_desconto = $total * ($desconto_porcentagem / 100);
+
+        // Subtrai o valor do desconto do total
+        $total_com_desconto = $total - $valor_desconto;
+
+        // Opcional: Se você quer que o retorno seja o total já com desconto
+        return round($total_com_desconto, 0); //arredonda tranformando em inteiro para centavos
     }
 
     private function criaDevolucaoItens($devolucao, $evidencia)
@@ -142,9 +146,10 @@ class DevolucaoVenda
         $devolucoesItens = [];
         foreach ($itens as $key => $i) {
             $vi = $venda_itens->first(function ($v) use ($i) {
-                return $v->estoque_id == $i['estoqueId'];
+                return $v->id == $i['venda_item_id'];
             });
             $estoqueDestino = $vi->produto->estoques()->where('loja_id', $this->request->getLojaId())->first();
+            $qtdRequest = formatarQtdRequest($i['quantidade']);
 
             if (!$estoqueDestino) {
                 $estoqueDestino = EstoqueApplication::criarEstoque(new CriarEstoqueRequest(
@@ -152,16 +157,16 @@ class DevolucaoVenda
                     $vi->estoque->preco,
                     $vi->estoque->produto_id,
                     $this->request->getLojaId(),
-                    $i['quantidade'],
-                    $i['quantidade'],
+                    $qtdRequest,
+                    $qtdRequest,
                     null,
                     null,
                     null,
                     $this->request->getCriarHistoricoRequest()
                 ));
             } else {
-                $qtdTotal = $estoqueDestino->quantidade_total + $i['quantidade'];
-                $qtdDisponivel = $estoqueDestino->quantidade_disponivel + $i['quantidade'];
+                $qtdTotal = $estoqueDestino->quantidade_total + $qtdRequest;
+                $qtdDisponivel = $estoqueDestino->quantidade_disponivel + $qtdRequest;
                 $estoqueDestino = EstoqueApplication::updateQtdDisponivel(new UpdateQtdDisponivelRequest($estoqueDestino->id, $qtdDisponivel, $qtdTotal, $this->request->getCriarHistoricoRequest()));
             }
 
@@ -176,9 +181,9 @@ class DevolucaoVenda
                 'estoque_destino_id' => $estoqueDestino->id,
                 'produto_id' => $vi->produto_id,
                 'data_devolucao' => now(),
-                'quantidade' => $i['quantidade'],
+                'quantidade' => $qtdRequest,
                 'preco' => $vi->preco,
-                'total' => $vi->preco * $i['quantidade']
+                'total' => $vi->preco * $qtdRequest
             ]);
         }
         return $devolucoesItens;

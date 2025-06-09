@@ -28,21 +28,21 @@ class OrcamentoItem extends ModelBase
 
     public function estoque()
     {
-        return $this->belongsTo(\Modules\Mercado\Entities\Estoque::class);
+        return $this->belongsTo(Estoque::class);
     }
 
     public function loja()
     {
-        return $this->belongsTo(\Modules\Mercado\Entities\Loja::class);
+        return $this->belongsTo(Loja::class);
     }
 
     public function produto()
     {
-        return $this->belongsTo(\Modules\Mercado\Entities\Produto::class);
+        return $this->belongsTo(Produto::class);
     }
 
     public function caixaDiario()
     {
-        return $this->belongsTo(\Modules\Mercado\Entities\CaixaDiario::class);
+        return $this->belongsTo(CaixaDiario::class);
     }
 }

@@ -10,7 +10,7 @@
     <title>GECON</title>
 
     <link rel="icon" href="{{ asset('img/logo_gecon.jpg') }}" type="image">
-    @vite(['resources/js/app.js', 'resources/css/app.css', 'Modules/Mercado/resources/assets/js/views/pdv/caixa.js'], 'build/.vite')
+    @vite(['resources/js/app.js', 'resources/css/caixa.css', 'Modules/Mercado/resources/assets/js/views/pdv/caixa.js'], 'build/.vite')
 
 </head>
 
@@ -23,6 +23,7 @@
     {{-- Tela central para desenvolvimento --}}
 
     @if (auth()->user())
+
         @yield('content')
     @endif
 </body>

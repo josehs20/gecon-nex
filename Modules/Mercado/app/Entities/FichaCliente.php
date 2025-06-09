@@ -16,6 +16,7 @@ class FichaCliente extends ModelBase
         'venda_pagamento_id',
         'venda_parcela_id',
         'caixa_diario_id',
+        'forma_pagamento_id',
     ];
 
     // Relações

@@ -1,16 +1,435 @@
 @extends('mercado::layouts.pdv')
 
 @section('content')
-    <button id="finalizaVenda">Finalizar</button>
-    <button id="devolucaoVenda">Devolução</button>
-    <button id="orcamentoVenda">Orcamento</button>
-    <button id="suprirCaixa">Suprir</button>
-    <button id="sangriaCaixa">Sangria</button>
-    <button id="receberConta">Receber</button>
+    {{-- Para o card ocupar a altura total, o pai imediato do card (geralmente body ou main)
+         precisa ter altura definida. Se o layout principal (layouts.pdv) já tiver isso,
+         então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
+         Vamos adicionar 'h-100' ao card e 'flex-grow-1' se o contêiner pai for um flexbox. --}}
+    <div class="card h-100"> {{-- Adicionado 'h-100' aqui --}}
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+            <div>
+                <h5 class="mb-0">CAIXA: 1</h5>
+            </div>
+            <div>
+                <h5 class="mb-0">LIVRE</h5>
+            </div>
+            <form class="form-inline" method="GET" action="#">
+                <input type="text" name="venda" class="form-control form-control-sm mr-2" placeholder="Buscar venda..."
+                    required>
+                <button type="button" class="btn btn-light btn-sm">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </form>
+        </div>
+
+        <div class="card-body d-flex flex-column"> {{-- Adicionado d-flex flex-column para fazer o row ocupar o restante do espaço --}}
+            <div class="row flex-grow-1"> {{-- Adicionado flex-grow-1 para a row ocupar o restante do espaço do card-body --}}
+                <div class="col-md-6 d-flex flex-column" style="border-right: 1px solid #dee2e6;">
+                    <div class="flex-grow-1 d-flex flex-column">
+
+                        <div class="form-group">
+                            <label for="produto-select">Código de barras / Produto *</label>
+                            <select class="form-control select2" id="produto-select" name="produto" style="width: 100%;">
+                                <option value="">Selecione um produto...</option>
+                            </select>
+                        </div>
+                        <div class="form-group mt-2">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-2">
+                                    <label for="quantidade">Quantidade * </label>
+                                    <input type="text" class="form-control maskQtdByClass" id="quantidade"
+                                        name="quantidade" required>
+                                </div>
+                                <div class="mr-2">
+                                    <label for="valor-unitario">Valor Unitário</label>
+                                    <input type="text" class="form-control maskDinheiroByClass" id="valor-unitario"
+                                        name="valor_unitario" readonly>
+                                </div>
+                                <div class="mr-2">
+                                    <label for="total-item">Total do Item</label>
+                                    <input type="text" class="form-control maskDinheiroByClass" id="total-item"
+                                        name="total_item" readonly>
+                                </div>
+                                <div class="align-self-end">
+                                    <button type="button" id="adicionarItemButton"
+                                        class="btn btn-primary">Adicionar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="flex-grow-1"></div>
+
+                        <div class="mt-auto">
+                            <div class="form-group mt-5">
+                                <div class="d-flex justify-content-end">
+                                    <div class="mr-2 flex-grow-1 col-md-4">
+                                        <label for="desconto">desconto * </label>
+                                        {{-- Adicionei um span para exibir o desconto em reais ao lado do label --}}
+                                        <span class="badge badge-primary mx-2" id="desconto-reais">0,00</span>
+                                        {{-- Mantido como type="text" para a máscara de porcentagem/dinheiro --}}
+                                        <input type="text" class="form-control maskPorcentagem" id="desconto"
+                                            name="desconto" value="0,00" required>
+                                    </div>
+                                    <div class="mr-2 flex-grow-1 col-md-5">
+                                        <label for="total-venda">Total da Venda</label>
+                                        <input type="text" class="form-control maskDinheiroByClass" id="total-venda"
+                                            name="total_venda" value="0.00" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mt-2">
+                                <div class="row">
+                                    <div class="col-md-3 mt-1">
+                                        <button id="finalizaVendaBtnSideBar" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#finalizarVendaSidebar">
+                                            {{-- <i class="bi bi-check2"></i> --}}
+                                            FINALIZAR
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mt-1">
+                                        <button id="devolucaoVenda" class="btn btn-danger w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#devolucaoSidebar">
+                                            {{-- <i class="bi bi-box-arrow-in-down"></i> --}}
+                                            DEVOLUÇÃO
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mt-1">
+                                        <button id="orcamentoVenda" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#orcamentoSiedbar">
+                                            {{-- <i class="bi bi-calculator"></i> --}}
+                                            ORÇAMENTO
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mt-1">
+                                        <button id="suprirCaixa" class="btn btn-dark w-100">
+                                            {{-- <i class="bi bi-cash-coin mx-1"></i> --}}
+                                            SUPRIR
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-3 mt-1">
+                                        <button id="sangriaCaixa" class="btn btn-dark w-100">
+                                            {{-- <i class="bi bi-arrow-down-circle"></i> --}}
+                                            SANGRIA
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mt-1">
+                                        <button id="receberConta" class="btn btn-dark w-100">
+                                            {{-- <i class="bi bi-wallet me-1"></i> --}}
+                                            RECEBER
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mt-1">
+                                        <button id="fecharCaixa" class="btn btn-dark w-100">
+                                            {{-- <i class="bi bi-lock me-1"></i> --}}
+                                            FECHAR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="flex-grow-1"> {{-- Removido min-height: 100% aqui, pois o flex-grow-1 no pai já faz isso --}}
+                        <h4 class="text-center mb-3 display-6">Itens da Venda</h4>
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-striped table-hover table-sm">
+                                <thead class="bg-primary text-white sticky-top">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nome</th>
+                                        <th class="text-center">Qtd</th>
+                                        <th class="text-right" style="width: 15%;">Preço</th>
+                                        <th class="text-right" style="width: 15%;">Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itensVendaTableBody">
+                                    {{-- Linhas de itens serão injetadas aqui pelo JavaScript --}}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-info text-center mt-3" id="noItemsMessage" style="display: none;">
+                            Nenhum item adicionado ainda.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="dataView" data-rota-finalizar-venda="{{ route('caixa.finalizar.venda') }}"
         data-rota-devolucao-venda="{{ route('caixa.devolucao.venda') }}"
-        data-rota-orcamento-venda="{{ route('caixa.orcamento.venda') }}" data-rota-suprir-caixa="{{ route('caixa.suprir') }}"
-        data-rota-sangria-caixa="{{ route('caixa.sangria.post') }}"
-        data-rota-receber-conta="{{ route('caixa.receber.conta.post') }}"></div>
+        data-rota-orcamento-venda="{{ route('caixa.orcamento.venda') }}"
+        data-rota-suprir-caixa="{{ route('caixa.suprir') }}" data-rota-sangria-caixa="{{ route('caixa.sangria.post') }}"
+        data-rota-receber-conta="{{ route('caixa.receber.conta.post') }}"
+        data-caixa-produto-get="{{ route('caixa.produto.get') }}" data-is-master-caixa="{{ $isMasterCaixa ?? null }}"
+        data-rota-adicionar-item="{{ route('caixa.adicionar.item') }}"
+        data-rota-remover-item="{{ route('caixa.remover.item') }}" data-caixa-itens-temp="{{ $itensTemp }}"
+        data-caixa-itens-temp-total="{{ $itensTemp->count() == 0 ? 0 : $itensTemp->sum('total') }}"
+        data-rota-supervisores="{{ route('caixa.supervisores.get') }}"
+        data-validar-superior="{{ route('caixa.supervisor.validar') }}"
+        data-clientes-get="{{ route('caixa.clientes.get') }}"
+        data-formas-pagamento-get="{{ route('caixa.formas_pagamento.get') }}"
+        data-rota-vendas-devolucao-get="{{ route('caixa.devolucao.venda.get') }}"
+        data-rota-venda-devolver-get="{{ route('caixa.devolver.venda.get') }}"
+        data-rota-orcamento="{{ route('caixa.orcamento.get') }}"
+        data-rota-orcamento-get="{{ route('caixa.orcamento.get.itens') }}"
+        data-rota-colocar-orcamento-em-venda="{{ route('caixa.colcoar.orcamento.orcamento.em.venda') }}"
+        data-rota-fechar-caixa="{{ route('caixa.fechar.post') }}"></div>
+
+    <!-- Modal para validação de senha -->
+    <div class="modal fade" id="modalSenhaSuperior" tabindex="-1" role="dialog"
+        aria-labelledby="modalSenhaSuperiorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form id="formSenhaSuperior">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalSenhaSuperiorLabel">Validação de Superior</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="supervisor-select">Supervisor *</label>
+                            <select required class="form-control select2" id="supervisor-select" name="supervisor"
+                                style="width: 100%;">
+                                <option disabled value="">Selecione o supervisor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="senhaSuperior">Senha do superior</label>
+                            <input type="password" class="form-control" id="senhaSuperior" name="senhaSuperior"
+                                required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-dark">Validar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- siedbar finalizzar venda --}}
+    <div id="finalizarVendaSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Finalizar Venda</h3>
+            {{-- <button type="button" class="close-btn" id="closeSidebarBtn">&times;</button> --}}
+        </div>
+        <div class="sidebar-body">
+            <form id="formFinalizarVenda">
+                <div class="form-group">
+                    <label for="cliente-select">Cliente *</label>
+                    <select required class="form-control select2" id="cliente-select" name="cliente_id"
+                        style="width: 100%;">
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="forma-pagamento-select">Formas de pagamento *</label>
+                    <select required class="form-control select2" id="forma-pagamento-select" multiple
+                        style="width: 100%;">
+                    </select>
+                    <div id="formasPagamentoValores" class="mt-3">
+                    </div>
+                </div>
+
+                <div class="form-group mt-4"> <label class="d-block mb-2">Tipo de Finalização *</label>
+                    <div class="d-flex justify-content-between finalizacao-options-group">
+                        <input type="radio" id="finalizar-nfce" name="tipo_finalizacao" value="nfce"
+                            class="d-none">
+                        <label for="finalizar-nfce" class="finalizacao-option">
+                            Emitir NFC-e
+                        </label>
+
+                        <input type="radio" id="finalizar-cupom" name="tipo_finalizacao" value="cupom"
+                            class="d-none" checked>
+                        <label for="finalizar-cupom" class="finalizacao-option">
+                            Emitir Cupom Fiscal
+                        </label>
+
+                        <input type="radio" id="finalizar-somente" name="tipo_finalizacao" value="somente"
+                            class="d-none">
+
+                        <label for="finalizar-somente" class="finalizacao-option">
+                            Somente Finalizar
+                        </label>
+
+                        <input type="radio" id="finalizar-como-orcamento" name="tipo_finalizacao" value="orcamento"
+                            class="d-none">
+
+                        <label for="finalizar-como-orcamento" class="finalizacao-option">
+                            Orçamento
+                        </label>
+                    </div>
+                </div>
+                <button id="buttonSubmitFormFinalizarVenda" type="submit" class="btn btn-success w-100 mt-3">Confirmar
+                    Finalização</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- siedbar orçamento venda --}}
+    <div id="orcamentoSiedbar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Orçamento</h3>
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#devolucaoSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <div class="form-group">
+                <label for="orcamento-select">Buscar orçamento:</label>
+                <div class="d-flex align-items-end gap-2">
+                    <select required class="form-control select2 flex-grow-1 mr-2 col-md-6" id="orcamento-select"
+                        name="orcaemento-select" style="min-width: 400px;">
+                    </select>
+                    <button id="buttonExcluirOrcamento" type="button" class="btn btn-danger mx-1 mt-1">
+                        Excluir
+                    </button>
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div class="w-50 me-2 mx-1"> <label for="valor-total-orcamento">Total da Venda</label>
+                        <input type="text" class="form-control" id="valor-total-orcamento" value="R$ 0,00"
+                            readonly>
+                    </div>
+                    <div class="w-50 ms-2"> <label for="valor-total-desconto-orcamento">Desconto</label>
+                        <span class="badge badge-primary mx-2" id="desconto-orcamento-reais">R$ 0,00</span>
+
+                        <input type="text" class="form-control" id="valor-total-desconto-orcamento" value="R$ 0,00"
+                            readonly>
+                    </div>
+                </div>
+            </div>
+            <button id="colocarOrcamentoEmVenda" type="button" class="btn btn-success w-100 mt-3">
+                Adicionar itens a venda
+            </button>
+        </div>
+    </div>
+    {{-- Sidebar Itens de orçamento (Filha - 50% à direita) --}}
+    <div id="orcamentoItensSidebar" class="sidebar-filha">
+        <div class="sidebar-header py-2">
+            <h3 id="ocamentoText"></h3> {{-- Para exibir o número da venda --}}
+            {{-- Adicione o botão de fechar para a sidebar filha --}}
+
+        </div>
+        <div class="sidebar-body">
+            <div class="alert alert-warning mt-2 mb-0 p-2" role="alert" style="font-size: 0.875rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Ao clicar em "Adicioanr itens a venda", esses itens serão colocar a uma nova venda.
+            </div>
+            <br>
+            {{-- Estrutura para os itens da devolução --}}
+            <div id="orcamentoItensContainer" class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Código</th>
+                            <th>Nome</th>
+                            <th class="">quantidade</th>
+                            <th class="" style="width: 15%;">Preço</th>
+                            <th class="" style="width: 15%;">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="orcamentoItensTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sidebar de Devolução (Principal - 50% à esquerda) --}}
+    <div id="devolucaoSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Devolução</h3>
+            {{-- Adicione o botão de fechar para a sidebar principal --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#devolucaoSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <form id="formDevolucao">
+                <div class="form-group">
+                    <label for="venda-devolucao-select">Nº Venda *</label>
+                    <select required class="form-control select2" id="venda-devolucao-select" style="width: 100%;">
+                        <option value="">Selecione uma venda</option>
+                    </select>
+
+                </div>
+                <div class="form-group mt-3">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div class="w-50 me-2 mx-1"> <label for="valor-total-venda-devolucao">Total da Venda</label>
+                            <input type="text" class="form-control" id="valor-total-venda-devolucao" value="R$ 0,00"
+                                readonly>
+                        </div>
+                        <div class="w-50 ms-2"> <label for="valor-total-desconto-devolucao">Desconto</label>
+                            <span class="badge badge-primary mx-2" id="desconto-devolucao-reais">R$ 0,00</span>
+
+                            <input type="text" class="form-control" id="valor-total-desconto-devolucao"
+                                value="R$ 0,00" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="valor-total-devolucao">Valor total a devolver</label>
+                    <input type="text" class="form-control" id="valor-total-devolucao" value="R$ 0,00" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="forma-pagamento-devolucao-select">Formas de pagamento *</label>
+                    <select required class="form-control select2" id="forma-pagamento-devolucao-select"
+                        style="width: 100%;">
+                    </select>
+
+                </div>
+                <div class="form-group">
+                    <label for="motivo-devolucao-textarea">Motivo da Devolução *</label>
+                    <textarea class="form-control" id="motivo-devolucao-textarea" name="motivo_devolucao" rows="3" required></textarea>
+                </div>
+
+                <button id="buttonSubmitFormDevolucao" type="submit" class="btn btn-danger w-100 mt-3">Confirmar
+                    Devolução</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Sidebar Itens de Devolução (Filha - 50% à direita) --}}
+    <div id="devolucaoItensSidebar" class="sidebar-filha">
+        <div class="sidebar-header py-2">
+            <h3 id="vendaNumeroDevolucao"></h3> {{-- Para exibir o número da venda --}}
+            {{-- Adicione o botão de fechar para a sidebar filha --}}
+            {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
+        </div>
+        <div class="sidebar-body">
+            <div class="alert alert-warning mt-2 mb-0 p-2" role="alert" style="font-size: 0.875rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Itens com <strong>quantidade a devolver igual a 0</strong> serão <strong>desconsiderados</strong> na
+                devolução.
+            </div>
+            <br>
+            {{-- Estrutura para os itens da devolução --}}
+            <div id="orcamentoItensContainer" class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Código</th>
+                            <th>Nome</th>
+                            <th class="">Qtd</th>
+                            <th class="" style="width: 15%;">Preço</th>
+                            <th class="" style="width: 15%;">Total</th>
+                            <th class="" style="width: 20%;">Qtd. Devolver</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="devolucaoItensTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 @endsection

@@ -3,11 +3,10 @@
 namespace Modules\Mercado\UseCases\Pdv\Caixa;
 
 use Exception;
-use Illuminate\Support\Facades\Hash;
-use Modules\Mercado\Application\CaixaApplication;
+use Modules\Mercado\Application\PDVApplication;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
-use Modules\Mercado\Repository\Usuario\UsuarioRepository;
-use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarSangriaRequest;
+use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
+use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FecharCaixaRequest;
 
 class FecharCaixa
@@ -21,44 +20,71 @@ class FecharCaixa
 
     public function handle()
     {
-        $this->validate();
-        $caixa = $this->realizaSangriaDeFechamento();
-
-        $caixa = $this->fechaCaixa();
-
+        $ultima_evidencia = $this->validate();
+        $evidencia = $this->criaEvidencia($ultima_evidencia);
+        $fechamento = $this->criaFechamento($evidencia, $ultima_evidencia);
+        $diario = $this->atualizaDiario($evidencia->caixa->diario_atual);
+        $caixa = $this->fechaCaixa($evidencia->caixa);
         return $caixa;
     }
 
     private function validate()
     {
-        $usuario = UsuarioRepository::getUsuarioById($this->request->getCriarHistoricoRequest()->getUsuarioId());
-
-        if (!Hash::check($this->request->getSenha(), $usuario->master->password)) {
-            throw new Exception("Senha incorreta!.", 1);
-        }
-
         $caixa = CaixaRepository::getCaixaById($this->request->getCaixaId());
-        if ($caixa->status_id == config('config.status.fechado')) {
-            throw new Exception("Caixa já foi fechado!.", 1);
+        $valorEmDinheiroEsperado = $caixa->ultima_evidencia->valor_dinheiro;
+
+        //entra regra de percentual de tolerância de diferença de dinheiro no caixa
+        if ($this->request->getValorDinheiro() < $valorEmDinheiroEsperado) {
+            throw new Exception("Valor em dinheiro em caixa esperado é de " . converterParaReais($valorEmDinheiroEsperado) . '. Valor informado: ' . converterParaReais($this->request->getValorDinheiro()), 1);
         }
+        return $caixa->ultima_evidencia;
     }
 
-    private function realizaSangriaDeFechamento()
+    private function criaEvidencia($ultima_evidencia)
     {
-        return CaixaApplication::criarSangria(new CriarSangriaRequest(
+        return PDVApplication::criar_evidencias(new CriarEvidenciaRequest(
             $this->request->getCriarHistoricoRequest(),
             $this->request->getCaixaId(),
-            $this->request->getSenha(),
-            null,
-            $this->request->getObservacao(),
-            $this->request->getRequest()
+            $this->request->getCriarHistoricoRequest()->getAcaoId(),
+            $this->request->getCriarHistoricoRequest()->getUsuarioId(),
+            config('config.caixa.recursos.fechamento.id'),
+            $ultima_evidencia->valor_total,
+            $ultima_evidencia->valor_dinheiro,
+            $this->request->getCriarHistoricoRequest()->getComentario()
         ));
     }
 
-    private function fechaCaixa()
+    private function fechaCaixa($caixa)
     {
-        $status_id = config('config.status.fechado');
-        $usuario = $this->request->getCriarHistoricoRequest()->getUsuarioId();
-        return CaixaRepository::fecha_caixa($this->request->getCriarHistoricoRequest(), $this->request->getCaixaId(), $status_id, $usuario);
+        return CaixaPDVRepository::editaAttrsCaixa($this->request->getCriarHistoricoRequest(), $caixa->id, [
+            'status_id' => config('config.status.fechado'),
+            'usuario_id' => null,
+            'token' => null,
+        ]);
+    }
+
+    private function atualizaDiario($caixaDiario)
+    {
+        return CaixaPDVRepository::editaAttrsCaixaDiario($this->request->getCriarHistoricoRequest(), $caixaDiario->id, [
+            'status_id' => config('config.status.fechado'),
+            'data_fechamento' => now(),
+        ]);
+    }
+
+    private function criaFechamento($evidencia, $ultima_evidencia)
+    {
+        return CaixaPDVRepository::criarFechamentoAttrs(
+            $this->request->getCriarHistoricoRequest(),
+            [
+                'caixa_id' => $this->request->getCaixaId(),
+                'caixa_evidencia_id' => $evidencia->id,
+                'usuario_id' => $this->request->getCriarHistoricoRequest()->getUsuarioId(),
+                'valor_total' => $evidencia->valor_total,
+                'valor_dinheiro' => $evidencia->valor_dinheiro,
+                'valor_esperado_dinheiro' => $ultima_evidencia->valor_dinheiro,
+                'motivo' => $this->request->getCriarHistoricoRequest()->getComentario(),
+                'caixa_diario_id' => $evidencia->caixa->diario_atual->id,
+            ]
+        );
     }
 }
