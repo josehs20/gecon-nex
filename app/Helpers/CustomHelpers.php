@@ -99,6 +99,28 @@ function aplicarMascaraDocumento($documento)
     }
 }
 
+function aplicarMascaraDocumentoDiscreta($documento)
+{
+    $documentoLimpo = preg_replace('/\D/', '', $documento);
+
+    $comprimentoDocumento = strlen($documentoLimpo);
+
+    // Se o documento tiver 5 dígitos ou menos, mascara todos.
+    // Isso evita problemas com documentos curtos (ex: "123" vira "***").
+    if ($comprimentoDocumento <= 5) {
+        return str_repeat('*', $comprimentoDocumento);
+    }
+
+    // Pega a parte inicial do documento (todos os dígitos menos os últimos 5)
+    $parteVisivel = substr($documentoLimpo, 0, $comprimentoDocumento - 5);
+
+    // Cria a máscara com 5 asteriscos
+    $mascara = str_repeat('*', 5);
+
+    // Combina a parte visível com a máscara
+    return $parteVisivel . $mascara;
+}
+
 function aplicarMascaraCelular($celular)
 {
     if ($celular) {
@@ -205,6 +227,9 @@ function validarCNPJ($cnpj)
 
 function formataLikeSql($busca)
 {
+    if (!$busca) {
+        return '%%';
+    }
     return '%' . str_replace(' ', '%', $busca) . '%';
 }
 

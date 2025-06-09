@@ -18,7 +18,7 @@ class CreateFechamentosTable extends Migration
             $table->foreignId('caixa_id')->constrained()->onDelete('cascade');
             $table->foreignId('caixa_evidencia_id')->nullable()->constrained('caixa_evidencias')->onDelete('cascade');
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
-            $table->bigInteger('valorl_total'); // Se for "valor_total", corrija o nome
+            $table->bigInteger('valor_total'); 
             $table->bigInteger('valor_dinheiro');
             $table->bigInteger('valor_esperado_dinheiro');
             $table->string('motivo')->nullable();
@@ -34,6 +34,6 @@ class CreateFechamentosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fechamentos');
+        Schema::connection('mercado')->dropIfExists('fechamentos');
     }
 }

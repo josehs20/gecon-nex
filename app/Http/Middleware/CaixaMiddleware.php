@@ -26,11 +26,13 @@ class CaixaMiddleware
         $caixa = $usuario->getUserModulo->caixa;
 
         if (!$caixa) {
-            throw new Exception("Usuário não está logado em nenhum caixa.", 1);
+            session()->flash('info', 'Usuário não está logado em nenhum caixa.');
+            return redirect()->route('home.index');
         }
         //adiciona caixa na request para evitar outras consultas desnecessárias
         $request->attributes->set('caixa_id', $caixa->id);
         $request->attributes->set('loja_id', $caixa->loja_id);
+        $request->attributes->set('usuario_id', $caixa->usuario_id);
 
         //validar token do browser com backend
 

@@ -29,7 +29,7 @@ class FinalizarVenda
         $venda = $this->criaVenda($evidencia);
         $vendaItens = $this->criaVendaItens($venda, $itensTemp);
         $pagamentos = $this->criaVendaPagamentos($venda);
-        $fichaCliente = $this->criaFichaCliente($venda);//abater credito cliente caso seja credito loja
+        $fichaCliente = $this->criaFichaCliente($venda); //abater credito cliente caso seja credito loja
         $movimentacaoEstoque = $this->movimentaEstoques($venda);
         $evidencia = $this->atualizaTotaisEvidencia($evidencia, $venda);
         $caixa = $this->updateCaixa();
@@ -54,7 +54,17 @@ class FinalizarVenda
             // Mantém outros campos (como parcelas)
             return array_merge($forma, ['valor' => converteExibicaoParaCentavos($valor)]);
         }, $formasPagamento);
+        //converte os valores em centavos
         $this->request->setFormasPagamento($valoresCentavos);
+
+        $valores = PDVApplication::calculaTotaisVendaTemp($this->request->getCaixaId(), $this->request->getDesconto());
+
+        $total_pago = array_sum(array_column($this->request->getFormasPagamento(), 'valor'));
+        // dd($total_pago< $valores['total']);
+        if ($total_pago < $valores['total']) {
+            throw new Exception("O valor recebido é menor que o valor total da venda.", 1);
+        }
+
         return $itens;
     }
 
@@ -72,12 +82,6 @@ class FinalizarVenda
     private function criaVenda($evidencia)
     {
         $valores = PDVApplication::calculaTotaisVendaTemp($this->request->getCaixaId(), $this->request->getDesconto());
-
-        $total_pago = array_sum(array_column($this->request->getFormasPagamento(), 'valor'));
-
-        if ($total_pago < $valores['total']) {
-            throw new Exception("O valor recebido é menor que o valor total da venda.", 1);
-        }
 
         return CaixaPDVRepository::criarVendaAttrs($this->request->getCriarHistoricoRequest(), [
             'n_venda' => PDVApplication::gerarNumeroVenda($evidencia->caixa->loja_id),
@@ -162,7 +166,7 @@ class FinalizarVenda
 
                 //caso seja o tipo de pagamento credito em loja
                 if ($creditoLoja) {
-                    $data_vencimento = $data_vencimento->addDays(30);
+                    $data_vencimento = $data_vencimento->addDays((30 * $pv['parcela']));
                     $data_pagamento = null;
                     $pago = false;
                     $status_id = config('config.status.aberto');
@@ -204,7 +208,7 @@ class FinalizarVenda
                         'venda_pagamento_id' => $v->venda_pagamento_id,
                         'venda_parcela_id' => $v->id,
                         'caixa_diario_id' => $v->venda->caixa->diario_atual->id,
-                        'forma_pagamento_id' => $v->venda->caixa->diario_atual->id,
+                        'forma_pagamento_id' => $v->forma_pagamento_id,
                         'caixa_evidencia_id' => $vp->caixa_evidencia_id,
                     ]);
                 } else {
@@ -224,7 +228,7 @@ class FinalizarVenda
                     $creditoUsado = $cliente->credito->credito_loja_usado;
 
                     $creditoSobrando = ($creditoLoja - $creditoUsado) + $creditoAve;
-                    if ($creditoSobrando <= $v->valor) {
+                    if ($creditoSobrando < $v->valor) {
                         throw new Exception("Credito do cliente insuficiente." . converterParaReais($creditoSobrando), 1);
                     }
 

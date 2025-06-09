@@ -26,11 +26,12 @@ class ReceberConta
         //abate falor pago em venda_parcelas
         $fichasCliente = $this->atualizaVendaParcela($evidencia);
         //voltaCreditoCliente
-        $this->atualizaCreditoCliente($fichasCliente);
-        //atualiza entrada no caixa
-        $this->atualizaValoresEvidencia();
+        $creditoCliente = $this->atualizaCreditoCliente($fichasCliente);
 
-        return $caixa;
+        //atualiza entrada no caixa
+        $evidencia = $this->atualizaValoresEvidencia($evidencia, $fichasCliente);
+
+        return collect($fichasCliente);
     }
 
     private function validade()
@@ -65,8 +66,9 @@ class ReceberConta
             }
 
             $totalPago = $valor + $vendaParcela->valor_pago;
+
             if ($totalPago > $vendaParcela->valor) {
-                throw new Exception("O valor pago da parcela " . $vendaParcela->parcela . ' é maior que o valor restante. Valor restante:' . converterParaReais(($vendaParcela->valor - $vendaParcela->valor_pago)), 1);
+                throw new Exception("O valor pago da parcela " . $vendaParcela->numero_parcela . ' é maior que o valor restante. Valor restante:' . converterParaReais(($vendaParcela->valor - $vendaParcela->valor_pago)) . '. Valor pago:' . converterParaReais($totalPago), 1);
             }
             $pago = false;
             $status_id = config('config.status.aberto');
@@ -81,10 +83,11 @@ class ReceberConta
                 'valor_pago' => $totalPago,
                 'status_id' => $status_id,
                 'pago' => $pago,
+                'data_pagamento' => $pago ? now() : null,
             ]);
-           
+
             //cria uma ficha do que foi pago
-            $fichasCliente[] = CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), $vendaParcela->id, [
+            $fichasCliente[] = CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), [
                 'cliente_id' => $vendaParcela->cliente_id,
                 'loja_id' => $this->request->getLojaId(),
                 'venda_id' => $vendaParcela->venda_id,
@@ -102,9 +105,33 @@ class ReceberConta
 
     private function atualizaCreditoCliente($fichasCliente)
     {
-        $valorTotalPago = dd($fichasCliente);
-        $creditoAve = ClienteApplication::getClienteById();
+        $fichas = collect($fichasCliente);
+        $totalPago = $fichas->sum('valor');
+        $cliente = $fichas->first()->cliente;
+        $creditoUsado = $cliente->credito->credito_loja_usado;
+        $novoCreditoUsado = $creditoUsado - $totalPago;
+
+        return CaixaPDVRepository::editaClienteCreditoAttrs($this->request->getCriarHistoricoRequest(), $cliente->credito->id, [
+            'credito_loja_usado' => $novoCreditoUsado,
+        ]);
     }
 
-    private function atualizaValoresEvidencia($evidencia) {}
+    private function atualizaValoresEvidencia($evidencia, $fichasCliente)
+    {
+        $fichas = collect($fichasCliente);
+        $totalPago = $fichas->sum('valor');
+        $pagamentoEmDinheiro = false;
+        if ($this->request->getFormaPagamento() == config('config.especie_pagamento.dinheiro.id')) {
+           $pagamentoEmDinheiro = true;
+        }
+
+        $pagamentoEmDinheiro = $pagamentoEmDinheiro ? $totalPago : 0;
+        $totais = $totalPago;
+        $evidenciaAnterior = $evidencia->evidenciaAnterior();
+
+        return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
+            'valor_total' => $evidenciaAnterior->valor_total + $totais,
+            'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $pagamentoEmDinheiro,
+        ]);
+    }
 }
