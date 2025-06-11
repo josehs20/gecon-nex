@@ -365,7 +365,7 @@ export function constructSelect2(idElemento, url, vaiEstarEmAlgumModal = false, 
                         results: results.map(item => ({
                             id: item.id, // ID do cliente
                             text: item.text,
-                            attrs: item 
+                            attrs: item
                         })),
                         pagination: {
                             more: false // Se não há mais páginas a serem carregadas
@@ -582,18 +582,42 @@ export function aplicarMascaraData(data) {
     }
 }
 
-function aplicarMascaraDataHora(data) {
-    // Certifique-se de que a data está no formato 'yyyy-mm-dd HH:MM:SS'
-    const partesData = data.split(' '); // Separar data e hora
+export function aplicarMascaraDataHora(dataStringISO) {
+    // Validação básica para garantir que a entrada é uma string válida
+    if (!dataStringISO || typeof dataStringISO !== 'string') {
+        console.warn("Formato de data inválido. Esperado string ISO 8601. Recebido:", dataStringISO);
+        return dataStringISO; // Retorna a string original ou um valor padrão
+    }
 
-    // Separa a data 'yyyy-mm-dd' em partes
-    const [ano, mes, dia] = partesData[0].split('-');
+    const data = new Date(dataStringISO);
 
-    // Separa a hora 'HH:MM:SS'
-    const [hora, minuto, segundo] = partesData[1].split(':');
+    // Verifica se a data é válida (evita erros com strings malformadas)
+    if (isNaN(data.getTime())) {
+        console.warn("Data inválida. Não foi possível converter a string ISO:", dataStringISO);
+        return dataStringISO; // Retorna a string original se não for uma data válida
+    }
 
-    // Retorna a data no formato brasileiro 'dd/mm/yyyy HH:mm:ss'
-    return `${dia}/${mes}/${ano} às ${hora}:${minuto}:${segundo}`;
+    // Configurações para o formato de data brasileiro
+    const opcoesData = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    };
+
+    // Configurações para o formato de hora brasileiro (24h)
+    const opcoesHora = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // Garante formato 24 horas
+    };
+
+    // Formata a data e a hora separadamente para o fuso horário local do usuário
+    const dataFormatada = data.toLocaleDateString('pt-BR', opcoesData);
+    const horaFormatada = data.toLocaleTimeString('pt-BR', opcoesHora);
+
+    // Combina as partes com 'às'
+    return `${dataFormatada} às ${horaFormatada}`;
 }
 
 /* Quando for formulario para editar e ja tiver data registrada, essa função vai formatar a data para o formato brasileiro para exibir no input */

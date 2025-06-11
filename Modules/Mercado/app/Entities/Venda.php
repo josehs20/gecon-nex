@@ -32,6 +32,11 @@ class Venda extends ModelBase
         return $this->hasMany(VendaPagamento::class, 'venda_id', 'id');
     }
 
+    public function venda_parcelas()
+    {
+        return $this->hasMany(VendaParcela::class, 'venda_id', 'id');
+    }
+
     public function pagamentos()
     {
         return $this->hasMany(Pagamento::class, 'venda_id', 'id');

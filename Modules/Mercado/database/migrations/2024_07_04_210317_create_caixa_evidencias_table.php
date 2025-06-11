@@ -18,6 +18,7 @@ class CreateCaixaEvidenciasTable extends Migration
             $table->unsignedBigInteger('caixa_id');
             $table->unsignedBigInteger('acao_id');
             $table->unsignedBigInteger('usuario_id');
+            $table->bigInteger('valor_movimentado')->nullable();
             $table->bigInteger('valor_total')->nullable();
             $table->bigInteger('valor_dinheiro')->nullable();
             $table->bigInteger('total_credito_loja')->nullable();
@@ -28,6 +29,7 @@ class CreateCaixaEvidenciasTable extends Migration
             $table->foreign('caixa_id')->references('id')->on('caixas')->onDelete('cascade');
             $table->foreign('acao_id')->references('id')->on('acoes')->onDelete('cascade');
             $table->foreign('usuario_id')->references('id')->on('usuarios')->onDelete('cascade');
+            $table->foreign('caixa_recurso_id')->references('id')->on('recursos')->onDelete('cascade');
         });
     }
 
@@ -43,6 +45,7 @@ class CreateCaixaEvidenciasTable extends Migration
             $table->dropForeign(['caixa_id']);
             $table->dropForeign(['acao_id']);
             $table->dropForeign(['usuario_id']);
+            $table->dropForeign(['caixa_recurso_id']);
         });
 
         // Finalmente, remover a tabela

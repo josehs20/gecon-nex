@@ -50,8 +50,13 @@ class VendaPagamento extends ModelBase
         return $this->belongsTo(CaixaDiario::class, 'caixa_diario_id');
     }
 
-      public function vendaParcelas()
+    public function vendaParcelas()
     {
         return $this->hasMany(VendaParcela::class, 'venda_pagamento_id');
+    }
+
+    public function devolucoes()
+    {
+        return $this->hasMany(Devolucao::class, 'venda_id', 'venda_id');
     }
 }

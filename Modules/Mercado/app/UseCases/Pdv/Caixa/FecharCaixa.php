@@ -32,10 +32,18 @@ class FecharCaixa
     {
         $caixa = CaixaRepository::getCaixaById($this->request->getCaixaId());
         $valorEmDinheiroEsperado = $caixa->ultima_evidencia->valor_dinheiro;
+        $valorInformado = $this->request->getValorDinheiro();
 
-        //entra regra de percentual de tolerância de diferença de dinheiro no caixa
-        if ($this->request->getValorDinheiro() < $valorEmDinheiroEsperado) {
-            throw new Exception("Valor em dinheiro em caixa esperado é de " . converterParaReais($valorEmDinheiroEsperado) . '. Valor informado: ' . converterParaReais($this->request->getValorDinheiro()), 1);
+        // Calcula o valor mínimo permitido com 5% de tolerância
+        $limiteMinimo = intval($valorEmDinheiroEsperado * 0.95);
+        if ($valorInformado < $limiteMinimo) {
+            throw new Exception(
+                "Valor em dinheiro informado está abaixo do limite de tolerância (5%). Valor esperado: " .
+                    converterParaReais($valorEmDinheiroEsperado) .
+                    '. Valor mínimo permitido: ' . converterParaReais($limiteMinimo) .
+                    '. Valor informado: ' . converterParaReais($valorInformado),
+                1
+            );
         }
         return $caixa->ultima_evidencia;
     }

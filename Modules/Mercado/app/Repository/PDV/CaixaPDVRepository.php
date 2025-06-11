@@ -11,6 +11,7 @@ use Modules\Mercado\Entities\CaixaItemTemp;
 use Modules\Mercado\Entities\CreditoCliente;
 use Modules\Mercado\Entities\Devolucao;
 use Modules\Mercado\Entities\DevolucaoItem;
+use Modules\Mercado\Entities\EspeciePagamento;
 use Modules\Mercado\Entities\Fechamento;
 use Modules\Mercado\Entities\FichaCliente;
 use Modules\Mercado\Entities\FormaPagamento;
@@ -24,6 +25,7 @@ use Modules\Mercado\Entities\Venda;
 use Modules\Mercado\Entities\VendaItem;
 use Modules\Mercado\Entities\VendaPagamento;
 use Modules\Mercado\Entities\VendaParcela;
+use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 
 class CaixaPDVRepository
@@ -368,12 +370,50 @@ class CaixaPDVRepository
             })->get();
     }
 
-     public static function get_venda_pagamento_by_id(
+    public static function get_venda_pagamento_by_id(
         int $id
     ) {
-        return VendaPagamento::with(['vendaParcelas.formaPagamento.especie', 'venda'])->where('id', $id)
+        return VendaPagamento::with(['vendaParcelas.formaPagamento.especie', 'venda', 'devolucoes'])->where('id', $id)
             ->whereHas('vendaParcelas', function ($q) {
                 $q->where('pago', false); //automaticamente busca rodas credito em loja pendentes
             })->first();
+    }
+
+    public static function get_detalhes_evidencias_caixa_atual(
+        int $caixa_id
+    ) {
+        $caixa = CaixaRepository::getCaixaById($caixa_id);
+        $evidenciaDeInicio = $caixa->diario_atual->caixa_evidencia_id;
+        $evidencias = CaixaEvidencia::with([
+            'recurso',
+            'venda.venda_pagamentos.especiePagamento',
+            'devolucao.formaPagamento.especie',
+            'sangria.especiePagamento',
+            'suprimento.especiePagamento',
+            'fichas_cliente.formaPagamento.especie'
+        ])->where('caixa_id', $caixa_id)->where('id', '>=', $evidenciaDeInicio)->get();
+        //formata objeto para uma melhor visualização das especies de movimentacao do caixa
+        $evidencias = $evidencias->map(function ($item) {
+            if ($item->caixa_recurso_id == config('config.caixa.recursos.abertura.id')) {
+                $item->especies = EspeciePagamento::where('id', config('config.especie_pagamento.dinheiro.id'))->get();
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.venda.id')) {
+                $item->especies = $item->venda->venda_pagamentos->map(function ($pagamento) {
+                    return $pagamento->especiePagamento;
+                });
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.devolucao.id')) {
+                $item->especies = collect([$item->devolucao->formaPagamento->especie]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.suprimentos.id')) {
+                $item->especies = collect([$item->suprimento->especiePagamento]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.sangria.id')) {
+                $item->especies = collect([$item->sangria->especiePagamento]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.recebimento.id')) {
+                $item->especies = $item->fichas_cliente->map(function ($f) {
+                    return $f->formaPagamento->especie;
+                });
+            }
+            return $item;
+        });
+
+        return $evidencias;
     }
 }

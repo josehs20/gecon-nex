@@ -49,4 +49,9 @@ class Suprimento extends ModelBase
     {
         return $this->belongsTo(Usuario::class);
     }
+
+    public function especiePagamento()
+    {
+        return $this->belongsTo(EspeciePagamento::class);
+    }
 }

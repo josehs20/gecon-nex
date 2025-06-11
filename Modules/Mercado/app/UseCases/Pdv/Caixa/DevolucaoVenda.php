@@ -52,23 +52,23 @@ class DevolucaoVenda
     private function atualizaValoresEvidencia($evidencia, $devolucao)
     {
         $devolucaoEmDinheiro = $devolucao->formaPagamento->especie_pagamento_id == config('config.especie_pagamento.dinheiro.id');
-        $devolucaoEmCreditoLoja = $devolucao->formaPagamento->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
+        // $devolucaoEmCreditoLoja = $devolucao->formaPagamento->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
 
         $devolucaoEmDinheiro = $devolucaoEmDinheiro ? $devolucao->total_devolvido : 0;
-        $devolucaoEmCreditoLoja = $devolucaoEmCreditoLoja ? $devolucao->total_devolvido : 0;
+        // $devolucaoEmCreditoLoja = $devolucaoEmCreditoLoja ? $devolucao->total_devolvido : 0;
         $totalDevolvido = $devolucao->total_devolvido;
         $evidenciaAnterior = $evidencia->evidenciaAnterior();
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
+            'valor_movimentado' => -$totalDevolvido,
             'valor_total' => $evidenciaAnterior->valor_total - $totalDevolvido,
             'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro - $devolucaoEmDinheiro,
-            'total_credito_loja' => $evidenciaAnterior->total_credito_loja - $devolucaoEmCreditoLoja,
+            'total_credito_loja' => $evidenciaAnterior->total_credito_loja,
         ]);
     }
 
     private function validate()
     {
-        $itens = [];
         if (count($this->request->getItens()) == 0) {
             throw new Exception("Nenhum item foi selecionado para devolução", 1);
         }
@@ -82,9 +82,15 @@ class DevolucaoVenda
         $especiePagamentoCreditoLoja = $venda->venda_pagamentos->first(function ($vp) {
             return $vp->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
         });
+
         if ($especiePagamentoCreditoLoja && $especiePagamentoCreditoLoja->especie_pagamento_id != $this->request->getFormaPagamentoId()) {
             throw new Exception("Para vendas em crédito loja, devolução é na mesma forma de pagamento.", 1);
         }
+
+        if (!$especiePagamentoCreditoLoja && $this->request->getFormaPagamentoId() == config('config.especie_pagamento.credito_loja.id')) {
+            throw new Exception("Devoluções não podem ser com espécie credito em loja para vendas com outras formas de pagamento.", 1);
+        }
+
         $vendaItensDevolvidos = array_column($this->request->getItens(), 'venda_item_id');
         // $estoqueIds = array_column($this->request->getItens(), 'estoqueId');
         // $estoques = EstoqueRepository::getEstoqueByIds($estoqueIds);
@@ -247,10 +253,69 @@ class DevolucaoVenda
         $devolucaoEmCreditoLoja = $devolucao->formaPagamento->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
 
         if ($devolucaoEmCreditoLoja) {
+            $vendaParcelas = $devolucao->venda->venda_parcelas;
+            $valorDevolvido = $devolucao->total_devolvido;
+
+            $parcelasOrdenadas = $vendaParcelas->reverse();
+
+            foreach ($parcelasOrdenadas as $parcela) {
+                $valorParcela = $parcela->valor;
+                $valorPago = $parcela->valor_pago ?? 0;
+                $valorJaDevolvido = $parcela->valor_devolvido ?? 0;
+
+                $disponivelParaDevolver = max(0, $valorParcela - $valorPago - $valorJaDevolvido);
+
+                if ($disponivelParaDevolver <= 0) {
+                    continue;
+                }
+
+                $valorParaDevolver = min($disponivelParaDevolver, $valorDevolvido);
+
+                $parcela->valor_devolvido = $valorJaDevolvido + $valorParaDevolver;
+
+                CaixaPDVRepository::editaAttrsVendaParcela(
+                    $this->request->getCriarHistoricoRequest(),
+                    $parcela->id,
+                    [
+                        'valor_devolvido' => $parcela->valor_devolvido
+                    ]
+                );
+
+                $valorDevolvido -= $valorParaDevolver;
+
+                if ($valorDevolvido <= 0) {
+                    break;
+                }
+            }
+
             $cliente = ClienteRepository::getClienteById($devolucao->venda->cliente_id);
-            CaixaPDVRepository::editaClienteCreditoAttrs($this->request->getCriarHistoricoRequest(), $cliente->id, [
-                'credito_ave' => ($cliente->credito->credito_ave + $devolucao->total_devolvido)
-            ]);
+
+            $creditoLojaUsado = $cliente->credito->credito_loja_usado ?? 0;
+            $creditoAveAtual = $cliente->credito->credito_ave ?? 0;
+
+            if ($creditoLojaUsado > 0) {
+                // Valor devolvido cobre primeiro o crédito usado
+                $valorParaAbaterCreditoUsado = min($creditoLojaUsado, $devolucao->total_devolvido);
+                $valorRestanteParaCreditoAve = $devolucao->total_devolvido - $valorParaAbaterCreditoUsado;
+
+                CaixaPDVRepository::editaClienteCreditoAttrs(
+                    $this->request->getCriarHistoricoRequest(),
+                    $cliente->id,
+                    [
+                        'credito_loja_usado' => $creditoLojaUsado - $valorParaAbaterCreditoUsado,
+                        'credito_ave' => $creditoAveAtual + $valorRestanteParaCreditoAve
+                    ]
+                );
+            } else {
+                // Cliente não usou crédito, então tudo vai para o crédito avê
+                CaixaPDVRepository::editaClienteCreditoAttrs(
+                    $this->request->getCriarHistoricoRequest(),
+                    $cliente->id,
+                    [
+                        'credito_ave' => $creditoAveAtual + $devolucao->total_devolvido
+                    ]
+                );
+            }
         }
     }
 

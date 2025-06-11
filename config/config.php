@@ -4,35 +4,35 @@ return [
         'recursos' => [
             'abertura' => [
                 'id' => 1,
-                'descricao' => 'Realiza a abertura do caixa'
+                'descricao' => 'Abertura'
             ],
             'venda' => [
                 'id' => 2,
-                'descricao' => 'Realiza venda no caixa.'
+                'descricao' => 'Venda'
             ],
             'devolucao' => [
                 'id' => 3,
-                'descricao' => 'Realiza devolução de mercadorias.'
+                'descricao' => 'Devolução'
             ],
             'orcamento' => [
                 'id' => 4,
-                'descricao' => 'Gera orçamentos para o cliente.'
+                'descricao' => 'Orçamento'
             ],
             'recebimento' => [
                 'id' => 5,
-                'descricao' => 'Recebe valores de contas ou crediário.'
+                'descricao' => 'Recebimento'
             ],
             'sangria' => [
                 'id' => 6,
-                'descricao' => 'Retira valores do caixa (sangria).'
+                'descricao' => 'Sangria'
             ],
             'suprimentos' => [
                 'id' => 7,
-                'descricao' => 'Insere valores no caixa (suprimento).'
+                'descricao' => 'Suprimento'
             ],
             'fechamento' => [
                 'id' => 8,
-                'descricao' => 'Realiza o fechamento do caixa.'
+                'descricao' => 'Fechamento'
             ],
         ],
     ],

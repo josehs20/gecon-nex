@@ -13,6 +13,7 @@ use Modules\Mercado\Application\CaixaApplication;
 use Modules\Mercado\Application\ClienteApplication;
 use Modules\Mercado\Application\PagamentoApplication;
 use Modules\Mercado\Application\PDVApplication;
+use Modules\Mercado\Entities\CaixaEvidencia;
 use Modules\Mercado\Entities\CaixaItemTemp;
 use Modules\Mercado\Entities\EspeciePagamento;
 use Modules\Mercado\Entities\Estoque;
@@ -312,6 +313,16 @@ class CaixaPDVController extends ControllerBaseMercado
         $caixa = CaixaRepository::getCaixaById($request->attributes->get('caixa_id'));
 
         return response()->json(['success' => true, 'caixa' => $caixa], 200);
+    }
+
+    public function get_caixa_fechamento(Request $request)
+    {
+        $caixa = CaixaRepository::getCaixaById($request->attributes->get('caixa_id'));
+        //pega todas as operações do caixa de acordo coma  evidência e acao
+        $detalhesFechamentoCaixa = CaixaPDVRepository::get_detalhes_evidencias_caixa_atual($request->attributes->get('caixa_id'));
+        //valor minimo esperado para fechamento
+        $caixa->ultima_evidencia->valor_minimo_dinheiro = $caixa->ultima_evidencia->valor_dinheiro * 0.95;
+        return response()->json(['success' => true, 'caixa' => $caixa, 'detalhes' => $detalhesFechamentoCaixa], 200);
     }
 
     public function get_clientes(Request $request)
@@ -618,7 +629,9 @@ class CaixaPDVController extends ControllerBaseMercado
         $parans = (object) $parans->data;
 
         $vendaPagamento = CaixaPDVRepository::get_venda_pagamento_by_id($parans->venda_pagamento_id);
-        return response()->json(['success' => true, 'venda_pagamento' => $vendaPagamento]);
+        $vendaPagamento->cliente->credito;//carrega relacao
+        $cliente = $vendaPagamento->cliente;
+        return response()->json(['success' => true, 'venda_pagamento' => $vendaPagamento, 'cliente' =>$cliente]);
     }
 
     public function get_clientes_parcela_receber(Request $request)
@@ -900,27 +913,27 @@ class CaixaPDVController extends ControllerBaseMercado
             if (!isset($parans->total_dinheiro)) {
                 throw new Exception("Valor em dinheiro obrigatório para fechamento do caixa", 1);
             }
-            $observacao = $parans->observacao;
-            $caixa = CaixaRepository::getCaixaById($request->attributes->get('caixa_id'));
+
+            $observacao = $request->observacao ? $parans->observacao : null;
 
             $historicoRequest = $this->getCriarHistoricoRequest($request);
             $historicoRequest->setComentario($observacao);
             $totalDinheiro = converteExibicaoParaCentavos($parans->total_dinheiro);
-
+            $autorizado = $request->autorizado ? true : false;
             $fechaCaixaRequest = new FecharCaixaRequest(
                 $historicoRequest,
                 $request->attributes->get('caixa_id'),
-                $totalDinheiro
+                $totalDinheiro,
+                $autorizado
             );
 
             // $caixa = CaixaApplication::fechar_caixa($fechaCaixaRequest);
             $caixa = PDVApplication::fechar_caixa($fechaCaixaRequest);
 
             $this->getDb()->commit();
-            return response()->json(['success' => true, 'msg' => 'Caixa fechado com sucesso.']);
+            return response()->json(['success' => true, 'msg' => 'Caixa fechado com sucesso.', 'rota_redirect' => route('home.index')]);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-            dd($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
@@ -1041,8 +1054,13 @@ class CaixaPDVController extends ControllerBaseMercado
             $evidenciaAnterior = $evidencia->evidenciaAnterior();
             $total = $evidenciaAnterior->valor_total + $totalSupriu;
             $valorDinheiro = $evidenciaAnterior->valor_dinheiro + $valorDinhieiro;
-            $evidencia = PDVApplication::editar_valores_evidencia($historicoRequest, $evidencia->id, $total, $valorDinheiro);
 
+            $evidencia = CaixaPDVRepository::editaCaixaEvidenciaAttrs($historicoRequest, $evidencia->id, [
+                'valor_movimentado' => $totalSupriu,
+                'valor_total' => $evidenciaAnterior->valor_total + $totalSupriu,
+                'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $valorDinhieiro,
+                'total_credito_loja' => $evidenciaAnterior->total_credito_loja,
+            ]);
             $this->getDb()->commit();
             //comprovante de supriemntos
             return response()->json(['success' => true, 'msg' => 'Caixa foi suprido com sucesso']);
