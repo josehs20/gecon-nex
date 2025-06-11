@@ -10,6 +10,7 @@ class CaixaDiario extends ModelBase
         'caixa_id',
         'caixa_evidencia_id',
         'usuario_id',
+        'usuario_autorizacao_id',
         'loja_id',
         'status_id',
         'data_fechamento',
@@ -36,6 +37,11 @@ class CaixaDiario extends ModelBase
         return $this->belongsTo(Usuario::class);
     }
 
+    public function usuario_autorizacao()
+    {
+        return $this->belongsTo(Usuario::class, 'usuario_autorizacao_id');
+    }
+
     public function loja()
     {
         return $this->belongsTo(Loja::class);
@@ -44,5 +50,10 @@ class CaixaDiario extends ModelBase
     public function status()
     {
         return $this->belongsTo(Status::class);
+    }
+
+    public function fichas_cliente()
+    {
+        return $this->hasMany(FichaCliente::class, 'caixa_diario_id');
     }
 }

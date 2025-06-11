@@ -2,7 +2,7 @@
 
 namespace Modules\Mercado\UseCases\Pdv\Caixa;
 
-use Modules\Mercado\Repository\Caixa\CaixaRepository;
+use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
 
 class CriarEvidencia
@@ -18,16 +18,18 @@ class CriarEvidencia
         return $this->criarEvidencias();
     }
 
-    private function criarEvidencias() {
-        return CaixaRepository::criarEvidencia(
-            $this->request->getCriarHistoricoRequest(),
-            $this->request->getCaixaId(),
-            $this->request->getAcaoId(),
-            $this->request->getUsuarioId(),
-            $this->request->getCaixaRecursoId(),
-            $this->request->getValorTotal(),
-            $this->request->getValorDinheiro(),
-            $this->request->getDescricao()
-        );
+    private function criarEvidencias()
+    {
+        return CaixaPDVRepository::criarCriarEvidenciaAttrs($this->request->getCriarHistoricoRequest(), [
+            'caixa_id' => $this->request->getCaixaId(),
+            'acao_id' => $this->request->getAcaoId(),
+            'usuario_id' => $this->request->getUsuarioId(),
+            'valor_total' => $this->request->getValorTotal(),
+            'valor_dinheiro' => $this->request->getValorDinheiro(),
+            'valor_movimentado' => $this->request->getValorTotal(),
+            'total_credito_loja' => null,
+            'caixa_recurso_id' =>$this->request->getCaixaRecursoId(),
+            'descricao' => $this->request->getDescricao(),
+        ]);
     }
 }

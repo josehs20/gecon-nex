@@ -4,7 +4,7 @@ namespace Modules\Mercado\Entities;
 
 class FichaCliente extends ModelBase
 {
-     protected $connection = 'mercado';
+    protected $connection = 'mercado';
     protected $table = 'ficha_cliente';
 
     protected $fillable = [
@@ -24,6 +24,11 @@ class FichaCliente extends ModelBase
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'cliente_id');
+    }
+
+    public function formaPagamento()
+    {
+        return $this->belongsTo(FormaPagamento::class, 'forma_pagamento_id');
     }
 
     public function loja()

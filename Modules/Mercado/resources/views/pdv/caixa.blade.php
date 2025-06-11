@@ -185,6 +185,7 @@
         data-excluir-orcamento="{{ route('caixa.orcamento.excluir') }}"
         data-rota-get-cliente-recebimento-parcelas="{{ route('caixa.cliente.recebimento.parcelas.get') }}"
         data-rota-get-cliente-parcelas="{{ route('caixa.cliente.parcelas.get') }}"
+        data-rota-get-caixa-fechamento="{{ route('caixa.fechamento.caixa.get') }}"
         data-rota-get-especies="{{ route('caixa.get.especies') }}" data-rota-get-caixa="{{ route('caixa.get.caixa') }}"
         data-rota-colocar-orcamento-em-venda="{{ route('caixa.colcoar.orcamento.orcamento.em.venda') }}"
         data-rota-fechar-caixa="{{ route('caixa.fechar.post') }}"></div>
@@ -546,6 +547,10 @@
                             <input type="text" class="form-control" id="valor-total-venda-recebimento"
                                 value="R$ 0,00" readonly>
                         </div>
+                        <div class="w-50 me-2 mx-1"> <label for="cliente-credito-ave">Crédito (avê)</label>
+                            <input type="text" class="form-control" id="cliente-credito-ave"
+                                value="R$ 0,00" readonly>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -556,8 +561,7 @@
                 </div>
                 <div class="form-group">
                     <label for="observacao-recebimento-textarea">Observacao *</label>
-                    <textarea class="form-control" id="observacao-recebimento-textarea" name="observacao_recebimento" rows="3"
-                        ></textarea>
+                    <textarea class="form-control" id="observacao-recebimento-textarea" name="observacao_recebimento" rows="3"></textarea>
                 </div>
 
                 <button id="buttonSubmitFormRecebimento" type="submit" class="btn btn-success w-100 mt-3">Confirmar
@@ -592,11 +596,94 @@
                             <th>Total</th>
                             <th>Pago</th>
                             <th>Restante</th>
+                            <th>Devolvido</th>
                             <th>Vencimento</th>
                             <th>Receber</th>
                         </tr>
                     </thead>
                     <tbody id="recebimentoParcelasTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sidebar de fechamento de caixa (Principal - 50% à esquerda) --}}
+    <div id="fechamentoSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Fechamento de caixa</h3>
+            {{-- Adicione o botão de fechar para a sidebar principal --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#fechamentoSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <form id="formFechamento">
+                <div class="form-group">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div class="w-50 me-2 mx-1"> <label for="valor-total-fechar-caixa">Total</label>
+                            <input type="text" class="form-control" id="valor-total-fechar-caixa" value=""
+                                readonly>
+                        </div>
+                        <div class="w-50 me-2 mx-1"> <label for="valor-total-credito-fechar-caixa">Cŕedito
+                                loja</label>
+                            <input type="text" class="form-control" id="valor-total-credito-fechar-caixa"
+                                value="" readonly>
+                        </div>
+                        <div class="w-50 me-2 mx-1"> <label for="valor-total-dinheiro-fechar-caixa">Dinheiro</label>
+                            <input type="text" class="form-control" id="valor-total-dinheiro-fechar-caixa"
+                                value="" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div class="w-50 me-2 mx-1"> <label for="valor-dinheiro-fechar-caixa">Valor em caixa *
+                                (Dinheiro)</label>
+                            <input type="text" class="form-control" id="valor-dinheiro-fechar-caixa" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="observacao-fechamento-textarea">Observacao *</label>
+                    <textarea class="form-control" id="observacao-fechamento-textarea" name="observacao_recebimento" rows="3"></textarea>
+                </div>
+
+                <button id="buttonSubmitFormFechamento" type="submit" class="btn btn-success w-100 mt-3">Confirmar
+                    fechamento</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Sidebar parcelas filhas (Filha - 50% à direita) --}}
+    <div id="fechamentoSidebarFilha" class="sidebar-filha">
+        <div class="sidebar-header py-2">
+            <h3 id="tituloSidebarFilhaFechamento"></h3> {{-- Para exibir o número da venda --}}
+            {{-- Adicione o botão de fechar para a sidebar filha --}}
+            {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
+        </div>
+        <div class="sidebar-body">
+            {{-- <div class="alert alert-warning mt-2 mb-0 p-2" role="alert" style="font-size: 0.875rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Itens com <strong>quantidade a devolver igual a 0</strong> serão <strong>desconsiderados</strong> na
+                devolução.
+            </div>
+                <span
+                            class="badge badge-primary mt-2" id="aviso-especie-devolucao"></span> --}}
+
+            <br>
+            {{-- Estrutura para os itens do recebimento de parcelas --}}
+            <div id="fechamentoDetalheContainer" class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th>Tipo</th>
+                            <th>Espécie</th>
+                            <th>Data</th>
+                            <th>Valor movimentado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fechamentoDetalheTableBody">
                     </tbody>
                 </table>
             </div>

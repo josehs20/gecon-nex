@@ -33,6 +33,7 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
         Route::get('/caixa/get/orcamento', [CaixaPDVController::class, 'get_orcamento'])->name('caixa.orcamento.get.itens');
         Route::get('/caixa/especies/get', [CaixaPDVController::class, 'get_especies'])->name('caixa.get.especies');
         Route::get('/caixa/caixa/get', [CaixaPDVController::class, 'get_caixa'])->name('caixa.get.caixa');
+        Route::get('/caixa/fechamento/get', [CaixaPDVController::class, 'get_caixa_fechamento'])->name('caixa.fechamento.caixa.get');
 
 
         Route::get('/caixa/produto/get', [CaixaPDVController::class, 'get_produtos'])->name('caixa.produto.get');

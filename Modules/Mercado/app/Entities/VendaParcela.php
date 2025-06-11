@@ -64,4 +64,5 @@ class VendaParcela extends ModelBase
     {
         return $this->belongsTo(FichaCliente::class, 'venda_pagamento_id');
     }
+
 }

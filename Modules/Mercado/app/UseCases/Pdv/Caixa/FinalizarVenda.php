@@ -120,7 +120,7 @@ class FinalizarVenda
     private function criaVendaPagamentos(Venda $venda)
     {
         $pagamentos = [];
-       
+
         foreach ($this->request->getFormasPagamento() as $key => $fp) {
             $valor = (int) $fp['valor']; // Sempre centavos
             $parcelas = isset($fp['parcelas']) ? (int) $fp['parcelas'] : 1;
@@ -198,8 +198,9 @@ class FinalizarVenda
     private function criaFichaCliente(Venda $venda)
     {
         //agora cria de fato o que foi pago e as parcelas de cada forma de pagamento
-        return $venda->venda_pagamentos->map(function ($vp) {
-            return $vp->vendaParcelas->map(function ($v) use ($vp) {
+        return $venda->venda_pagamentos->map(function ($vp) use ($venda){
+            return $vp->vendaParcelas->map(function ($v) use ($venda) {
+              
                 if ($v->pago == true) {
                     return CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), [
                         'cliente_id' => $v->cliente_id,
@@ -210,7 +211,7 @@ class FinalizarVenda
                         'venda_parcela_id' => $v->id,
                         'caixa_diario_id' => $v->venda->caixa->diario_atual->id,
                         'forma_pagamento_id' => $v->forma_pagamento_id,
-                        'caixa_evidencia_id' => $vp->caixa_evidencia_id,
+                        'caixa_evidencia_id' => $venda->caixa_evidencia_id,
                     ]);
                 } else {
                     //o desconto de credito do cliente é feito com base na ficha dele
@@ -286,6 +287,7 @@ class FinalizarVenda
         $evidenciaAnterior = $evidencia->evidenciaAnterior();
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
+            'valor_movimentado' => $totais,
             'valor_total' => $evidenciaAnterior->valor_total + $totais,
             'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $pagamentoEmDinheiro,
             'total_credito_loja' => $evidenciaAnterior->total_credito_loja + $pagamentoCreditoLoja

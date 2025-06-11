@@ -76,6 +76,8 @@ class Sangria
             'usuario_id' => $this->request->getCriarHistoricoRequest()->getUsuarioId(),
             'valor_total' => $valorTotal,
             'valor_dinheiro' => $valorDinheiro,
+            'valor_movimentado' => -$this->request->getValorSangria(),
+            'total_credito_loja' => $evidenciaAtual->total_credito_loja,
             'caixa_recurso_id' => config('config.caixa.recursos.sangria.id'),
             'descricao' => $this->request->getCriarHistoricoRequest()->getComentario(),
         ]);

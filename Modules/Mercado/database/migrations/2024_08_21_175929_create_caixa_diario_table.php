@@ -21,7 +21,10 @@ class CreateCaixaDiarioTable extends Migration
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
             $table->foreignId('loja_id')->constrained('lojas')->onDelete('cascade');
             $table->foreignId('status_id')->constrained('status')->onDelete('cascade');
-
+            $table->foreignId('usuario_autorizacao_id')
+                ->nullable()
+                ->constrained('usuarios')
+                ->onDelete('cascade');
             $table->timestamp('data_abertura')->nullable();
             $table->timestamp('data_fechamento')->nullable();
 

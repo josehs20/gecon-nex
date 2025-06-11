@@ -12,6 +12,7 @@ class CaixaEvidencia extends ModelBase
         'usuario_id',
         'valor_total',
         'valor_dinheiro',
+        'valor_movimentado',
         'total_credito_loja',
         'caixa_recurso_id',
         'descricao',
@@ -44,9 +45,34 @@ class CaixaEvidencia extends ModelBase
     /**
      * Relacionamento opcional com a tabela caixa_recursos.
      */
-    public function caixaRecurso()
+    public function recurso()
     {
-        return $this->belongsTo(CaixaRecurso::class);
+        return $this->belongsTo(Recurso::class, 'caixa_recurso_id');
+    }
+
+    public function venda()
+    {
+        return $this->hasOne(Venda::class, 'caixa_evidencia_id');
+    }
+
+    public function devolucao()
+    {
+        return $this->hasOne(Devolucao::class, 'caixa_evidencia_id');
+    }
+
+    public function sangria()
+    {
+        return $this->hasOne(Sangria::class, 'caixa_evidencia_id');
+    }
+
+    public function suprimento()
+    {
+        return $this->hasOne(Suprimento::class, 'caixa_evidencia_id');
+    }
+
+    public function fichas_cliente()
+    {
+        return $this->hasMany(FichaCliente::class, 'caixa_evidencia_id');
     }
 
     public function evidenciaAnterior()

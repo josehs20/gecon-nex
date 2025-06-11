@@ -26,9 +26,9 @@ const rotas = {
     excluirOrcamento: $('#dataView').data('excluirOrcamento'),
     rotaGetEspecies: $('#dataView').data('rotaGetEspecies'),
     rotaGetCaixa: $('#dataView').data('rotaGetCaixa'),
+    rotaGetCaixaFechamento: $('#dataView').data('rotaGetCaixaFechamento'),
     rotaGetClienteRecebimentoParcelas: $('#dataView').data('rotaGetClienteRecebimentoParcelas'),
     rotaGetClienteParcelas: $('#dataView').data('rotaGetClienteParcelas'),
-
 };
 
 function ajaxPost(url, requestData, texto = null) {
@@ -270,10 +270,24 @@ function montaRequestReceberConta() {
     };
 }
 
-function montaRequestFecharCaixa() {
+function montaRequestFecharCaixa(validarValorMinimo = true) {
+    let observacao = $('#observacao-fechamento-textarea').val();
+    let total_dinheiro = $('#valor-dinheiro-fechar-caixa').val();
+
+    if (!total_dinheiro || total_dinheiro == '') {
+        gerais.msgToastr('Valor inválido', 'warning');
+        return
+    }
+    let dinheiroSentavos = gerais.reaisParaCentavos(total_dinheiro)
+    let valorMinimo = $("#valor-dinheiro-fechar-caixa").data('minimo');
+    if (validarValorMinimo && dinheiroSentavos < valorMinimo) {
+        validarValorMinimo = false;
+        validaSuperior('fechar_caixa', validarValorMinimo)
+        return null;
+    }
     return {
-        observacao: 'Fechamento de caixa',
-        total_dinheiro: '1.200,00',
+        observacao: observacao,
+        total_dinheiro: total_dinheiro,
     };
 }
 
@@ -435,7 +449,7 @@ $('#produto-select').on('select2:open', function () {
 });
 
 setTimeout(function () {
-    // $('#produto-select').select2('open');
+    $('#produto-select').select2('open');
 }, 500);
 
 // Evento disparado quando um item é selecionado
@@ -710,6 +724,9 @@ function executaProximaAcao(acao, parametros) {
             break;
         case 'sangria_caixa':
             sangriaCaixa();
+            break;
+        case 'fechar_caixa':
+            fecharCaixa();
             break;
         default:
             break;
@@ -1158,7 +1175,7 @@ function renderizarTabelaItensDevolucao(venda) {
         }, 0);
 
         const linha = `
-            <tr data-item-id="${item.id}" data-estoque-id="${item.estoque_id}">
+            <tr data-item-id="${item.id}" data-estoq    ue-id="${item.estoque_id}">
                 <td>${item.estoque.produto.cod_aux}</td>
                 <td>${gerais.montaNomeProduto(item.estoque.produto)}</td>
                 <td class="text-center">${quantidade}</td>
@@ -1168,8 +1185,8 @@ function renderizarTabelaItensDevolucao(venda) {
                 <td>
                     <input type="text" class="form-control form-control-sm qtd-devolver"
                            data-preco-unitario="${preco}"
-                           data-quantidade-max="${quantidade}"
-                           min="0" max="${quantidade}" value="0">
+                           data-quantidade-max="${(quantidade - totalQuantidadeDevolvida)}"
+                           min="0" max="${(quantidade - totalQuantidadeDevolvida)}" value="0">
                 </td>
             </tr>
         `;
@@ -1188,7 +1205,6 @@ function renderizarTabelaItensDevolucao(venda) {
         });
 
         if (existePagamentoEspecieCreditoLoja) {
-            console.log(idCreditoLoja, existePagamentoEspecieCreditoLoja);
 
             $('#forma-pagamento-devolucao-select').val(idCreditoLoja).trigger('change');
             $('#forma-pagamento-devolucao-select').prop('disabled', true);
@@ -1429,7 +1445,7 @@ $('#cliente-recebimento-select').on('select2:select', function (e) {
 
             if (response.success) {
 
-                renderizarTabelaParcelasCliente(response.venda_pagamento);
+                renderizarTabelaParcelasCliente(response.venda_pagamento, response.cliente);
 
                 // Garante que a sidebar principal continue aberta
                 if (!$('#recebimentoSidebar').hasClass('open')) {
@@ -1442,31 +1458,34 @@ $('#cliente-recebimento-select').on('select2:select', function (e) {
         });
     }
 });
-function renderizarTabelaParcelasCliente(venda_pagamento) {
+function renderizarTabelaParcelasCliente(venda_pagamento, cliente) {
     const tbody = $('#recebimentoParcelasTableBody');
     tbody.empty(); // Limpa antes de adicionar novos
     $("#clienteRecebimento").text('Informações das parcelas da venda: ' + venda_pagamento.venda.n_venda)
     venda_pagamento.venda_parcelas.forEach(item => {
+        const valorDisponivel = item.valor - (item.valor_pago ?? 0) - (item.valor_devolvido ?? 0);
+
         const linha = `
-            <tr data-item-id="${item.id}">
-                <td>${item.id}</td>
-                <td>R$ ${gerais.centavosParaReais(item.valor)}</td>
-                <td>R$ ${gerais.centavosParaReais(item.valor_pago)}</td>
-                <td>R$ ${gerais.centavosParaReais((item.valor - item.valor_pago))}</td>
-                <td>${gerais.aplicarMascaraDataNascimento(item.data_vencimento)}</td>
-                <td>
-                    <input type="text" class="form-control form-control-sm qtd-receber"
-                           data-valor-max="${(item.valor - item.valor_pago)}"
-                           min="0" max="${(item.valor - item.valor_pago)}" value="">
-                </td>
-            </tr>
-        `;
+        <tr data-item-id="${item.id}">
+            <td>${item.id}</td>
+            <td>R$ ${gerais.centavosParaReais(item.valor)}</td>
+            <td>R$ ${gerais.centavosParaReais(item.valor_pago)}</td>
+            <td>R$ ${gerais.centavosParaReais(item.valor - item.valor_pago)}</td>
+            <td>R$ ${gerais.centavosParaReais(item.valor_devolvido)}</td>
+            <td>${gerais.aplicarMascaraDataNascimento(item.data_vencimento)}</td>
+            <td>
+                <input type="text" class="form-control form-control-sm qtd-receber"
+                       data-valor-max="${valorDisponivel}"
+                       min="0" max="${valorDisponivel}" value="">
+            </td>
+        </tr>
+    `;
         tbody.append(linha);
     });
 
     gerais.maskDinheiroByClass('qtd-receber');
     $('.qtd-receber').off('blur', calcularTotalReceber); // Desvincula eventos anteriores para evitar duplicação
-    $('.qtd-receber').on('blur', calcularTotalReceber);
+    $('#cliente-credito-ave').val(gerais.centavosParaReais(cliente.credito.credito_ave));
 
     // Chama a função uma vez para calcular o total inicial (se houver valores pré-preenchidos)
     calcularTotalReceber();
@@ -1478,6 +1497,7 @@ function calcularTotalReceber() {
         const $input = $(this);
         const valorMaxCents = parseFloat($input.data('valor-max')); // Pega o valor máximo do atributo data-
         let valorReceberCents = gerais.reaisParaCentavos($input.val()); // Converte o valor digitado para centavos
+        console.log(valorMaxCents);
 
         // --- Lógica de Validação da Quantidade Máxima ---
         if (valorReceberCents > valorMaxCents) {
@@ -1517,7 +1537,89 @@ $('#formRecebimento').on('submit', function (event) {
     });
 });
 
+// -----------------Fechamento de caixa ------------//
+gerais.maskDinheiro('valor-dinheiro-fechar-caixa');
+function carregaSideBarFechamento() {
+    ajaxGet(rotas.rotaGetCaixaFechamento).done(function (response) {
+        if (response.success) {
+            renderizarTabelaDetalhesFechamentoCaixa(response);
+        }
+    })
+}
+function renderizarTabelaDetalhesFechamentoCaixa(response) {
+    const tbody = $('#fechamentoDetalheTableBody');
+    tbody.empty(); // Limpa antes de adicionar novos
+    $("#tituloSidebarFilhaFechamento").text('Detalhes de cada transação realizada')
+    response.detalhes.forEach(item => {
+        let especiesHtml = '';
+        if (item.especies && item.especies.length > 0) {
+            item.especies.forEach(especie => {
+                // Você pode customizar a cor do badge com base no nome da espécie, se quiser
+                let badgeClass = 'bg-primary'; // Padrão
 
+                // Adiciona um estilo para margem inferior para empilhar
+                especiesHtml += `<span class="badge ${badgeClass} text-white mb-1">${especie.nome}</span><br>`;
+            });
+        } else {
+            especiesHtml = '<span class="text-muted">N/A</span>'; // Caso não haja espécies
+        }
+
+        const linha = `
+            <tr data-item-id="${item.id}">
+                <td>${item.id}</td>
+                <td>${item.recurso.descricao}</td>
+                <td>${especiesHtml}</td>
+                <td>${gerais.aplicarMascaraDataHora(item.created_at)}</td>
+                <td>R$ ${gerais.centavosParaReais(item.valor_movimentado)}</td>
+            </tr>
+        `;
+        tbody.append(linha);
+    });
+
+    let valorTotalCaixa = response.caixa.ultima_evidencia.valor_total;
+    let valorTotalDinheiro = response.caixa.ultima_evidencia.valor_dinheiro;
+    let valorCreditoLoja = response.caixa.ultima_evidencia.total_credito_loja;
+    let valorMinimoEsperado = response.caixa.ultima_evidencia.valor_minimo_dinheiro;
+
+    $('#valor-total-fechar-caixa').val(gerais.centavosParaReais(valorTotalCaixa));
+    $('#valor-total-dinheiro-fechar-caixa').val(gerais.centavosParaReais(valorTotalDinheiro));
+    $('#valor-total-credito-fechar-caixa').val(gerais.centavosParaReais(valorCreditoLoja));
+    $('#valor-total-dinheiro-fechar-caixa').data('minimo', valorMinimoEsperado);
+
+    // Abre a sidebar filha à direita da principal
+    $('#fechamentoSidebarFilha').addClass('open');
+}
+
+$('#formFechamento').on('submit', function (event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
+
+    let request = montaRequestFecharCaixa(true);
+    if (!request) {
+        return;
+    }
+
+    ajaxPost(rotas.rotaFecharCaixa, request).done(function (response) {
+        if (response.success == true) {
+            closeSidebar();
+            window.location = response.rota_redirect;
+
+        }
+    });
+});
+
+function fecharCaixa() {
+    let request = montaRequestFecharCaixa(false);
+    if (!request) {
+        return;
+    }
+
+    ajaxPost(rotas.rotaFecharCaixa, request).done(function (response) {
+        if (response.success == true) {
+            closeSidebar();
+            window.location = response.rota_redirect;
+        }
+    });
+}
 //-------------------------manusear sied bars-------------------//
 // VARIÁVEIS GLOBAIS SEDBARs
 const $body = $('body'); // Assumindo que $body já está definido
@@ -1526,7 +1628,11 @@ const $overlay = $('<div class="overlay"></div>'); // Cria o overlay uma vez
 // Função genérica para abrir uma sidebar
 function openSidebar(sidebarId) {
     // Se for a sidebar principal (esquerda), fecha todas as outras
-    if (sidebarId === '#devolucaoSidebar' || sidebarId === '#orcamentoSiedbar' || sidebarId === '#recebimentoSidebar') {
+    if (sidebarId === '#devolucaoSidebar' ||
+        sidebarId === '#orcamentoSiedbar' ||
+        sidebarId === '#recebimentoSidebar' ||
+        sidebarId === '#fechamentoSidebar'
+    ) {
         $('.sidebar, .sidebar-filha').removeClass('open');
     }
 
@@ -1583,6 +1689,8 @@ $('.sidebar-toggle-btn').on('click', function (event) {
         } else if (targetSidebarId === '#recebimentoSidebar') {
             $('#formRecebimento')[0].reset();
             $('#cliente-recebimento-select').val(null).trigger('change');
+        } else if (targetSidebarId === '#fechamentoSidebar') {
+            carregaSideBarFechamento();
         }
     }, 500); // Atraso para a transição da sidebar
 });

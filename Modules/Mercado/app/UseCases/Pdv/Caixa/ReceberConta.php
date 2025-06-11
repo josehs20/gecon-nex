@@ -135,6 +135,7 @@ class ReceberConta
         $evidenciaAnterior = $evidencia->evidenciaAnterior();
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
+            'valor_movimentado' => $totais,
             'valor_total' => $evidenciaAnterior->valor_total + $totais,
             'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $pagamentoEmDinheiro,
             'total_credito_loja' => $evidenciaAnterior->total_credito_loja,
