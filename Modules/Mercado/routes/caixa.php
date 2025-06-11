@@ -26,12 +26,14 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
         Route::post('/caixa/remover/item', [CaixaPDVController::class, 'remover_item'])->name('caixa.remover.item')->defaults('acao_id', config('config.acoes.removeu_item_caixa.id'));
         Route::post('/caixa/supervisor/validar', [CaixaPDVController::class, 'validar_supervisor'])->name('caixa.supervisor.validar');
         Route::post('/caixa/colocar/orcamento/venda', [CaixaPDVController::class, 'colocar_orcamento_em_venda'])->name('caixa.colcoar.orcamento.orcamento.em.venda')->defaults('acao_id', config('config.acoes.colocou_orcamento_a_venda.id'));
-
-
+        Route::post('/caixa/excluiu/orcamento', [CaixaPDVController::class, 'excluir_orcamento'])->name('caixa.orcamento.excluir')->defaults('acao_id', config('config.acoes.excluiu_orcamento.id'));
 
         //get
         Route::get('/caixa/orcamentos/get', [CaixaPDVController::class, 'get_orcamentos'])->name('caixa.orcamento.get');
         Route::get('/caixa/get/orcamento', [CaixaPDVController::class, 'get_orcamento'])->name('caixa.orcamento.get.itens');
+        Route::get('/caixa/especies/get', [CaixaPDVController::class, 'get_especies'])->name('caixa.get.especies');
+        Route::get('/caixa/caixa/get', [CaixaPDVController::class, 'get_caixa'])->name('caixa.get.caixa');
+
 
         Route::get('/caixa/produto/get', [CaixaPDVController::class, 'get_produtos'])->name('caixa.produto.get');
         Route::get('/caixa/supervisores', [CaixaPDVController::class, 'get_supervisores'])->name('caixa.supervisores.get');
@@ -39,6 +41,8 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
         Route::get('/caixa/formas-pagamento/get', [CaixaPDVController::class, 'get_formas_pagamento'])->name('caixa.formas_pagamento.get');
         Route::get('/caixa/get-vendas-devolucao', [CaixaPDVController::class, 'get_vendas_devolucao'])->name('caixa.devolucao.venda.get');
         Route::get('/caixa/get-venda-devolver', [CaixaPDVController::class, 'get_venda_devolver'])->name('caixa.devolver.venda.get');
+        Route::get('/caixa/get-clientes-parcelas-receber', [CaixaPDVController::class, 'get_clientes_parcela_receber'])->name('caixa.cliente.recebimento.parcelas.get');
+        Route::get('/caixa/get-cliente-parcelas', [CaixaPDVController::class, 'get_clientes_parcela'])->name('caixa.cliente.parcelas.get');
 
         //outras para manipulação do caixa
         Route::get('/caixa/get/vendas', [CaixaPDVController::class, 'get_vendas'])->name('caixa.get.vendas');

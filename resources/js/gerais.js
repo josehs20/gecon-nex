@@ -365,7 +365,7 @@ export function constructSelect2(idElemento, url, vaiEstarEmAlgumModal = false, 
                         results: results.map(item => ({
                             id: item.id, // ID do cliente
                             text: item.text,
-                            attrs: item // Texto que será exibido no dropdown
+                            attrs: item 
                         })),
                         pagination: {
                             more: false // Se não há mais páginas a serem carregadas

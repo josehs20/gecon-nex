@@ -12,6 +12,7 @@ use Modules\Mercado\UseCases\Pdv\Caixa\CriarOrcamento;
 use Modules\Mercado\UseCases\Pdv\Caixa\CriarOuAtualizaCaixaDiario;
 use Modules\Mercado\UseCases\Pdv\Caixa\DevolucaoVenda;
 use Modules\Mercado\UseCases\Pdv\Caixa\EditarValoresEvidencia;
+use Modules\Mercado\UseCases\Pdv\Caixa\ExcluirOrcamento;
 use Modules\Mercado\UseCases\Pdv\Caixa\FecharCaixa;
 use Modules\Mercado\UseCases\Pdv\Caixa\FinalizarVenda;
 use Modules\Mercado\UseCases\Pdv\Caixa\GerarNumeroVenda;
@@ -127,6 +128,12 @@ class PDVApplication
      public static function colocar_orcamento_em_venda(int $orcamento_id, int $caixa_id, CriarHistoricoRequest $criar_historico_request)
     {
         $interact = new ColocarOrcamentoEmVenda($orcamento_id, $caixa_id, $criar_historico_request);
+        return $interact->handle();
+    }
+
+        public static function excluir_orcamento(int $orcamento_id, CriarHistoricoRequest $criar_historico_request)
+    {
+        $interact = new ExcluirOrcamento($orcamento_id, $criar_historico_request);
         return $interact->handle();
     }
 

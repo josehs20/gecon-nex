@@ -208,9 +208,17 @@ class CaixaPDVRepository
 
     public static function getVendaById(int $vendaId)
     {
-        return Venda::with(['devolucoes', 'venda_itens.estoque.produto' => function ($q) {
+        return Venda::with(['devolucoes', 'venda_pagamentos' => function ($q) {
+            $q->with(['vendaParcelas', 'especiePagamento']);
+        }, 'venda_itens.devolucao_itens', 'venda_itens.estoque.produto' => function ($q) {
             $q->with(['fabricante', 'unidade_medida']);
         }])->find($vendaId);
+    }
+
+    public static function delete_orcamento(int $orcamentoId, CriarHistoricoRequest $criarHistoricoRequest)
+    {
+        Orcamento::setHistorico($criarHistoricoRequest);
+        return Orcamento::where('id', $orcamentoId)->delete();
     }
 
     public static function getVendaParcelaById(int $vendaId)
@@ -341,9 +349,31 @@ class CaixaPDVRepository
             })->limit($limite)->get();
     }
 
-        public static function getOrcamentoById(
+    public static function getOrcamentoById(
         int $id
     ) {
         return Orcamento::with(['cliente', 'orcamento_itens.estoque.produto.unidade_medida', 'orcamento_itens.estoque.produto.fabricante'])->find($id);
+    }
+
+    public static function get_venda_pagamentos_cliente(
+        array $lojas,
+        string $busca = ''
+    ) {
+        return VendaPagamento::with(['vendaParcelas.formaPagamento.especie'])->whereIn('loja_id', $lojas)
+            ->whereHas('cliente', function ($q) use ($busca) {
+                $q->where('nome', 'like', formataLikeSql($busca));
+            })
+            ->whereHas('vendaParcelas', function ($q) {
+                $q->where('pago', false); //automaticamente busca rodas credito em loja pendentes
+            })->get();
+    }
+
+     public static function get_venda_pagamento_by_id(
+        int $id
+    ) {
+        return VendaPagamento::with(['vendaParcelas.formaPagamento.especie', 'venda'])->where('id', $id)
+            ->whereHas('vendaParcelas', function ($q) {
+                $q->where('pago', false); //automaticamente busca rodas credito em loja pendentes
+            })->first();
     }
 }
