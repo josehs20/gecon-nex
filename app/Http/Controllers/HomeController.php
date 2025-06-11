@@ -152,7 +152,6 @@ class HomeController extends Controller
                 config('config.processos.gerenciamento.estoque.id'),
                 config('config.processos.gerenciamento.balanco.id'),
                 config('config.processos.gerenciamento.movimentacao.id'),
-                config('config.processos.gerenciamento.recebimento.id'),
             ],
             'Pedidos' => [
                 config('config.processos.gerenciamento.pedidos.id'),

@@ -125,4 +125,14 @@ class CompraRepository
             ->take(12)
             ->reverse();  
     }
+
+    public static function obterComprasCompradas(
+        int $loja_id
+    ){
+        return Compra::with(['compra_itens.cotacaoFornecedorItem.produto.unidade_medida'])
+        ->where('loja_id', $loja_id)
+        ->where('status_id', config('config.status.comprado'))
+        ->whereDoesntHave('recebimento')
+        ->get();
+    }
 }

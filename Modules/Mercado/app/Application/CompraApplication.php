@@ -2,6 +2,7 @@
 
 namespace Modules\Mercado\Application;
 
+use Modules\Mercado\Repository\Compra\CompraRepository;
 use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 use Modules\Mercado\UseCases\Pedido\Compra\CancelarCompra;
 use Modules\Mercado\UseCases\Pedido\Compra\CriarCompra;
@@ -19,5 +20,13 @@ class CompraApplication
     {
         $interact = new CancelarCompra($criarHistoricoRequest, $compra_id);
         return $interact->handle();
+    }
+
+    public static function obterComprasCompradas(int $loja_id){
+        return CompraRepository::obterComprasCompradas($loja_id);
+    }
+
+    public static function obterCompraPorId($compra_id){
+        return CompraRepository::getCompraById($compra_id);
     }
 }

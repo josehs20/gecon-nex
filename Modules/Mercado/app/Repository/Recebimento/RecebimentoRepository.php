@@ -8,24 +8,28 @@ use Modules\Mercado\UseCases\Historicos\Requests\CriarHistoricoRequest;
 
 class RecebimentoRepository
 {
+    public static function obterRecebimentos(
+        int $loja_id
+    ){
+        return Recebimento::where('loja_id', $loja_id)->get();
+    }
+    
     public static function create(
         CriarHistoricoRequest $historico,
-        $pedido_id,
+        $compra_id,
         $usuario_id,
         $loja_id,
         $status_id,
         $data_recebimento,
-        $arquivo = null,
         $observacoes = null
     ) {
         Recebimento::setHistorico($historico);
         return Recebimento::create([
-            'pedido_id' => $pedido_id,
+            'compra_id' => $compra_id,
             'usuario_id' => $usuario_id,
             'loja_id' => $loja_id,
             'status_id' => $status_id,
             'data_recebimento' => $data_recebimento,
-            'arquivo_id' => $arquivo,
             'observacoes' => $observacoes
         ]);
     }
@@ -83,7 +87,7 @@ class RecebimentoRepository
         $loja_id,
         $produto_id,
         $estoque_id,
-        $pedido_item_id,
+        $compra_item_id,
         $status_id,
         $quantidade_recebida,
         $quantidade_pedida,
@@ -98,7 +102,7 @@ class RecebimentoRepository
             'loja_id' => $loja_id,
             'produto_id' => $produto_id,
             'estoque_id' => $estoque_id,
-            'pedido_item_id' => $pedido_item_id,
+            'compra_item_id' => $compra_item_id,
             'status_id' => $status_id,
             'quantidade_recebida' => $quantidade_recebida,
             'quantidade_pedida' => $quantidade_pedida,
@@ -142,5 +146,19 @@ class RecebimentoRepository
             'validade' => $validade,
         ]);
         return $recebimentoItem;
+    }
+
+    public static function existeRecebimentoComEssaCompra(
+        int $compra_id,
+        int $loja_id
+    ){
+        return Recebimento::where('compra_id', $compra_id)->where('loja_id', $loja_id)->exists();
+    }
+
+    public static function obterRecebimentoPorCompraId(
+        int $compra_id,
+        int $loja_id
+    ){
+        return Recebimento::with(['recebimento_itens'])->where('compra_id', $compra_id)->where('loja_id', $loja_id)->first();
     }
 }

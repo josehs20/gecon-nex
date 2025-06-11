@@ -198,21 +198,6 @@ Route::prefix('/cadastros')->group(function () {
     });
 });
 
-Route::middleware(['processo:' . config('config.processos.gerenciamento.recebimento.id')])->group(function () {
-    /**
-     * Recebimeto de mercadorias
-     */
-    Route::get('/recebimento/index', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'index'])->name('cadastro.recebimento.index');
-    Route::get('/estoque/recebimento/create', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'create'])->name('estoque.recebimento.create');
-    Route::get('/estoque/produtos/get', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'get_produtos'])->name('estoque.recebimento.produtos.get');
-    Route::get('/estoque/recebimento/pedido/{pedido_id}', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'receber_pedido'])->name('estoque.recebimento.iniciar');
-    Route::post('/estoque/recebimento/pedido/receber', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'receber'])->name('estoque.recebimento.receber')->defaults('acao_id', config('config.acoes.realizou_recebimento.id'));
-    Route::get('/download/nf/{arquivo_id}', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'download_nf'])->name('download.nf');
-    Route::post('/estoque/recebimento/nf/receber', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'receber_nf'])->name('estoque.recebimento.receber.nf')->defaults('acao_id', config('config.acoes.realizou_recebimento.id'));
-    Route::get('/estoque/recebimento/nf', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'receber_nf_create'])->name('estoque.recebimento.nf.create');
-    Route::get('/estoque/recebimento/qr-code', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'gerar_qr_code'])->name('gerar.qr.code.recebimento');
-});
-
 Route::middleware(['processo:' . config('config.processos.gerenciamento.pedidos.id')])->group(function () {
     /**
      * Pedido
@@ -273,8 +258,6 @@ Route::middleware(['processo:' . config('config.processos.nfe.inscricao_estadual
     Route::get('/nfe/inscricao_estadual/index', [Modules\Mercado\Http\Controllers\Pedido\PedidoController::class, 'index'])->name('nfe.inscricao_estadual.index');
 });
 Route::post('/confirmarComSenha', [Modules\Mercado\Http\Controllers\ControllerBaseMercado::class, 'confirmar_com_senha'])->name('confirmar_com_senha');
-Route::post('/scanear/nf', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'scanear_nf'])->name('scanear.nf');
-Route::get('consulta/nf/services', [Modules\Mercado\Http\Controllers\Estoque\RecebimentoController::class, 'consulta_nf'])->name('consulta.nf')->middleware('auth');
 
 /**
  * FABRICANTES
@@ -290,3 +273,15 @@ Route::prefix('/fabricantes')->group(function () {
     });
 });
 
+/**
+ * RECEBIMENTO
+ */
+Route::middleware(['processo:' . config('config.processos.gerenciamento.recebimento_pedido.id')])->group(function () {
+    /**
+     * Recebimeto de mercadorias
+     */
+    Route::get('/recebimento/index', [Modules\Mercado\Http\Controllers\Pedido\RecebimentoController::class, 'index'])->name('pedido.recebimento.index');
+    Route::get('/recebimento/create', [Modules\Mercado\Http\Controllers\Pedido\RecebimentoController::class, 'create'])->name('pedido.recebimento.create');
+    Route::get('/recebimento/receber/{compra_id}', [Modules\Mercado\Http\Controllers\Pedido\RecebimentoController::class, 'receber'])->name('pedido.recebimento.receber');
+    Route::post('/recebimento/store/{compra_id}', [Modules\Mercado\Http\Controllers\Pedido\RecebimentoController::class, 'store'])->name('pedido.recebimento.store')->defaults('acao_id', config('config.acoes.realizou_recebimento.id'));
+});
