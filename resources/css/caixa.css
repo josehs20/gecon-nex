@@ -1,0 +1,254 @@
+ @tailwind base;
+ @tailwind components;
+ @tailwind utilities;
+ /* @import url('../../public/siedBar/css/owl.carousel.min.css');
+@import url('../../public/siedBar/css/bootstrap.min.css');
+@import url('../../public/siedBar/css/style.css');
+@import url('../../public/css/cssGeral.css'); */
+ @import "bootstrap-icons/font/bootstrap-icons.min.css";
+
+ html,
+ body {
+     height: 100%;
+     margin: 0;
+ }
+
+.modal {
+    z-index: 1060 !important; /* Valor padrão do Bootstrap para backdrop é 1040, modal é 1050 */
+}
+
+ .container-fluid,
+ .wrapper-content {
+     /* ou o nome do seu contêiner principal */
+     min-height: 100vh;
+     display: flex;
+     flex-direction: column;
+ }
+
+ .sidebar {
+     height: 100%;
+     width: 0;
+     position: fixed;
+     z-index: 1050;
+     top: 0;
+     right: 0;
+     background-color: #f8f9fa;
+     overflow-x: hidden;
+     transition: 0.5s;
+     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+     display: flex;
+     flex-direction: column;
+ }
+
+ .sidebar.open {
+     width: 40%;
+     right: 0;
+ }
+
+ /* NOVO: Estilo para a sidebar de Venda Final com 60% de largura */
+.sidebar#finalizarVendaSidebar.open { /* Mais específico para sobrescrever o .sidebar.open */
+    width: 60%; /* A largura desejada para esta sidebar específica */
+}
+
+ .sidebar-header {
+     padding: 20px;
+     background-color: #007bff;
+     color: white;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .sidebar-header h3 {
+     margin-bottom: 0;
+ }
+
+ .sidebar .close-btn {
+     font-size: 30px;
+     color: white;
+     text-decoration: none;
+     background: none;
+     border: none;
+     cursor: pointer;
+     padding: 0 10px;
+ }
+
+ .sidebar-body {
+     padding: 20px;
+     flex-grow: 1;
+     overflow-y: auto;
+ }
+
+ /* Opcional: Efeito de overlay quando a sidebar está aberta */
+ .overlay {
+     position: fixed;
+     top: 0;
+     right: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     z-index: 1040;
+     display: none;
+ }
+
+ .overlay.active {
+     display: block;
+ }
+
+ @media (max-width: 768px) {
+     .sidebar.open {
+         width: 80%;
+     }
+
+     .sidebar-filha.open {
+         width: 100%;
+         right: 0;
+         z-index: 1051;
+         /* sobrepõe a mãe no mobile */
+     }
+ }
+
+ .sidebar-filha {
+     height: 100%;
+     width: 0;
+     position: fixed;
+     z-index: 1045;
+     /* ligeiramente menor que a mãe */
+     top: 0;
+     right: 40%;
+     /* começa exatamente onde a mãe termina */
+     background-color: #e9ecef;
+     overflow-y: auto;
+     transition: 0.5s;
+     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+     display: flex;
+     flex-direction: column;
+ }
+
+ .sidebar-filha.open {
+     width: 60%;
+     /* ocupa o restante da tela */
+ }
+
+ /* Estilo para o cabeçalho das colunas DENTRO do Select2 */
+ .select2-container--open .select2-dropdown .select2-columns-header-internal {
+     background-color: #e9ecef;
+     /* Um cinza mais claro */
+     border-bottom: 1px solid #dee2e6;
+     font-size: 0.8em;
+     /* Levemente menor que o item */
+     color: #6c757d;
+     padding: 0.5rem 0.75rem;
+     /* Ajuste o padding para alinhar com os itens */
+     font-weight: bold;
+     position: sticky;
+     /* Torna o cabeçalho "sticky" ao rolar */
+     top: 0;
+     /* Fixa no topo da área de rolagem */
+     z-index: 10;
+     /* Garante que fique acima dos outros itens ao rolar */
+     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+     /* Sombra sutil ao rolar */
+ }
+
+ /* Garante que o flex-grow e text-align correspondam ao templateResult */
+ .select2-columns-header-internal div {
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ /* Opcional: Ajustar o padding interno dos itens no Select2 para melhor alinhamento com o cabeçalho */
+ .select2-container .select2-results__option {
+     padding: 0.5rem 0.75rem;
+     /* Este padding deve coincidir com o do cabeçalho */
+     border-bottom: 1px dotted #f0f0f0;
+     /* Linha sutil entre os itens */
+ }
+
+ /* Opcional: Remova o padding padrão do Select2 para que os itens comecem mais à esquerda/direita */
+ /* .select2-results__options {
+        padding-left: 0;
+        padding-right: 0;
+    } */
+
+ #tituloItensVenda {
+     font-family: 'Open Sans', sans-serif;
+     /* Exemplo de fonte, ajuste conforme sua preferência */
+     font-size: 1.8rem;
+     /* Ajuste o tamanho da fonte */
+     font-weight: 600;
+     /* Negrito */
+     color: #333;
+     /* Cor do texto */
+     /* Outros estilos, se desejar */
+ }
+
+ .titulos {
+     font-family: 'Open Sans', sans-serif;
+     /* Exemplo de fonte, ajuste conforme sua preferência */
+     font-size: 1.8rem;
+     /* Ajuste o tamanho da fonte */
+     font-weight: 600;
+     /* Negrito */
+     /* color: #333; */
+     /* Cor do texto */
+     /* Outros estilos, se desejar */
+ }
+
+ /* Estilo base para os quadrados de opção */
+ .finalizacao-option {
+     flex: 1;
+     /* Permite que cada quadrado ocupe o mesmo espaço disponível */
+     padding: 15px 10px;
+     /* Espaçamento interno do quadrado */
+     border: 1px solid #ced4da;
+     /* Borda padrão */
+     border-radius: 5px;
+     /* Bordas arredondadas */
+     text-align: center;
+     /* Centraliza o texto */
+     cursor: pointer;
+     /* Indica que é clicável */
+     transition: all 0.2s ease-in-out;
+     /* Transição suave para hover e seleção */
+     background-color: #f8f9fa;
+     /* Cor de fundo leve */
+     color: #495057;
+     /* Cor do texto */
+     font-weight: 500;
+     /* Peso da fonte */
+     margin: 0 5px;
+     /* Pequena margem entre os quadrados */
+     white-space: nowrap;
+     /* Evita que o texto quebre em várias linhas */
+ }
+
+ /* Remove a margem do primeiro e último quadrado para melhor alinhamento com justify-content-between */
+ .finalizacao-option:first-child {
+     margin-left: 0;
+ }
+
+ .finalizacao-option:last-child {
+     margin-right: 0;
+ }
+
+ /* Estilo para quando a opção é HOVER (mouse sobre) */
+ .finalizacao-option:hover {
+     background-color: #e2e6ea;
+     border-color: #007bff;
+     /* Borda azul ao passar o mouse */
+ }
+
+ /* Estilo para quando a opção está SELECIONADA */
+ /* Usamos o seletor do radio escondido para aplicar o estilo ao label */
+ input[type="radio"]:checked+.finalizacao-option {
+     background-color: #007bff;
+     /* Cor de fundo azul do Bootstrap */
+     color: #fff;
+     /* Texto branco */
+     border-color: #007bff;
+     /* Borda azul */
+     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+     /* Sombra para indicar seleção, como em inputs */
+ }

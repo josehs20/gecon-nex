@@ -676,6 +676,22 @@ return [
         'supriu_caixa' => [
             'id' => 66,
             'descricao' => 'Supriu o caixa.'
+        ],
+        'adicionou_item_caixa' => [
+            'id' => 67,
+            'descricao' => 'Adicionou item ao caixa.'
+        ],
+        'removeu_item_caixa' => [
+            'id' => 68,
+            'descricao' => 'Removeu item do caixa.'
+        ],
+        'colocou_orcamento_a_venda' => [
+            'id' => 69,
+            'descricao' => 'Colocou orçamento a venda.'
+        ],
+        'excluiu_orcamento' => [
+            'id' => 70,
+            'descricao' => 'Excluir orçcamento.'
         ]
     ],
 

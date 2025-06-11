@@ -119,6 +119,7 @@ class CaixaRepository
     }
 
     public static function getProdutosVendaCaixa(
+        int $loja_id,
         string $busca = ''
     ) {
 
@@ -145,7 +146,6 @@ class CaixaRepository
             ->join('unidade_medida as t4', 'produtos.unidade_medida_id', '=', 't4.id')
             ->join('fabricantes as t5', 'produtos.fabricante_id', '=', 't5.id')
             ->join('classificacao_produto as t6', 'produtos.classificacao_produto_id', '=', 't6.id')
-            ->where('t3.id', auth()->user()->usuarioMercado->loja_id)
             ->where(function ($query) use ($busca, $quantasLetras) {
 
                 $buscaLike = '%' . str_replace(' ', '%', $busca) . '%';
@@ -160,7 +160,9 @@ class CaixaRepository
                         ->orWhere('produtos.cod_barras', 'like', $busca)
                         ->orWhere('produtos.cod_aux', 'like', $busca);
                 }
-            })->get();
+            })
+            ->where('t3.id', $loja_id)
+            ->get();
     }
 
     public static function getClientesVendaCaixa(

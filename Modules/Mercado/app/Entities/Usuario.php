@@ -4,6 +4,7 @@ namespace Modules\Mercado\Entities;
 
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class Usuario extends ModelBase
@@ -70,7 +71,7 @@ class Usuario extends ModelBase
     public function caixa_permissoes_loja()
     {
         return $this->hasMany(CaixaPermissao::class, 'usuario_id')->whereHas('caixa', function ($q) {
-            $q->where('loja_id', auth()->user()->getUserModulo->loja_id);
+            $q->where('loja_id', Auth::user()->getUserModulo->loja_id);
         });
     }
 

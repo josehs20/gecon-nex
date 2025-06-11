@@ -119,12 +119,12 @@ class EstoqueRepository
 
     public static function getEstoqueById($id)
     {
-        return Estoque::find($id);
+        return Estoque::with(['produto.unidade_medida', 'produto.fabricante'])->find($id);
     }
 
     public static function getEstoqueByIds(array $ids)
     {
-        return Estoque::with('produto.unidade_medida')->whereIn('id', $ids)->where('loja_id', auth()->user()->usuarioMercado->loja_id)->get();
+        return Estoque::with(['produto.unidade_medida', 'produto.fabricante'])->whereIn('id', $ids)->where('loja_id', auth()->user()->usuarioMercado->loja_id)->get();
     }
 
     public static function updateQtdDisponivel(

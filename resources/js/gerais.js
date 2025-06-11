@@ -341,6 +341,7 @@ function montaColunasParaYajra(colunas) {
 }
 
 export function constructSelect2(idElemento, url, vaiEstarEmAlgumModal = false, options = {}) {
+
     if (url) {
         $('#' + idElemento).select2({
             dropdownParent: vaiEstarEmAlgumModal ? $('#' + vaiEstarEmAlgumModal) : vaiEstarEmAlgumModal, // Define o modal como pai do dropdown
@@ -363,7 +364,8 @@ export function constructSelect2(idElemento, url, vaiEstarEmAlgumModal = false, 
                     return {
                         results: results.map(item => ({
                             id: item.id, // ID do cliente
-                            text: item.text // Texto que será exibido no dropdown
+                            text: item.text,
+                            attrs: item 
                         })),
                         pagination: {
                             more: false // Se não há mais páginas a serem carregadas
@@ -440,6 +442,7 @@ export function maskDinheiroByClass(classElement) {
 }
 
 export function maskPorcentagem(idElemento, limite) {
+
     $("#" + idElemento).mask('##0,00', {
         translation: {
             '#': {
@@ -771,6 +774,24 @@ export function floatParaCentavos(valorEmFloat) {
     // Multiplica por 100 e arredonda para evitar problemas de precisão
     return Math.round(valorEmFloat * 100);
 }
+export function stringParaFloat(stringValue) {
+        if (typeof stringValue !== 'string' || stringValue.trim() === '') {
+            return 0;
+        }
+        // Remove pontos de milhar e substitui vírgula decimal por ponto
+        let numericString = stringValue.replace(/\./g, '').replace(',', '.');
+        return parseFloat(numericString);
+    }
+export function reaisParaCentavos(valorFormatado) {
+    if (typeof valorFormatado !== 'string' || valorFormatado.trim() === '') {
+        return 0;
+    }
+    // Remove "R$", pontos de milhar e substitui vírgula decimal por ponto
+    let valorNumerico = valorFormatado.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+    // Converte para float e multiplica por 100 para ter centavos
+    return Math.round(parseFloat(valorNumerico) * 100);
+}
+
 export function validarInput(event) {
     const input = event.target;
     const cursorPosition = input.selectionStart;

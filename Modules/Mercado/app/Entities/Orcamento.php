@@ -55,4 +55,9 @@ class Orcamento extends ModelBase
     {
         return $this->belongsTo(CaixaDiario::class);
     }
+
+        public function orcamento_itens()
+    {
+        return $this->hasMany(OrcamentoItem::class, 'orcamento_id');
+    }
 }

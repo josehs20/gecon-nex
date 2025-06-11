@@ -12,8 +12,8 @@ class CaixaDiario extends ModelBase
         'usuario_id',
         'loja_id',
         'status_id',
-        'data_abertura',
         'data_fechamento',
+        'data_abertura',
     ];
 
     protected $casts = [

@@ -20,6 +20,7 @@ class CreateCaixaEvidenciasTable extends Migration
             $table->unsignedBigInteger('usuario_id');
             $table->bigInteger('valor_total')->nullable();
             $table->bigInteger('valor_dinheiro')->nullable();
+            $table->bigInteger('total_credito_loja')->nullable();
             $table->unsignedBigInteger('caixa_recurso_id')->nullable();
             $table->text('descricao')->nullable();
 

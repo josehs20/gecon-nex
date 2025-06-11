@@ -30,7 +30,7 @@ class CriarOrcamento
 
     private function validade()
     {
-        $itens = CaixaPDVRepository::getItensCaixaTemp($this->request->getClienteId());
+        $itens = CaixaPDVRepository::getItensCaixaTemp($this->request->getCaixaId());
 
         if (!$itens->count()) {
             throw new Exception("Adicione os itens para o orçamento.", 1);
@@ -56,7 +56,7 @@ class CriarOrcamento
             'empresa_master_cod' => $this->request->getEmpresaMasterCod(),
             'usuario_id' => $this->request->getUsuarioId(),
             'status_id' => $this->request->getStatusId(),
-            'forma_pagamento_id' => $this->request->getFormaPagamentoId(),
+            'forma_pagamento_id' => $this->request->getFormaPagamentoId()[0]['id'],
             'caixa_diario_id' => $caixaDiario->id,
             'sub_total' => $valores['sub_total'],
             'total' => $valores['total'],
