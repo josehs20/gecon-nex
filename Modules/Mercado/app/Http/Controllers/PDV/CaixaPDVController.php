@@ -14,7 +14,9 @@ use Modules\Mercado\Application\ClienteApplication;
 use Modules\Mercado\Application\PagamentoApplication;
 use Modules\Mercado\Application\PDVApplication;
 use Modules\Mercado\Entities\CaixaItemTemp;
+use Modules\Mercado\Entities\EspeciePagamento;
 use Modules\Mercado\Entities\Estoque;
+use Modules\Mercado\Entities\Loja;
 use Modules\Mercado\Entities\Usuario;
 use Modules\Mercado\Http\Controllers\ControllerBaseMercado;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
@@ -31,7 +33,6 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\AbrirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\AdicionarItemTempRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CancelarVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
-use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarSangriaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\DevolucaoVendaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\FecharCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\OrcamentoRequest;
@@ -85,9 +86,13 @@ class CaixaPDVController extends ControllerBaseMercado
         // $mobile = Agent::isMobile();
         $caixa = Auth::user()->getUserModulo->caixa;
         $isMasterCaixa = $caixa->permissoes()->where('usuario_id', $request->attributes->get('usuario_id'))->where('superior', true)->first();
-
+        $especiesPagamento = EspeciePagamento::whereNotIn('id', [
+            config('config.especie_pagamento.boleto.id'),
+            config('config.especie_pagamento.transferencia.id'),
+        ])->get();
         return view('mercado::pdv.caixa', [
             'caixa' => $caixa,
+            'especiesPagamento' => $especiesPagamento,
             'isMasterCaixa' => $isMasterCaixa,
             'itensTemp' => CaixaPDVRepository::getItensCaixaTemp($request->attributes->get('caixa_id'))
         ]);
@@ -134,8 +139,31 @@ class CaixaPDVController extends ControllerBaseMercado
                 $this->getCriarHistoricoRequest($request)
             );
             $orcamento = CaixaPDVRepository::getOrcamentoById($parans->orcamentoId);
-            return response()->json(['success' => true, 'msg' => 'Orçamento selecionado com sucesso', 'itens' => $temps, 'total' => $temps->sum('total'), 'orcamento'=> $orcamento]);
+            return response()->json(['success' => true, 'msg' => 'Orçamento selecionado com sucesso', 'itens' => $temps, 'total' => $temps->sum('total'), 'orcamento' => $orcamento]);
         } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+
+    public function excluir_orcamento(Request $request)
+    {
+        $this->getDb()->begin();
+
+        try {
+            $parans = (object) Post::anti_injection_array($request->all());
+            $parans = (object) $parans->data;
+
+            PDVApplication::excluir_orcamento(
+                $parans->orcamentoId,
+                $this->getCriarHistoricoRequest($request)
+            );
+            $this->getDb()->commit();
+
+            return response()->json(['success' => true, 'msg' => 'Orçamento excluído com sucesso']);
+        } catch (\Exception $e) {
+            $this->getDb()->rollBack();
+
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
@@ -265,6 +293,27 @@ class CaixaPDVController extends ControllerBaseMercado
         return response()->json(['success' => true, 'orcamento' => $orcamento], 200);
     }
 
+    public function get_especies(Request $request)
+    {
+        $especies = EspeciePagamento::whereIn('id', [
+            config('config.especie_pagamento.dinheiro.id'),
+            config('config.especie_pagamento.transferencia.id'),
+            config('config.especie_pagamento.pix.id'),
+        ])->where('nome', 'like', formataLikeSql(Post::anti_injection($request->q)))
+            ->get()->map(function ($item) {
+                return ['id' => $item->id, 'text' => $item->nome];
+            });
+
+        return response()->json($especies, 200);
+    }
+
+    public function get_caixa(Request $request)
+    {
+        $caixa = CaixaRepository::getCaixaById($request->attributes->get('caixa_id'));
+
+        return response()->json(['success' => true, 'caixa' => $caixa], 200);
+    }
+
     public function get_clientes(Request $request)
     {
         $busca = $request->q ? Post::anti_injection($request->q) : '';
@@ -280,9 +329,10 @@ class CaixaPDVController extends ControllerBaseMercado
         //por enquanto rejeito boleto e trasnferência bancária
         $formasPagamneto = $formasPagamneto->reject(function ($f) {
             return $f->especie_pagamento_id == config('config.especie_pagamento.boleto.id') ||
-                $f->especie_pagamento_id == config('config.especie_pagamento.transferencia.id') ||
-                $f->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
+                $f->especie_pagamento_id == config('config.especie_pagamento.transferencia.id');
+            // $f->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
         });
+
         return response()->json($formasPagamneto, 200);
     }
 
@@ -321,7 +371,6 @@ class CaixaPDVController extends ControllerBaseMercado
         try {
             $parans = (object) Post::anti_injection_array($request->all());
             $parans = (object) $parans->data;
-
             $historicoRequest = $this->getCriarHistoricoRequest($request);
             $caixa = Auth::user()->getUserModulo->caixa;
 
@@ -339,7 +388,6 @@ class CaixaPDVController extends ControllerBaseMercado
             //falta processo de impressao elgin
             return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !', 'itens' => $temps, 'total' => $temps->sum('total')]);
         } catch (Exception $e) {
-
             $this->getDb()->rollBack();
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
@@ -564,6 +612,29 @@ class CaixaPDVController extends ControllerBaseMercado
         }
     }
 
+    public function get_clientes_parcela(Request $request)
+    {
+        $parans = (object) Post::anti_injection_array($request->all());
+        $parans = (object) $parans->data;
+
+        $vendaPagamento = CaixaPDVRepository::get_venda_pagamento_by_id($parans->venda_pagamento_id);
+        return response()->json(['success' => true, 'venda_pagamento' => $vendaPagamento]);
+    }
+
+    public function get_clientes_parcela_receber(Request $request)
+    {
+        $busca = Post::anti_injection($request->q) ?? '';
+        // $produtos = CaixaApplication::get_produtos($busca);
+        $lojas = Loja::where('empresa_master_cod', Auth::user()->empresa_id)->get();
+        $vendaPagamentos = CaixaPDVRepository::get_venda_pagamentos_cliente($lojas->pluck('id')->toArray(), $busca);
+        $vendaPagamentos = $vendaPagamentos->map(function ($vp) {
+            return [
+                'id' => $vp->id,
+                'text' => $vp->cliente->nome . ' - ' . $vp->created_at->format('d-m-Y')
+            ];
+        });
+        return response()->json($vendaPagamentos, 200);
+    }
     public function devolucao(Request $request)
     {
         $this->getDb()->begin();
@@ -585,7 +656,7 @@ class CaixaPDVController extends ControllerBaseMercado
                 throw new Exception("Venda ID não específicada, comunique ao suporte.", 1);
             }
 
-            if (!isset($parans['forma_pagamento_devolucao_id'])) {
+            if (!isset($parans['especie_pagamento_id'])) {
                 throw new Exception("Forma de pagamento da devolução não indentificada.", 1);
             }
 
@@ -605,7 +676,7 @@ class CaixaPDVController extends ControllerBaseMercado
                 $request->attributes->get('caixa_id'),
                 $request->attributes->get('loja_id'),
                 $historicoRequest->getUsuarioId(),
-                $parans['forma_pagamento_devolucao_id'],
+                $parans['especie_pagamento_id'],
                 $itens
             ));
 
@@ -659,6 +730,7 @@ class CaixaPDVController extends ControllerBaseMercado
         try {
             $parans = (object) Post::anti_injection_array($request->all());
             $parans = (object) $parans->data;
+
             if (!isset($parans->motivo)) {
                 throw new Exception("Motivo é obrigatório", 1);
             }
@@ -675,12 +747,12 @@ class CaixaPDVController extends ControllerBaseMercado
                 $parans->especie_pagamento_id,
                 $motivo
             ));
+
             $this->getDb()->commit();
 
             return response()->json(['msg' => 'Sangria realizada com sucesso.', 'success' => true], 200);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-            dd($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
@@ -709,7 +781,7 @@ class CaixaPDVController extends ControllerBaseMercado
                 $historicoRequest,
                 $request->attributes->get('loja_id'),
                 $request->attributes->get('caixa_id'),
-                $usuario->id,
+                $request->attributes->get('usuario_id'),
                 $parans->venda_parcelas,
                 $parans->forma_pagamento,
                 $observacao

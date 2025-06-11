@@ -38,7 +38,7 @@ class VendaItem extends ModelBase
         return $this->belongsTo(Loja::class, 'loja_id');
     }
 
-    public function devolucao_item()
+    public function devolucao_itens()
     {
         return $this->hasMany(DevolucaoItem::class, 'venda_item_id');
     }

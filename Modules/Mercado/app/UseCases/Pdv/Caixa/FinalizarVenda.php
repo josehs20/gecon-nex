@@ -120,6 +120,7 @@ class FinalizarVenda
     private function criaVendaPagamentos(Venda $venda)
     {
         $pagamentos = [];
+       
         foreach ($this->request->getFormasPagamento() as $key => $fp) {
             $valor = (int) $fp['valor']; // Sempre centavos
             $parcelas = isset($fp['parcelas']) ? (int) $fp['parcelas'] : 1;
@@ -275,13 +276,19 @@ class FinalizarVenda
             return $item->especie_pagamento_id == config('config.especie_pagamento.dinheiro.id');
         });
 
+        $pagamentoCreditoLoja = $venda->venda_pagamentos->first(function ($item) {
+            return $item->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id');
+        });
+
         $pagamentoEmDinheiro = $pagamentoEmDinheiro ? $pagamentoEmDinheiro->valor : 0;
+        $pagamentoCreditoLoja = $pagamentoCreditoLoja ? $pagamentoCreditoLoja->valor : 0;
         $totais = $venda->venda_pagamentos->sum('valor');
         $evidenciaAnterior = $evidencia->evidenciaAnterior();
 
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
             'valor_total' => $evidenciaAnterior->valor_total + $totais,
             'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $pagamentoEmDinheiro,
+            'total_credito_loja' => $evidenciaAnterior->total_credito_loja + $pagamentoCreditoLoja
         ]);
     }
 

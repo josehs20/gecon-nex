@@ -12,7 +12,7 @@
      height: 100%;
      margin: 0;
  }
- 
+
 .modal {
     z-index: 1060 !important; /* Valor padrão do Bootstrap para backdrop é 1040, modal é 1050 */
 }
@@ -41,9 +41,14 @@
  }
 
  .sidebar.open {
-     width: 50%;
+     width: 40%;
      right: 0;
  }
+
+ /* NOVO: Estilo para a sidebar de Venda Final com 60% de largura */
+.sidebar#finalizarVendaSidebar.open { /* Mais específico para sobrescrever o .sidebar.open */
+    width: 60%; /* A largura desejada para esta sidebar específica */
+}
 
  .sidebar-header {
      padding: 20px;
@@ -110,7 +115,7 @@
      z-index: 1045;
      /* ligeiramente menor que a mãe */
      top: 0;
-     right: 50%;
+     right: 40%;
      /* começa exatamente onde a mãe termina */
      background-color: #e9ecef;
      overflow-y: auto;
@@ -121,7 +126,7 @@
  }
 
  .sidebar-filha.open {
-     width: 50%;
+     width: 60%;
      /* ocupa o restante da tela */
  }
 

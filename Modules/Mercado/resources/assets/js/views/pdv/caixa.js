@@ -22,10 +22,12 @@ const rotas = {
     rotaVendaDevolverGet: $('#dataView').data('rotaVendaDevolverGet'),
     rotaOrcamento: $('#dataView').data('rotaOrcamento'),
     rotaOrcamentoGet: $('#dataView').data('rotaOrcamentoGet'),
-    rotaColocarOrcamentoEmVenda: $('#dataView').data('rotaColocarOrcamentoEmVenda')
-
-
-
+    rotaColocarOrcamentoEmVenda: $('#dataView').data('rotaColocarOrcamentoEmVenda'),
+    excluirOrcamento: $('#dataView').data('excluirOrcamento'),
+    rotaGetEspecies: $('#dataView').data('rotaGetEspecies'),
+    rotaGetCaixa: $('#dataView').data('rotaGetCaixa'),
+    rotaGetClienteRecebimentoParcelas: $('#dataView').data('rotaGetClienteRecebimentoParcelas'),
+    rotaGetClienteParcelas: $('#dataView').data('rotaGetClienteParcelas'),
 
 };
 
@@ -83,45 +85,43 @@ function ajaxGet(url, requestData) {
 }
 
 function montaVendaRequest() {
-    // 1. Coleta o ID do cliente
     const clienteId = $('#cliente-select').val();
-
-    // 2. Coleta o desconto percentual
     const descontoInputVal = $('#desconto').val();
-    // Certifique-se de que a conversão está correta para o formato que você usa (ex: "10,50" -> 10.5)
-    // Se o input de desconto também aceita "%", você pode precisar remover o "%" antes de converter.
     const descontoPercentual = parseFloat(descontoInputVal.replace('%', '').replace(',', '.')) || 0;
 
-    // 3. Coleta as formas de pagamento e seus valores
     const formasPagamento = [];
 
-    // Itera sobre todos os inputs de VALOR das formas de pagamento.
-    // Usaremos o ID para encontrar o input de parcelas correspondente, se houver.
     $('.valor-forma-pagamento').each(function () {
         const $inputValor = $(this);
 
-        // O ID do input de valor é 'valor-forma-pagamento-IDDAFORMA'.
         const idFormaPagamento = $inputValor.attr('id').replace('valor-forma-pagamento-', '');
-
-        // O valor do input de valor (ex: "R$ 1.234,56").
         const valorFormatado = $inputValor.val();
 
-        // Tenta encontrar o input de parcelas correspondente
-        const $inputParcelas = $(`#parcelas-forma-pagamento-${idFormaPagamento}`);
+        // **AQUI ESTÁ A CORREÇÃO PRINCIPAL:**
+        // Reconstrua o ID completo do input de parcelas
+        const idCampoParcelasEsperado = `parcela-parcelas-forma-pagamento-${idFormaPagamento}`;
+        const $inputParcelas = $(`#${idCampoParcelasEsperado}`);
 
-        let parcelas = 1; // Valor padrão de parcelas (para formas de pagamento sem campo de parcelas)
-        if ($inputParcelas.length > 0) { // Se o input de parcelas existe para esta forma
-            parcelas = parseInt($inputParcelas.val()) || 1; // Pega o valor e converte para inteiro
+        console.log(`Buscando input de parcelas com ID: #${idCampoParcelasEsperado}`);
+        console.log(`Encontrado $inputParcelas:`, $inputParcelas); // Verifique se ele encontra algo
+
+        let parcelas = 1;
+        if ($inputParcelas.length > 0) {
+            parcelas = parseInt($inputParcelas.val()) || 1;
         }
+
+        const isCreditoLoja = $inputValor.data('credito-loja') === true;
+        const contemParcela = $inputValor.data('contem-parcela') === true;
 
         formasPagamento.push({
             id: parseInt(idFormaPagamento),
             valor: valorFormatado,
-            parcelas: parcelas // Inclui o valor das parcelas (1 se não houver campo)
+            parcelas: parcelas,
+            credito_loja: isCreditoLoja,
+            contem_parcela: contemParcela
         });
     });
 
-    // 4. Retorna o objeto completo da requisição de venda
     const tipo_finalizacao = $('input[name="tipo_finalizacao"]:checked').val();
     return {
         cliente_id: parseInt(clienteId),
@@ -130,7 +130,6 @@ function montaVendaRequest() {
         tipo_finalizacao: tipo_finalizacao,
     };
 }
-
 // Certifique-se de que esta função esteja disponível no seu escopo global ou onde ela será chamada
 function montaRequestDevolucaoVenda() {
     const itensQuantidades = [];
@@ -164,11 +163,10 @@ function montaRequestDevolucaoVenda() {
 
     // Pega o motivo da devolução
     const motivoDevolucao = $('#motivo-devolucao-textarea').val();
-    console.log(itensQuantidades);
 
     return {
         venda_id: vendaIdSelecionada, // O ID da venda que está sendo devolvida
-        forma_pagamento_devolucao_id: formaPagamentoDevolucaoId, // O ID da forma de pagamento para a devolução
+        especie_pagamento_id: formaPagamentoDevolucaoId, // O ID da forma de pagamento para a devolução
         itens_quantidades: JSON.stringify(itensQuantidades), // O array de itens a devolver, convertido para string JSON
         motivo: motivoDevolucao // O motivo da devolução
     };
@@ -185,40 +183,90 @@ function montaRequestOrcamento() {
 
 
 function montaRequestSuprirCaixa() {
+    let especie = $('#suprir-especie-caixa').val();
+    if (!especie) {
+        gerais.msgToastr('Informe a espécie de para suprir o caixa.', 'info');
+        return
+    }
+    let valor = $('#valor-suprir-caixa').val();
+    if (!valor || valor == 0 || valor == '') {
+        gerais.msgToastr('Informe o valor..', 'info');
+        return
+    }
+    let motivo = $('#observacao-suprir').val();
     return {
-        motivo: 'suprir teste',
-        valor: '100,55',
-        especie_pagamento_id: 1,
+        motivo: motivo,
+        valor: valor,
+        especie_pagamento_id: especie,
     };
 }
 
 
 function montaRequestSangriaCaixa() {
+
+    let especie = $('#especie-sangria').val();
+    if (!especie) {
+        gerais.msgToastr('Informe a espécie de para sangria do caixa.', 'info');
+        return
+    }
+    let valor = $('#valor-sangria-caixa').val();
+    if (!valor || valor == 0 || valor == '') {
+        gerais.msgToastr('Informe o valor..', 'info');
+        return
+    }
+    let motivo = $('#motivo-sangria').val();
     return {
-        motivo: 'sangria teste',
-        valor: '100,55',
-        especie_pagamento_id: 1,
+        motivo: motivo,
+        valor: valor,
+        especie_pagamento_id: especie,
     };
 }
 
 function montaRequestReceberConta() {
+    const vendaParcelas = [];
+    let hasValidPayment = false; // Flag para verificar se há pelo menos um pagamento válido
+
+    // Coleta o ID da forma de pagamento selecionada
+    const formaPagamentoData = $('#forma-pagamento-recebimento-select').select2('data');
+    const formaPagamentoId = formaPagamentoData.length > 0 ? formaPagamentoData[0].id : null;
+
+    // **Validação: Forma de Pagamento Selecionada?**
+    if (!formaPagamentoId) {
+        gerais.msgToastr('Por favor, selecione uma forma de pagamento.', 'error');
+        return null; // Retorna null para indicar que a requisição é inválida
+    }
+
+    // Itera sobre cada linha da tabela de parcelas
+    $('#recebimentoParcelasTableBody tr').each(function () {
+        const $row = $(this);
+        const venda_parcela_id = $row.data('item-id'); // Pega o ID da parcela da linha
+        const $inputQtdReceber = $row.find('.qtd-receber'); // Encontra o input de quantidade na linha
+
+        let valorReceberCents = gerais.reaisParaCentavos($inputQtdReceber.val());
+
+        // Validação adicional: Se o valor a receber for 0, não inclui na requisição
+        if (valorReceberCents > 0) {
+            vendaParcelas.push({
+                venda_parcela_id: parseInt(venda_parcela_id), // Converte para inteiro
+                valor: gerais.centavosParaReais(valorReceberCents) // Mantém no formato "X,XX" para a API
+            });
+            hasValidPayment = true;
+        }
+    });
+
+    // **Validação: Algum valor foi inserido para recebimento?**
+    if (!hasValidPayment) {
+        gerais.msgToastr('Por favor, insira um valor válido para receber em pelo menos uma parcela.', 'error');
+        return null; // Retorna null para indicar que a requisição é inválida
+    }
+
+    // Assume que você tem um input/textarea para a observação
+    const observacao = $('#observacao-recebimento-textarea').val() || ''; // Pega o valor da observação ou string vazia
+
     return {
-        observacao: 'observacao receber conta',
-        venda_parcelas: [
-            {
-                venda_parcela_id: 6,
-                valor: '895,18',
-            },
-            {
-                venda_parcela_id: 7,
-                valor: '895,17',
-            },
-            {
-                venda_parcela_id: 8,
-                valor: '895,17',
-            }
-        ],
-        forma_pagamento: 2
+        observacao: observacao,
+        venda_parcelas: vendaParcelas,
+        forma_pagamento: parseInt(formaPagamentoId) // Converte para inteiro
     };
 }
 
@@ -654,6 +702,15 @@ function executaProximaAcao(acao, parametros) {
         case 'devolucao_venda':
             devolucaoVenda();
             break;
+        case 'excluir_orcamento':
+            excluir_orcamento(parametros);
+            break;
+        case 'suprir_caixa':
+            suprirCaixa();
+            break;
+        case 'sangria_caixa':
+            sangriaCaixa();
+            break;
         default:
             break;
     }
@@ -683,6 +740,7 @@ $('#forma-pagamento-select').select2({
                         text: item.descricao,
                         contem_parcela: item.especie.contem_parcela,
                         troco: item.especie.afeta_troco,
+                        credito_loja: item.especie.credito_loja,
                     }
                 })
             };
@@ -704,16 +762,23 @@ $('#cliente-select').on('select2:select', function (e) {
 // --- Listener para o Select2 de Formas de Pagamento ---
 $('#forma-pagamento-select').on('change', function () {
     const $formasPagamentoValoresContainer = $('#formasPagamentoValores');
-    $formasPagamentoValoresContainer.empty(); // Limpa inputs anteriores
+    $formasPagamentoValoresContainer.empty();
 
-    // Obtém as opções selecionadas do Select2
     const selectedFormsOfPayment = $(this).select2('data');
+    const creditoLojaItem = selectedFormsOfPayment.find(forma => forma.credito_loja);
+    const isCreditoLojaSelected = !!creditoLojaItem;
+
+    if (isCreditoLojaSelected && selectedFormsOfPayment.length > 1) {
+        $(this).val(null).trigger('change');
+        gerais.msgToastr('Forma de pagamento em crédito loja não permite outras formas por questões de segurança.', 'info');
+        return;
+    }
 
     if (selectedFormsOfPayment.length > 0) {
         selectedFormsOfPayment.forEach(forma => {
             const inputValorId = `valor-forma-pagamento-${forma.id}`;
-            const inputParcelasId = `parcelas-forma-pagamento-${forma.id}`; // ID para as parcelas, se aplicável
-            const trocoInputId = `troco-${forma.id}`; // ID consistente para o input de troco
+            const inputParcelasId = `parcelas-forma-pagamento-${forma.id}`;
+            const trocoInputId = `troco-${forma.id}`;
 
             let inputHtml = `
                 <div class="form-group d-flex align-items-end mb-2">
@@ -724,13 +789,15 @@ $('#forma-pagamento-select').on('change', function () {
                                id="${inputValorId}"
                                name="formas_pagamento_valores[${forma.id}][valor]"
                                placeholder="R$ 0,00"
+                               ${forma.credito_loja ? 'readonly' : ''}
                                required
                                data-contem-troco="${forma.troco ? true : false}"
-                               data-forma-id="${forma.id}">
+                               data-forma-id="${forma.id}"
+                               data-credito-loja="${forma.credito_loja ? true : false}"
+                               data-contem-parcela="${forma.contem_parcela ? true : false}">
                     </div>
             `;
 
-            // Condicionalmente adiciona o input de troco
             if (forma.troco) {
                 inputHtml += `
                     <div style="width: 100px;">
@@ -745,7 +812,6 @@ $('#forma-pagamento-select').on('change', function () {
                 `;
             }
 
-            // Condicionalmente adiciona o input de parcelas
             if (forma.contem_parcela) {
                 inputHtml += `
                     <div style="width: 100px;">
@@ -762,41 +828,54 @@ $('#forma-pagamento-select').on('change', function () {
                 `;
             }
 
-            inputHtml += `</div>`; // Fecha a div d-flex
+            inputHtml += `</div>`;
 
             $formasPagamentoValoresContainer.append(inputHtml);
 
-            // Aplica a máscara ao input de valor recém-criado
             gerais.maskDinheiro(inputValorId);
-            // Aplica a máscara ao input de troco, se existir
             if (forma.troco) {
                 gerais.maskDinheiro(trocoInputId);
             }
         });
 
-        // Anexa o listener à *todos* os inputs de valor de forma de pagamento
-        // Usamos .off() para evitar anexar múltiplos listeners em chamadas subsequentes
         $('.valor-forma-pagamento').off('input', distribuirValoresRestantes);
         $('.valor-forma-pagamento').on('input', distribuirValoresRestantes);
     }
 
-    // Lógica para quando apenas uma forma de pagamento é selecionada
     if (selectedFormsOfPayment.length === 1) {
         const unicaFormaPagamento = selectedFormsOfPayment[0];
         const inputValorUnicoId = `valor-forma-pagamento-${unicaFormaPagamento.id}`;
         const $inputValorUnico = $(`#${inputValorUnicoId}`);
 
-        // Calcula o total da venda (já com desconto, em centavos)
         let totalComDescontoCents = calcularTotalVendaComDesconto();
         const totalVendaFormatado = gerais.centavosParaReais(totalComDescontoCents);
 
-        // Preenche o único input de valor com o total da venda
         $inputValorUnico.val(totalVendaFormatado);
-        gerais.maskDinheiro(inputValorUnicoId); // Reaplicar máscara para garantir formatação
+        gerais.maskDinheiro(inputValorUnicoId);
 
-        // Se a forma de pagamento única for dinheiro, recalcula o troco
+        // Se a forma única tem 'contem_parcela' (o que pode ser o caso do Crédito Loja), adiciona o campo de parcelas
+        if (unicaFormaPagamento.contem_parcela) {
+            const inputParcelasUnicoId = `parcelas-forma-pagamento-${unicaFormaPagamento.id}`;
+            if ($(`#parcela-${inputParcelasUnicoId}`).length === 0) {
+                const inputParcelasHtml = `
+                    <div style="width: 100px;">
+                        <label for="parcela-${inputParcelasUnicoId}">Parcelas</label>
+                        <input type="number"
+                               class="form-control parcelas-forma-pagamento"
+                               id="parcela-${inputParcelasUnicoId}"
+                               name="formas_pagamento_valores[${unicaFormaPagamento.id}][parcelas]"
+                               placeholder="1"
+                               value="1"
+                               min="1"
+                               required>
+                    </div>
+                 `;
+                // Usamos .parent().after() para garantir que as parcelas fiquem na mesma linha do valor
+                $inputValorUnico.closest('.form-group.d-flex').append(inputParcelasHtml);
+            }
+        }
+
         if (unicaFormaPagamento.troco) {
-            // O valor do input único já está preenchido, então o total pago é ele mesmo
             const totalPagoCents = gerais.reaisParaCentavos($inputValorUnico.val());
             const trocoCents = totalPagoCents - totalComDescontoCents;
             const trocoInputId = `troco-${unicaFormaPagamento.id}`;
@@ -807,14 +886,11 @@ $('#forma-pagamento-select').on('change', function () {
             }
         }
 
-
-        // Foca no botão de finalizar após um pequeno atraso
         setTimeout(function () {
             $('#buttonSubmitFormFinalizarVenda').focus();
         }, 10);
     }
 });
-
 
 // --- Função para Distribuir os Valores Restantes e Calcular Troco ---
 function distribuirValoresRestantes() {
@@ -901,6 +977,9 @@ function distribuirValoresRestantes() {
 $('#formFinalizarVenda').on('submit', function (e) {
     e.preventDefault();
     const request = montaVendaRequest();
+    if (!request) {
+        return;
+    }
     let rotaExecutar = rotas.finalizarVenda;
 
     if (request.tipo_finalizacao == 'orcamento') {
@@ -942,6 +1021,31 @@ function resetFinalizarVendaForm() {
 
 //-----------------ORCAMENTO------------//
 gerais.constructSelect2('orcamento-select', rotas.rotaOrcamento);
+
+$('#buttonExcluirOrcamento').on('click', function () {
+    let orcamentoId = $('#orcamento-select').val();
+    if (!orcamentoId) {
+        gerais.msgToastr('Selecione um orçamento.', 'info');
+        return;
+    }
+    const isMasterCaixa = $('#dataView').data('isMasterCaixa');
+
+    // Faz a pergunta de senha padrão
+    if (!isMasterCaixa) {
+        validaSuperior('excluir_orcamento', orcamentoId);
+
+    } else {
+        excluir_orcamento(orcamentoId);
+    }
+});
+
+function excluir_orcamento(orcamentoId) {
+    ajaxPost(rotas.excluirOrcamento, { orcamentoId: orcamentoId }).done(function (response) {
+        if (response.success) {
+            closeSidebar();
+        }
+    });
+}
 
 $('#orcamento-select').on('select2:select', function (e) {
     const orcamentoId = e.params.data.id;
@@ -1049,6 +1153,9 @@ function renderizarTabelaItensDevolucao(venda) {
         const preco = parseFloat(item.preco || 0);
         const quantidade = parseFloat(item.quantidade || 0); // Quantidade disponível para devolução
         const total = preco * quantidade;
+        const totalQuantidadeDevolvida = item.devolucao_itens.reduce((acumulador, itemAtual) => {
+            return acumulador + (+itemAtual.quantidade);
+        }, 0);
 
         const linha = `
             <tr data-item-id="${item.id}" data-estoque-id="${item.estoque_id}">
@@ -1057,6 +1164,7 @@ function renderizarTabelaItensDevolucao(venda) {
                 <td class="text-center">${quantidade}</td>
                 <td>R$ ${gerais.centavosParaReais(preco)}</td>
                 <td>R$ ${gerais.centavosParaReais(total)}</td>
+                <td>${totalQuantidadeDevolvida}</td>
                 <td>
                     <input type="text" class="form-control form-control-sm qtd-devolver"
                            data-preco-unitario="${preco}"
@@ -1071,6 +1179,30 @@ function renderizarTabelaItensDevolucao(venda) {
     $('#valor-total-desconto-devolucao').val(venda.desconto_porcentagem + '%');
     $('#desconto-devolucao-reais').text('R$ ' + gerais.centavosParaReais(venda.desconto_dinheiro));
 
+    let idCreditoLoja = $('#dataView').data('especieCreditoLoja');
+    if (venda && venda.venda_pagamentos) {
+        const existePagamentoEspecieCreditoLoja = venda.venda_pagamentos.some(pagamento => {
+            // Acessa o ID da espécie de pagamento dentro de especie_pagamento
+
+            return pagamento.especie_pagamento && pagamento.especie_pagamento.id == idCreditoLoja;
+        });
+
+        if (existePagamentoEspecieCreditoLoja) {
+            console.log(idCreditoLoja, existePagamentoEspecieCreditoLoja);
+
+            $('#forma-pagamento-devolucao-select').val(idCreditoLoja).trigger('change');
+            $('#forma-pagamento-devolucao-select').prop('disabled', true);
+
+            $('#aviso-especie-devolucao').text('Venda com crédito em loja, o valor será adicionado ao crédito do cliente, devolução somente na mesma forma pagamento da venda.')
+            // Coloque aqui a lógica que você deseja executar quando encontrar o pagamento
+        } else {
+            $('#forma-pagamento-devolucao-select').prop('disabled', false);
+            $('#aviso-especie-devolucao').text('');
+
+        }
+    } else {
+        console.log("O objeto 'venda' ou 'venda_pagamentos' não está definido.");
+    }
     gerais.maskQtdByClass('qtd-devolver');
 
     // Attach the event listener to all quantity input fields
@@ -1135,35 +1267,7 @@ function calcularTotalDevolucao(descontoPorcentagemVenda) { // Recebe a porcenta
 }
 
 //formas de pagamento para devolução
-$('#forma-pagamento-devolucao-select').select2({
-    placeholder: "Selecione as formas de pagamento...",
-    allowClear: true,
-    language: "pt-BR",
-    ajax: {
-        url: rotas.formasPagamentoGet,
-        dataType: 'json',
-        delay: 250,
-        data: function (params) {
-            return {
-                q: params.term
-            };
-        },
-        processResults: function (data) {
-            return {
-                results: $.map(data, function (item) {
-                    return {
-                        id: item.id,
-                        text: item.descricao,
-                        contem_parcela: item.especie.contem_parcela,
-                    }
-                })
-            };
-        },
-        cache: true
-    },
-    templateSelection: formatProductSelection,
-    dropdownParent: $('body') // Garante que o dropdown é anexado ao body para evitar problemas de z-index ou corte
-});
+gerais.constructSelect2('forma-pagamento-devolucao-select');
 
 $('#formDevolucao').on('submit', function (event) {
     event.preventDefault(); // Impede o envio padrão do formulário
@@ -1186,6 +1290,234 @@ function devolucaoVenda() {
         }
     });
 }
+
+// --------- Suprir caixa-----------//
+gerais.constructSelect2('suprir-especie-caixa', rotas.rotaGetEspecies);
+gerais.maskDinheiro('valor-suprir-caixa');
+
+$('#formSuprir').on('submit', function (e) {
+    e.preventDefault();
+
+    const isMasterCaixa = $('#dataView').data('isMasterCaixa');
+
+    // Faz a pergunta de senha padrão
+    if (!isMasterCaixa) {
+        // Passa a ação e os parâmetros para validaSuperior
+        validaSuperior('suprir_caixa');
+    } else {
+        // Se não for MasterCaixa, remove diretamente
+        suprirCaixa();
+    }
+});
+
+function suprirCaixa() {
+    const data = montaRequestSuprirCaixa();
+    if (!data) {
+        return;
+    }
+    ajaxPost(rotas.suprirCaixa, data).done(function (response) {
+        if (response.success) {
+            closeSidebar();
+        }
+    });
+}
+// --------- Sangria caixa-----------//
+gerais.constructSelect2('especie-sangria', rotas.rotaGetEspecies);
+gerais.maskDinheiro('valor-sangria-caixa');
+
+$('#formSangria').on('submit', function (e) {
+    e.preventDefault();
+
+    const isMasterCaixa = $('#dataView').data('isMasterCaixa');
+
+    // Faz a pergunta de senha padrão
+    if (!isMasterCaixa) {
+        // Passa a ação e os parâmetros para validaSuperior
+        validaSuperior('sangria_caixa');
+    } else {
+        // Se não for MasterCaixa, remove diretamente
+        sangriaCaixa();
+    }
+});
+
+function sangriaCaixa() {
+    const data = montaRequestSangriaCaixa();
+    if (!data) {
+        return;
+    }
+    ajaxPost(rotas.sangriaCaixa, data).done(function (response) {
+        if (response.success) {
+            closeSidebar();
+        }
+    });
+}
+
+function preencheSiedBarSangria() {
+    ajaxGet(rotas.rotaGetCaixa).done(function (response) {
+        if (response.success) {
+            let valorTotalCaixa = response.caixa.ultima_evidencia.valor_total;
+            let valorTotalDinheiro = response.caixa.ultima_evidencia.valor_dinheiro;
+            $('#valor-total-caixa-sangria').val(gerais.centavosParaReais(valorTotalCaixa));
+            $('#valor-total-em-dinheiro-sangria').val(gerais.centavosParaReais(valorTotalDinheiro));
+        }
+    });
+}
+
+// ---------------Recebimento ------------//
+gerais.constructSelect2('cliente-recebimento-select', rotas.rotaGetClienteRecebimentoParcelas);
+
+// gerais.constructSelect2('forma-pagamento-select', rotas.formasPagamentoGet);
+$('#forma-pagamento-recebimento-select').select2({
+    placeholder: "Selecione as formas de pagamento...",
+    allowClear: true,
+    language: "pt-BR",
+    ajax: {
+        url: rotas.formasPagamentoGet,
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+            return {
+                q: params.term
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: $.map(data, function (item) {
+                    return {
+                        id: item.id,
+                        text: item.descricao,
+                        contem_parcela: item.especie.contem_parcela,
+                        troco: item.especie.afeta_troco,
+                        credito_loja: item.especie.credito_loja,
+                    }
+                })
+            };
+        },
+        cache: true
+    },
+    templateSelection: formatProductSelection,
+    dropdownParent: $('body') // Garante que o dropdown é anexado ao body para evitar problemas de z-index ou corte
+});
+
+$('#forma-pagamento-recebimento-select').on('change', function () {
+    const selectedData = $(this).select2('data');
+
+    // O Select2 retorna um array, mesmo que seja uma seleção única.
+    // Verificamos o primeiro (e geralmente único) item selecionado.
+    if (selectedData.length > 0) {
+        const selectedFormaPagamento = selectedData[0]; // Pega o primeiro item selecionado
+
+        // Verifica se a propriedade 'credito_loja' é verdadeira
+        if (selectedFormaPagamento.credito_loja) {
+            // Exibe a mensagem de aviso
+            gerais.msgToastr(
+                'Crédito Loja não pode ser usado como forma de pagamento para receber contas.',
+                'error' // Ou 'warning', dependendo da severidade do aviso
+            );
+
+            // Deseleciona a opção
+            $(this).val(null).trigger('change');
+        }
+    }
+});
+
+$('#cliente-recebimento-select').on('select2:select', function (e) {
+    const venda_pagamento_id = e.params.data.id;
+    if (venda_pagamento_id) {
+        // $('#vendaNumeroDevolucao').text(`Seleção de itens`);
+        ajaxGet(rotas.rotaGetClienteParcelas, { venda_pagamento_id }).done(function (response) {
+
+            if (response.success) {
+
+                renderizarTabelaParcelasCliente(response.venda_pagamento);
+
+                // Garante que a sidebar principal continue aberta
+                if (!$('#recebimentoSidebar').hasClass('open')) {
+                    $('#recebimentoSidebar').addClass('open');
+                }
+
+                // Abre a sidebar filha à direita da principal
+                $('#recebimentoParcelasSidebar').addClass('open');
+            }
+        });
+    }
+});
+function renderizarTabelaParcelasCliente(venda_pagamento) {
+    const tbody = $('#recebimentoParcelasTableBody');
+    tbody.empty(); // Limpa antes de adicionar novos
+    $("#clienteRecebimento").text('Informações das parcelas da venda: ' + venda_pagamento.venda.n_venda)
+    venda_pagamento.venda_parcelas.forEach(item => {
+        const linha = `
+            <tr data-item-id="${item.id}">
+                <td>${item.id}</td>
+                <td>R$ ${gerais.centavosParaReais(item.valor)}</td>
+                <td>R$ ${gerais.centavosParaReais(item.valor_pago)}</td>
+                <td>R$ ${gerais.centavosParaReais((item.valor - item.valor_pago))}</td>
+                <td>${gerais.aplicarMascaraDataNascimento(item.data_vencimento)}</td>
+                <td>
+                    <input type="text" class="form-control form-control-sm qtd-receber"
+                           data-valor-max="${(item.valor - item.valor_pago)}"
+                           min="0" max="${(item.valor - item.valor_pago)}" value="">
+                </td>
+            </tr>
+        `;
+        tbody.append(linha);
+    });
+
+    gerais.maskDinheiroByClass('qtd-receber');
+    $('.qtd-receber').off('blur', calcularTotalReceber); // Desvincula eventos anteriores para evitar duplicação
+    $('.qtd-receber').on('blur', calcularTotalReceber);
+
+    // Chama a função uma vez para calcular o total inicial (se houver valores pré-preenchidos)
+    calcularTotalReceber();
+}
+function calcularTotalReceber() {
+    let totalGeralReceberCents = 0;
+
+    $('.qtd-receber').each(function () {
+        const $input = $(this);
+        const valorMaxCents = parseFloat($input.data('valor-max')); // Pega o valor máximo do atributo data-
+        let valorReceberCents = gerais.reaisParaCentavos($input.val()); // Converte o valor digitado para centavos
+
+        // --- Lógica de Validação da Quantidade Máxima ---
+        if (valorReceberCents > valorMaxCents) {
+            gerais.msgToastr(
+                `O valor a receber (R$ ${gerais.centavosParaReais(valorReceberCents)}) excede o máximo permitido (R$ ${gerais.centavosParaReais(valorMaxCents)}). O valor será ajustado.`,
+                'warning'
+            );
+            valorReceberCents = valorMaxCents; // Ajusta o valor para o máximo permitido
+            $input.val(gerais.centavosParaReais(valorReceberCents)); // Atualiza o input visualmente
+        }
+        // Garante que o valor não seja negativo
+        if (valorReceberCents < 0) {
+            gerais.msgToastr('O valor a receber não pode ser negativo. O valor será ajustado para R$ 0,00.', 'warning');
+            valorReceberCents = 0;
+            $input.val('0,00');
+        }
+
+        // --- Fim da Lógica de Validação ---
+        totalGeralReceberCents += valorReceberCents;
+    });
+
+    const totalReceberFormatado = 'R$ ' + gerais.centavosParaReais(totalGeralReceberCents);
+    $('#valor-total-venda-recebimento').val(totalReceberFormatado);
+}
+
+$('#formRecebimento').on('submit', function (event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
+
+    let request = montaRequestReceberConta();
+    if (!request) {
+        return;
+    }
+    ajaxPost(rotas.rotaReceberConta, request).done(function (response) {
+        if (response.success == true) {
+            closeSidebar();
+        }
+    });
+});
+
+
 //-------------------------manusear sied bars-------------------//
 // VARIÁVEIS GLOBAIS SEDBARs
 const $body = $('body'); // Assumindo que $body já está definido
@@ -1194,7 +1526,7 @@ const $overlay = $('<div class="overlay"></div>'); // Cria o overlay uma vez
 // Função genérica para abrir uma sidebar
 function openSidebar(sidebarId) {
     // Se for a sidebar principal (esquerda), fecha todas as outras
-    if (sidebarId === '#devolucaoSidebar' || sidebarId === '#orcamentoSiedbar') {
+    if (sidebarId === '#devolucaoSidebar' || sidebarId === '#orcamentoSiedbar' || sidebarId === '#recebimentoSidebar') {
         $('.sidebar, .sidebar-filha').removeClass('open');
     }
 
@@ -1224,22 +1556,33 @@ $('.sidebar-toggle-btn').on('click', function (event) {
     // Lógica específica APÓS ABRIR CADA SIDEBAR
     setTimeout(function () {
         if (targetSidebarId === '#finalizarVendaSidebar') {
+
             $('#cliente-select').val(null).trigger('change');
             $('#cliente-select').select2('open');
-            $('.valor-forma-pagamento').val('');
+            $('.valor-forma-pagamento').val(null).trigger('change'); // Limpa a seleção e dispara o evento 'change'
+
             $('.troco-display').val(0);
         } else if (targetSidebarId === '#devolucaoSidebar') {
-            $('#cliente-devolucao-select').val(null).trigger('change');
-            $('#cliente-devolucao-select').select2('open');
-            $('#forma-pagamento-devolucao-select').val(null).trigger('change');
 
+            $('#forma-pagamento-devolucao-select').val(null);
             $('#valor-total-venda-devolucao').val(0);
             $('#valor-total-desconto-devolucao').val(0);
             $('#valor-total-devolucao').val(0);
             $('#motivo-devolucao-textarea').val('');
+            $('#desconto-devolucao-reais').text('');
+
         } else if (targetSidebarId === '#orcamentoSiedbar') {
             $('#orcamento-select').val(null).trigger('change');
 
+        } else if (targetSidebarId === '#suprirSidebar') {
+            $('#suprir-especie-caixa').val(null).trigger('change');
+            $('#valor-suprir-caixa').val('');
+        } else if (targetSidebarId === '#sangriaSidebar') {
+            $('#formSangria')[0].reset();
+            preencheSiedBarSangria();
+        } else if (targetSidebarId === '#recebimentoSidebar') {
+            $('#formRecebimento')[0].reset();
+            $('#cliente-recebimento-select').val(null).trigger('change');
         }
     }, 500); // Atraso para a transição da sidebar
 });

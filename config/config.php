@@ -695,6 +695,10 @@ return [
         'colocou_orcamento_a_venda' => [
             'id' => 69,
             'descricao' => 'Colocou orçamento a venda.'
+        ],
+        'excluiu_orcamento' => [
+            'id' => 70,
+            'descricao' => 'Excluir orçcamento.'
         ]
     ],
 

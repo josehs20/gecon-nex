@@ -5,7 +5,7 @@
          precisa ter altura definida. Se o layout principal (layouts.pdv) já tiver isso,
          então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
          Vamos adicionar 'h-100' ao card e 'flex-grow-1' se o contêiner pai for um flexbox. --}}
-    <div class="card h-100"> {{-- Adicionado 'h-100' aqui --}}
+    <div class="card h-100" style="background-color: rgb(241, 239, 239)"> {{-- Adicionado 'h-100' aqui --}}
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
             <div>
                 <h5 class="mb-0">CAIXA: 1</h5>
@@ -101,28 +101,32 @@
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="suprirCaixa" class="btn btn-dark w-100">
+                                        <button id="suprirCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#suprirSidebar">
                                             {{-- <i class="bi bi-cash-coin mx-1"></i> --}}
-                                            SUPRIR
+                                            SUPRIMENTO
                                         </button>
                                     </div>
 
                                     <div class="col-md-3 mt-1">
-                                        <button id="sangriaCaixa" class="btn btn-dark w-100">
+                                        <button id="sangriaCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#sangriaSidebar">
                                             {{-- <i class="bi bi-arrow-down-circle"></i> --}}
                                             SANGRIA
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="receberConta" class="btn btn-dark w-100">
+                                        <button id="receberConta" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#recebimentoSidebar">
                                             {{-- <i class="bi bi-wallet me-1"></i> --}}
-                                            RECEBER
+                                            RECEBIMENTO
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="fecharCaixa" class="btn btn-dark w-100">
+                                        <button id="fecharCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                            data-sidebar-target="#fechamentoSidebar">
                                             {{-- <i class="bi bi-lock me-1"></i> --}}
-                                            FECHAR
+                                            FECHAMENTO
                                         </button>
                                     </div>
                                 </div>
@@ -162,6 +166,7 @@
 
     <div id="dataView" data-rota-finalizar-venda="{{ route('caixa.finalizar.venda') }}"
         data-rota-devolucao-venda="{{ route('caixa.devolucao.venda') }}"
+        data-especie-credito-loja="{{ config('config.especie_pagamento.credito_loja.id') }}"
         data-rota-orcamento-venda="{{ route('caixa.orcamento.venda') }}"
         data-rota-suprir-caixa="{{ route('caixa.suprir') }}" data-rota-sangria-caixa="{{ route('caixa.sangria.post') }}"
         data-rota-receber-conta="{{ route('caixa.receber.conta.post') }}"
@@ -177,6 +182,10 @@
         data-rota-venda-devolver-get="{{ route('caixa.devolver.venda.get') }}"
         data-rota-orcamento="{{ route('caixa.orcamento.get') }}"
         data-rota-orcamento-get="{{ route('caixa.orcamento.get.itens') }}"
+        data-excluir-orcamento="{{ route('caixa.orcamento.excluir') }}"
+        data-rota-get-cliente-recebimento-parcelas="{{ route('caixa.cliente.recebimento.parcelas.get') }}"
+        data-rota-get-cliente-parcelas="{{ route('caixa.cliente.parcelas.get') }}"
+        data-rota-get-especies="{{ route('caixa.get.especies') }}" data-rota-get-caixa="{{ route('caixa.get.caixa') }}"
         data-rota-colocar-orcamento-em-venda="{{ route('caixa.colcoar.orcamento.orcamento.em.venda') }}"
         data-rota-fechar-caixa="{{ route('caixa.fechar.post') }}"></div>
 
@@ -219,7 +228,8 @@
     <div id="finalizarVendaSidebar" class="sidebar">
         <div class="sidebar-header py-2">
             <h3>Finalizar Venda</h3>
-            {{-- <button type="button" class="close-btn" id="closeSidebarBtn">&times;</button> --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#finalizarVendaSidebar">&times;</button>
         </div>
         <div class="sidebar-body">
             <form id="formFinalizarVenda">
@@ -279,7 +289,7 @@
         <div class="sidebar-header py-2">
             <h3>Orçamento</h3>
             <button type="button" class="close-btn close-sidebar-btn"
-                data-sidebar-target="#devolucaoSidebar">&times;</button>
+                data-sidebar-target="#orcamentoSiedbar">&times;</button>
         </div>
         <div class="sidebar-body">
             <div class="form-group">
@@ -296,8 +306,7 @@
             <div class="form-group mt-3">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div class="w-50 me-2 mx-1"> <label for="valor-total-orcamento">Total da Venda</label>
-                        <input type="text" class="form-control" id="valor-total-orcamento" value="R$ 0,00"
-                            readonly>
+                        <input type="text" class="form-control" id="valor-total-orcamento" value="R$ 0,00" readonly>
                     </div>
                     <div class="w-50 ms-2"> <label for="valor-total-desconto-orcamento">Desconto</label>
                         <span class="badge badge-primary mx-2" id="desconto-orcamento-reais">R$ 0,00</span>
@@ -381,9 +390,14 @@
                     <input type="text" class="form-control" id="valor-total-devolucao" value="R$ 0,00" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="forma-pagamento-devolucao-select">Formas de pagamento *</label>
+                    <label for="forma-pagamento-devolucao-select">Espécie de pagamento *
+
+                    </label>
                     <select required class="form-control select2" id="forma-pagamento-devolucao-select"
                         style="width: 100%;">
+                        @foreach ($especiesPagamento as $item)
+                            <option value="{{ $item->id }}">{{ $item->nome }}</option>
+                        @endforeach
                     </select>
 
                 </div>
@@ -411,6 +425,8 @@
                 Itens com <strong>quantidade a devolver igual a 0</strong> serão <strong>desconsiderados</strong> na
                 devolução.
             </div>
+            <span class="badge badge-primary mt-2" id="aviso-especie-devolucao"></span>
+
             <br>
             {{-- Estrutura para os itens da devolução --}}
             <div id="orcamentoItensContainer" class="table-responsive">
@@ -422,11 +438,165 @@
                             <th class="">Qtd</th>
                             <th class="" style="width: 15%;">Preço</th>
                             <th class="" style="width: 15%;">Total</th>
+                            <th class="" style="width: 10%;">já devolvida</th>
                             <th class="" style="width: 20%;">Qtd. Devolver</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="devolucaoItensTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sidebar de suprir o caixa (Principal - 50% à esquerda) --}}
+    <div id="suprirSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Suprimentos</h3>
+            {{-- Adicione o botão de fechar para a sidebar principal --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#suprirSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <form id="formSuprir">
+                <div class="form-group mt-3">
+                    <label for="valor-suprir-caixa">Valor*</label>
+                    <input type="text" required class="form-control" id="valor-suprir-caixa" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label for="suprir-especie-caixa">Espécie *</label>
+                    <select required class="form-control select2" id="suprir-especie-caixa" style="width: 100%;">
+                    </select>
+
+                </div>
+                <div class="form-group">
+                    <label for="observacao-suprir">Observação *</label>
+                    <textarea class="form-control" id="observacao-suprir" name="motivo_suprir" rows="3" required></textarea>
+                </div>
+
+                <button id="buttonSubmitFormSuprir" type="submit" class="btn btn-success w-100 mt-3">Confirmar
+                    suprimento</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Sidebar de sangria o caixa (Principal - 50% à esquerda) --}}
+    <div id="sangriaSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Sangria</h3>
+            {{-- Adicione o botão de fechar para a sidebar principal --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#sangriaSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <form id="formSangria">
+                <div class="form-group mt-3">
+                    <div class="row">
+                        <div class="col-md-6"> <label for="valor-total-caixa-sangria">Valor total em caixa:</label>
+                            <input type="text" class="form-control" id="valor-total-caixa-sangria" value="R$ 0,00"
+                                readonly>
+                        </div>
+                        <div class="col-md-6"> <label for="valor-total-em-dinheiro-sangria">Total em dinheiro *</label>
+                            <input type="text" class="form-control" id="valor-total-em-dinheiro-sangria" readonly
+                                value="R$ 0,00">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="valor-sangria-caixa">Valor sangria*</label>
+                    <input type="text" class="form-control" id="valor-sangria-caixa" placeholder="R$ 0,00">
+                </div>
+                <div class="form-group">
+                    <label for="especie-sangria">Espécie *</label>
+                    <select required class="form-control select2" id="especie-sangria" style="width: 100%;">
+                    </select>
+
+                </div>
+                <div class="form-group">
+                    <label for="motivo-sangria">Motivo *</label>
+                    <textarea class="form-control" id="motivo-sangria" name="motivo_sangria" rows="3" required></textarea>
+                </div>
+
+                <button id="buttonSubmitFormSangria" type="submit" class="btn btn-danger w-100 mt-3">Confirmar
+                    sangria</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Sidebar de recebiemento (Principal - 50% à esquerda) --}}
+    <div id="recebimentoSidebar" class="sidebar">
+        <div class="sidebar-header py-2">
+            <h3>Recebimento</h3>
+            {{-- Adicione o botão de fechar para a sidebar principal --}}
+            <button type="button" class="close-btn close-sidebar-btn"
+                data-sidebar-target="#recebimentoSidebar">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <form id="formRecebimento">
+                <div class="form-group">
+                    <label for="cliente-recebimento-select">Cliente *</label>
+                    <select required class="form-control select2" id="cliente-recebimento-select" style="width: 100%;">
+                        {{-- <option value="">Selecione um cliente</option> --}}
+                    </select>
+
+                </div>
+                <div class="form-group mt-3">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div class="w-50 me-2 mx-1"> <label for="valor-total-venda-recebimento">Total receber</label>
+                            <input type="text" class="form-control" id="valor-total-venda-recebimento"
+                                value="R$ 0,00" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="forma-pagamento-recebimento-select">Forma de pagamento *</label>
+                    <select required class="form-control select2" id="forma-pagamento-recebimento-select"
+                        style="width: 100%;">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="observacao-recebimento-textarea">Observacao *</label>
+                    <textarea class="form-control" id="observacao-recebimento-textarea" name="observacao_recebimento" rows="3"
+                        ></textarea>
+                </div>
+
+                <button id="buttonSubmitFormRecebimento" type="submit" class="btn btn-success w-100 mt-3">Confirmar
+                    recebimento</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Sidebar parcelas filhas (Filha - 50% à direita) --}}
+    <div id="recebimentoParcelasSidebar" class="sidebar-filha">
+        <div class="sidebar-header py-2">
+            <h3 id="clienteRecebimento"></h3> {{-- Para exibir o número da venda --}}
+            {{-- Adicione o botão de fechar para a sidebar filha --}}
+            {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
+        </div>
+        <div class="sidebar-body">
+            {{-- <div class="alert alert-warning mt-2 mb-0 p-2" role="alert" style="font-size: 0.875rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Itens com <strong>quantidade a devolver igual a 0</strong> serão <strong>desconsiderados</strong> na
+                devolução.
+            </div>
+                <span
+                            class="badge badge-primary mt-2" id="aviso-especie-devolucao"></span> --}}
+
+            <br>
+            {{-- Estrutura para os itens do recebimento de parcelas --}}
+            <div id="recebimentoParcelasContainer" class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th>Total</th>
+                            <th>Pago</th>
+                            <th>Restante</th>
+                            <th>Vencimento</th>
+                            <th>Receber</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recebimentoParcelasTableBody">
                     </tbody>
                 </table>
             </div>

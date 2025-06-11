@@ -5,6 +5,7 @@ namespace Modules\Mercado\UseCases\Pdv\Caixa;
 use Exception;
 use Modules\Mercado\Application\ClienteApplication;
 use Modules\Mercado\Application\PDVApplication;
+use Modules\Mercado\Entities\FormaPagamento;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\PDV\CaixaPDVRepository;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\CriarEvidenciaRequest;
@@ -27,7 +28,6 @@ class ReceberConta
         $fichasCliente = $this->atualizaVendaParcela($evidencia);
         //voltaCreditoCliente
         $creditoCliente = $this->atualizaCreditoCliente($fichasCliente);
-
         //atualiza entrada no caixa
         $evidencia = $this->atualizaValoresEvidencia($evidencia, $fichasCliente);
 
@@ -37,6 +37,11 @@ class ReceberConta
     private function validade()
     {
         //nenhuma regra estabelecida ainda para validação
+        $forma_mapagamento = FormaPagamento::find($this->request->getFormaPagamento());
+
+        if ($forma_mapagamento->especie_pagamento_id == config('config.especie_pagamento.credito_loja.id')) {
+            throw new Exception("Crédito em loja não permitido para recebimento.", 1);
+        }
     }
 
     private function criarEvidencia()
@@ -122,7 +127,7 @@ class ReceberConta
         $totalPago = $fichas->sum('valor');
         $pagamentoEmDinheiro = false;
         if ($this->request->getFormaPagamento() == config('config.especie_pagamento.dinheiro.id')) {
-           $pagamentoEmDinheiro = true;
+            $pagamentoEmDinheiro = true;
         }
 
         $pagamentoEmDinheiro = $pagamentoEmDinheiro ? $totalPago : 0;
@@ -132,6 +137,7 @@ class ReceberConta
         return CaixaPDVRepository::editaCaixaEvidenciaAttrs($this->request->getCriarHistoricoRequest(), $evidencia->id, [
             'valor_total' => $evidenciaAnterior->valor_total + $totais,
             'valor_dinheiro' => $evidenciaAnterior->valor_dinheiro + $pagamentoEmDinheiro,
+            'total_credito_loja' => $evidenciaAnterior->total_credito_loja,
         ]);
     }
 }

@@ -12,6 +12,7 @@ class CaixaEvidencia extends ModelBase
         'usuario_id',
         'valor_total',
         'valor_dinheiro',
+        'total_credito_loja',
         'caixa_recurso_id',
         'descricao',
     ];
