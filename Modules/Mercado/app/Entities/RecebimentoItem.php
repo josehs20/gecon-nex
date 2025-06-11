@@ -13,14 +13,12 @@ class RecebimentoItem extends ModelBase
         'loja_id',
         'produto_id',
         'estoque_id',
-        'pedido_item_id',
+        'compra_item_id',
         'status_id',
         'quantidade_recebida',
         'quantidade_pedida',
         'preco_unitario',
         'total',
-        'lote',
-        'validade',
     ];
 
     /**
@@ -58,9 +56,9 @@ class RecebimentoItem extends ModelBase
     /**
      * Relacionamento com o modelo PedidoItem.
      */
-    public function pedidoItem()
+    public function compraItem()
     {
-        return $this->belongsTo(PedidoItem::class, 'pedido_item_id');
+        return $this->belongsTo(CompraItem::class, 'compra_item_id');
     }
 
     /**

@@ -181,10 +181,6 @@ class ProcessosUsuariosSeed extends Seeder
                 'tipo_usuario_id' => $tipo_usuario
             ],
             [
-                'processo_id' => config('config.processos.gerenciamento.recebimento.id'),
-                'tipo_usuario_id' => $tipo_usuario
-            ],
-            [
                 'processo_id' => config('config.processos.gerenciamento.pedidos.id'),
                 'tipo_usuario_id' => $tipo_usuario
             ],

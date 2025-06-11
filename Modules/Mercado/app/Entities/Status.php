@@ -73,6 +73,8 @@ class Status extends ModelBase
                 return 'Cotado';
             case config('config.status.comprado'):
                 return 'Comprado';
+            case config('config.status.entregue'):
+                return 'Entregue';
             default:
                 return 'Desconhecido'; // Caso não encontre um status válido
         }
@@ -124,6 +126,8 @@ class Status extends ModelBase
             case config('config.status.cotado'):
                 return 'badge badge-primary';
             case config('config.status.comprado'):
+                return 'badge badge-success';
+            case config('config.status.entregue'):
                 return 'badge badge-success';
             default:
                 return 'badge badge-light'; // Caso não encontre um status válido

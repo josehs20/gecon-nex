@@ -133,6 +133,7 @@ return [
         'em_cotacao' => 21,
         'cotado' => 22,
         'comprado' => 23,
+        'entregue' => 24
     ],
 
     'especie_pagamento' => [
@@ -322,14 +323,6 @@ return [
                 'posicao_menu' => 3001,
                 'icon' => 'bi bi-lock',
             ],
-            'recebimento' => [
-                'id' => 14,
-                'nome' => 'Recebimento',
-                'descricao' => 'Cadastro/Recebimento',
-                'rota' => 'cadastro.recebimento.index',
-                'posicao_menu' => 2003,
-                'icon' => 'bi bi-box-arrow-in-down',
-            ],
             'pedidos' => [
                 'id' => 15,
                 'nome' => 'Pedidos',
@@ -349,10 +342,10 @@ return [
             'recebimento_pedido' => [
                 'id' => 16,
                 'nome' => 'Recebimento de pedido',
-                'descricao' => 'Cadastro/Recebimento de pedido',
-                'rota' => 'cadastro.recebimento.index',
+                'descricao' => 'Pedido/Recebimento de pedido',
+                'rota' => 'pedido.recebimento.index',
                 'posicao_menu' => 4001,
-                'icon' => 'bi bi-box-arrow-in-down-right',
+                'icon' => 'bi bi-receipt'
             ],
             'fabricantes' => [
                 'id' => 23,
