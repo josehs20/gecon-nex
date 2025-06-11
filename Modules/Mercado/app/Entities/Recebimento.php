@@ -8,14 +8,12 @@ class Recebimento extends ModelBase
     protected $connection = 'mercado';
     // Definir os campos preenchíveis
     protected $fillable = [
-        'pedido_id',
+        'compra_id',
         'usuario_id',
         'loja_id',
         'status_id',
         'data_recebimento',
         'observacoes',
-        'arquivo_id'
-
     ];
 
     // Definir os campos que são convertidos para data
@@ -23,15 +21,10 @@ class Recebimento extends ModelBase
 
     // Relações
 
-    public function arquivo()
+    // Compra
+    public function compra()
     {
-        return $this->belongsTo(Arquivo::class, 'arquio_id');
-    }
-
-    // Pedido
-    public function pedido()
-    {
-        return $this->belongsTo(Pedido::class, 'pedido_id');
+        return $this->belongsTo(Compra::class, 'compra_id');
     }
 
     // Usuário

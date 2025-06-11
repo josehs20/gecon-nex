@@ -45,4 +45,12 @@ class Compra extends ModelBase
     {
         return $this->belongsTo(EspeciePagamento::class);
     }
+
+    public function compra_itens(){
+        return $this->hasMany(CompraItem::class);
+    }
+
+    public function recebimento(){
+        return $this->hasOne(Recebimento::class, 'compra_id', 'id');
+    }
 }

@@ -7,51 +7,41 @@ use Modules\Mercado\UseCases\ServiceUseCase;
 
 class ReceberRequest extends ServiceUseCase
 {
-    private int $pedido_id;
-    private mixed $data_recebimento;
-    private mixed $arquivo;
-    private array $itens;
+    private int $compra_id;
+    private int $status_id;
+    private int $loja_id;
+    private string $data_recebimento;
+    private ?string $observacao;
 
-    // Construtor para inicializar os parâmetros
-    public function __construct(CriarHistoricoRequest $criarHistoricoRequest, int $pedido_id, mixed $data_recebimento, $itens = [], $arquivo = null)
+    public function __construct(int $compra_id, int $status_id, int $loja_id, CriarHistoricoRequest $criarHistoricoRequest, string $data_recebimento, ?string $observacao = null)
     {
         parent::__construct($criarHistoricoRequest);
-        $this->pedido_id = $pedido_id;
         $this->data_recebimento = $data_recebimento;
-        $this->arquivo = $arquivo;
-        $this->itens = $itens;
+        $this->observacao = $observacao;
+        $this->compra_id = $compra_id;
+        $this->status_id = $status_id;
+        $this->loja_id = $loja_id;
+    }
+    
+    public function getCompraId(): int{
+        return $this->compra_id;
     }
 
-    public function getItens()
-    {
-        return $this->itens;
+    public function getStatusId(): int{
+        return $this->status_id;
     }
 
-    // Métodos Getter e Setter para 'pedido_id'
-    public function getArquivo()
-    {
-        return $this->arquivo;
+    public function getLojaId(): int{
+        return $this->loja_id;
     }
 
-    // Métodos Getter e Setter para 'pedido_id'
-    public function getPedidoId(): int
-    {
-        return $this->pedido_id;
-    }
-
-    public function setPedidoId(int $pedido_id): void
-    {
-        $this->pedido_id = $pedido_id;
-    }
-
-    // Métodos Getter e Setter para 'data_recebimento'
     public function getDataRecebimento(): mixed
     {
         return $this->data_recebimento;
     }
 
-    public function setDataRecebimento(mixed $data_recebimento): void
-    {
-        $this->data_recebimento = $data_recebimento;
+    public function getObservacao(): string{
+        return $this->observacao;
     }
+
 }
