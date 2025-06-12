@@ -388,7 +388,7 @@ function formatProductResult(product) {
 
     const $container = $(
         `<div class="d-flex justify-content-between align-items-center">
-                    <div style="flex: 1; text-align: center;">${product.cod_aux || '0'}</div>
+                    <div style="flex: 1; width:10%;">${product.cod_aux || '0'}</div>
             <div style="flex: 3; /* REMOVIDAS: overflow: hidden; text-overflow: ellipsis; white-space: nowrap; */">${product.text || 'N/A'}</div>
                     <div style="flex: 1; text-align: center;">${product.qtd_estoque || '0'}</div>
                     <div style="flex: 1; text-align: right;">R$ ${gerais.centavosParaReais(product.preco || 0)}</div>
@@ -403,9 +403,26 @@ function formatProductSelection(product) {
 }
 
 $('#produto-select').select2({
-    placeholder: "Selecione um produto...",
+    placeholder: "",
     allowClear: true,
-    language: "pt-BR",
+    language: {
+        errorLoading: function () {
+            return "Erro ao carregar as informações.";
+        },
+        inputTooShort: function () {
+            return "";
+        },
+        loadingMore: function () {
+            return "Carregando mais resultados...";
+        },
+        noResults: function () {
+            return "Nenhum resultado encontrado";
+        },
+        searching: function () {
+            return "Procurando...";
+        },
+    },
+    minimumInputLength: 3, // exige pelo menos 3 letras
     ajax: {
         url: rotas.rotaBuscaProduto,
         dataType: 'json',
@@ -563,7 +580,7 @@ function calcularTotalVendaComDesconto() {
 
     totalComDescontoReais = totalComDescontoReais * 100;
     valorDescontoReais = valorDescontoReais * 100;
-    $descontoReaisDisplay.text('R$ ' + gerais.centavosParaReais(valorDescontoReais));
+    $descontoReaisDisplay.val(gerais.centavosParaReais(valorDescontoReais));
 
     // Atualiza o display do total final da venda
     $totalVendaDisplay.val(gerais.centavosParaReais(totalComDescontoReais));
@@ -603,19 +620,14 @@ function renderizarTabelaItensVenda(items) {
             const totalItemReais = gerais.centavosParaReais(item.total);
 
             const row = `
-                        <tr>
-                            <td>${codAux}</td>
-                            <td>${nomeProduto}</td>
-                            <td class="text-center">${quantidade}</td>
-                            <td class="text-right">R$ ${precoUnitarioReais}</td>
-                            <td class="text-right">R$ ${totalItemReais}</td>
-                            <td>
-                                <button type="button" data-temp="${item.id}" class="btn btn-danger btn-sm" title="Remover Item">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+    <tr style="cursor:pointer;" title="CLIENTE PARA REMOVER" class="linha-item" data-id="${item.id}">
+        <td>${codAux}</td>
+        <td>${nomeProduto}</td>
+        <td class="text-center">${quantidade}</td>
+        <td class="text-right">R$ ${precoUnitarioReais}</td>
+        <td class="text-right">R$ ${totalItemReais}</td>
+    </tr>
+`;
             $itensVendaTableBody.append(row);
         });
     } else {
@@ -624,8 +636,8 @@ function renderizarTabelaItensVenda(items) {
 }
 
 //------REMOVER ITEM----------//
-$('#itensVendaTableBody').on('click', '.btn-danger[data-temp]', function () {
-    const idTemp = $(this).data('temp');
+$('#itensVendaTableBody').on('click', '.linha-item', function () {
+    const idTemp = $(this).data('id');
     const isMasterCaixa = $('#dataView').data('isMasterCaixa');
 
     // Faz a pergunta de senha padrão

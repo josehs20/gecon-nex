@@ -13,9 +13,10 @@
      margin: 0;
  }
 
-.modal {
-    z-index: 1060 !important; /* Valor padrão do Bootstrap para backdrop é 1040, modal é 1050 */
-}
+ .modal {
+     z-index: 1060 !important;
+     /* Valor padrão do Bootstrap para backdrop é 1040, modal é 1050 */
+ }
 
  .container-fluid,
  .wrapper-content {
@@ -46,9 +47,11 @@
  }
 
  /* NOVO: Estilo para a sidebar de Venda Final com 60% de largura */
-.sidebar#finalizarVendaSidebar.open { /* Mais específico para sobrescrever o .sidebar.open */
-    width: 60%; /* A largura desejada para esta sidebar específica */
-}
+ .sidebar#finalizarVendaSidebar.open {
+     /* Mais específico para sobrescrever o .sidebar.open */
+     width: 60%;
+     /* A largura desejada para esta sidebar específica */
+ }
 
  .sidebar-header {
      padding: 20px;
@@ -252,3 +255,76 @@
      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
      /* Sombra para indicar seleção, como em inputs */
  }
+
+ /* ------------------------cauixa */
+ /* Para a fonte fina no input de busca */
+ .thinner-font {
+     font-weight: 300;
+     /* Um peso de fonte mais leve (Light) */
+ }
+
+ /* Para a versão e nome do operador */
+ .small-text {
+     font-size: 0.85rem;
+     /* Tamanho de fonte menor */
+     font-weight: 400;
+     /* Peso de fonte normal, mas mais fino que o bold */
+     color: rgba(255, 255, 255, 0.8);
+     /* Cor ligeiramente esmaecida para contraste */
+ }
+
+ .text_padrao {
+     font-size: 1rem;
+     /* Tamanho de fonte menor */
+     font-weight: 400;
+     /* Peso de fonte normal, mas mais fino que o bold */
+     color: #000;
+     /* Cor ligeiramente esmaecida para contraste */
+     text-transform: uppercase;
+
+ }
+ .text_padrao_white {
+     font-size: 1rem;
+     /* Tamanho de fonte menor */
+     font-weight: 400;
+     /* Peso de fonte normal, mas mais fino que o bold */
+     color: white;
+     /* Cor ligeiramente esmaecida para contraste */
+     text-transform: uppercase;
+
+ }
+
+ .bg_padrao {
+     background-color: #0b00aa !important;
+     color: white;
+ }
+
+ .btn-azul-forte {
+     background-color: #0b00aa !important;
+     color: #ffffff !important;
+     font-weight: bold;
+     text-transform: uppercase;
+     border: none;
+     font-size: 14px !important;
+ }
+.select2-container--default .select2-selection--single {
+    border-radius: 0 !important;
+    height: 38px; /* ou ajuste como preferir */
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    display: none;
+}
+/* Cor de fundo levemente cinza no item selecionado da lista */
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #f0f0f0 !important; /* tom leve de cinza */
+    color: #000 !important;
+}
+
+/* Se quiser que o item selecionado (após escolha) também tenha um fundo cinza */
+.select2-container--default .select2-selection--single {
+    background-color: #000000 !important; /* tom ainda mais suave */
+}
+

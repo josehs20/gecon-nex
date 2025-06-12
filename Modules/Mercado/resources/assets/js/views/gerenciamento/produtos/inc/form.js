@@ -33,7 +33,7 @@ $('#cod_barras').on('input', function () {
                 $('#captcha-container').html(response.html);
             },
             error: function () {
-                alert("Erro ao buscar produto.");
+                // gerais.msgToastr('não foi possível buscar o Gtin.', 'warning')
             }
         });
     }

@@ -123,7 +123,7 @@ function formataMovimentacaoItens(itens, session = false) {
 
         itens.forEach(item => {
             let tipoMovimentacaoDescricao = $('#dataView').data('tipoMovimentacaoId');
-            let nome = montaNomeProduto(item.estoque.produto);
+            let nome = gerais.montaNomeProduto(item.estoque.produto);
             itensFormatados.push({
                 estoqueId: item.estoque_id,
                 nomeProduto: nome,

@@ -1,19 +1,21 @@
 <?php
 
 return [
+    'nfe' => [
+        'api_key' => env('NFE_API_KEY', 'xjaz2NrFhGX4vRZ9uwCSK0LqzwYZWzyz2FjT3VGOxd2hGo8DJ5Y0imSHRU5v4wW0xJQ'),
+    ],
+    'ibpt' => [
+        'api_key' => env('IBPT_API_KEY', 'ViRtv4Ple2BZ7g406OIZlDjMpSGOqYDjMfg4fp-jeKajN86xJtEfm1ZT-pNVvQiY'),
+    ],
+    'gtin' => [
+        'logins' => [
+            'acesso_01' => [
+                'username' => 'josehs20',
+                'password' => '123456789'
+            ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
-
+        ]
+    ],
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

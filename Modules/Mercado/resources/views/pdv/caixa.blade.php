@@ -6,53 +6,50 @@
          então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
          Vamos adicionar 'h-100' ao card e 'flex-grow-1' se o contêiner pai for um flexbox. --}}
     <div class="card h-100" style="background-color: rgb(241, 239, 239)"> {{-- Adicionado 'h-100' aqui --}}
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+        <div class="card-header bg_padrao text-white d-flex justify-content-between align-items-center px-4">
             <div>
-                <h5 class="mb-0">CAIXA: 1</h5>
+                <h4 class="mb-0 fw-bold fs-5"><i class="bi bi-cash-register me-2"></i>CAIXA: <span
+                        class="cashier-number">1</span></h4>
             </div>
-            <div>
-                <h5 class="mb-0">LIVRE</h5>
+            <div class="text-center">
+                <h4 class="mb-0 fw-bold fs-5"><u id="statusCaixa">LIVRE</u></h4>
             </div>
-            <form class="form-inline" method="GET" action="#">
-                <input type="text" name="venda" class="form-control form-control-sm mr-2" placeholder="Buscar venda..."
-                    required>
-                <button type="button" class="btn btn-light btn-sm">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-            </form>
+            <div class="text-end">
+                <div class="small-text">Versão: 1.0.0</div>
+                <div class="small-text">Operador: João Silva</div>
+            </div>
         </div>
 
         <div class="card-body d-flex flex-column"> {{-- Adicionado d-flex flex-column para fazer o row ocupar o restante do espaço --}}
             <div class="row flex-grow-1"> {{-- Adicionado flex-grow-1 para a row ocupar o restante do espaço do card-body --}}
-                <div class="col-md-6 d-flex flex-column" style="border-right: 1px solid #dee2e6;">
+                <div class="col-md-5 d-flex flex-column" style="border-right: 1px solid #dee2e6;">
                     <div class="flex-grow-1 d-flex flex-column">
 
                         <div class="form-group">
-                            <label for="produto-select">Código de barras / Produto *</label>
+                            <label for="produto-select" class="text_padrao">Código de barras / Produto *</label>
                             <select class="form-control select2" id="produto-select" name="produto" style="width: 100%;">
-                                <option value="">Selecione um produto...</option>
                             </select>
                         </div>
                         <div class="form-group mt-2">
                             <div class="d-flex align-items-center">
                                 <div class="mr-2">
-                                    <label for="quantidade">Quantidade * </label>
+                                    <label for="quantidade" class="text_padrao">Quantidade * </label>
                                     <input type="text" class="form-control maskQtdByClass" id="quantidade"
                                         name="quantidade" required>
                                 </div>
                                 <div class="mr-2">
-                                    <label for="valor-unitario">Valor Unitário</label>
+                                    <label for="valor-unitario" class="text_padrao">Valor Unitário</label>
                                     <input type="text" class="form-control maskDinheiroByClass" id="valor-unitario"
                                         name="valor_unitario" readonly>
                                 </div>
                                 <div class="mr-2">
-                                    <label for="total-item">Total do Item</label>
+                                    <label for="total-item" class="text_padrao">Total</label>
                                     <input type="text" class="form-control maskDinheiroByClass" id="total-item"
                                         name="total_item" readonly>
                                 </div>
                                 <div class="align-self-end">
                                     <button type="button" id="adicionarItemButton"
-                                        class="btn btn-primary">Adicionar</button>
+                                        class="btn btn-azul-forte">ADICIONAR</button>
                                 </div>
                             </div>
                         </div>
@@ -63,15 +60,20 @@
                             <div class="form-group mt-5">
                                 <div class="d-flex justify-content-end">
                                     <div class="mr-2 flex-grow-1 col-md-4">
-                                        <label for="desconto">desconto * </label>
+                                        <label for="desconto" class="text_padrao">desconto (%) </label>
                                         {{-- Adicionei um span para exibir o desconto em reais ao lado do label --}}
-                                        <span class="badge badge-primary mx-2" id="desconto-reais">0,00</span>
+                                        {{-- <span class="badge badge-primary mx-2" id="desconto-reais">0,00</span> --}}
                                         {{-- Mantido como type="text" para a máscara de porcentagem/dinheiro --}}
                                         <input type="text" class="form-control maskPorcentagem" id="desconto"
-                                            name="desconto" value="0,00" required>
+                                            name="desconto" placeholder="0,00" required>
                                     </div>
-                                    <div class="mr-2 flex-grow-1 col-md-5">
-                                        <label for="total-venda">Total da Venda</label>
+                                      <div class="mr-2 flex-grow-1 col-md-4">
+                                        <label for="desconto" class="text_padrao">desconto (R$) </label>
+                                        <input type="text" class="form-control" id="desconto-reais"
+                                            name="desconto-reais" placeholder="0,00" readonly>
+                                    </div>
+                                    <div class="mr-2 flex-grow-1 col-md-4">
+                                        <label for="total-venda" class="text_padrao"><u>Total da Venda</u></label>
                                         <input type="text" class="form-control maskDinheiroByClass" id="total-venda"
                                             name="total_venda" value="0.00" readonly>
                                     </div>
@@ -80,53 +82,59 @@
                             <div class="form-group mt-2">
                                 <div class="row">
                                     <div class="col-md-3 mt-1">
-                                        <button id="finalizaVendaBtnSideBar" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="finalizaVendaBtnSideBar" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#finalizarVendaSidebar">
                                             {{-- <i class="bi bi-check2"></i> --}}
                                             FINALIZAR
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="devolucaoVenda" class="btn btn-danger w-100 sidebar-toggle-btn"
+                                        <button id="devolucaoVenda" class="btn btn-azul-forte w-100 sidebar-toggle-btn bg_padrao"
                                             data-sidebar-target="#devolucaoSidebar">
                                             {{-- <i class="bi bi-box-arrow-in-down"></i> --}}
                                             DEVOLUÇÃO
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="orcamentoVenda" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="orcamentoVenda" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#orcamentoSiedbar">
                                             {{-- <i class="bi bi-calculator"></i> --}}
                                             ORÇAMENTO
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="suprirCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="suprirCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#suprirSidebar">
                                             {{-- <i class="bi bi-cash-coin mx-1"></i> --}}
-                                            SUPRIMENTO
+                                            SUPRIR
                                         </button>
                                     </div>
 
                                     <div class="col-md-3 mt-1">
-                                        <button id="sangriaCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="sangriaCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#sangriaSidebar">
                                             {{-- <i class="bi bi-arrow-down-circle"></i> --}}
                                             SANGRIA
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="receberConta" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="receberConta" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#recebimentoSidebar">
                                             {{-- <i class="bi bi-wallet me-1"></i> --}}
-                                            RECEBIMENTO
+                                            RECEBER
                                         </button>
                                     </div>
                                     <div class="col-md-3 mt-1">
-                                        <button id="fecharCaixa" class="btn btn-dark w-100 sidebar-toggle-btn"
+                                        <button id="fecharCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#fechamentoSidebar">
                                             {{-- <i class="bi bi-lock me-1"></i> --}}
-                                            FECHAMENTO
+                                            FECHAR
+                                        </button>
+                                    </div>
+                                      <div class="col-md-3 mt-1">
+                                        <button id="cancelar" class="btn btn-azul-forte w-100 sidebar-toggle-btn">
+                                            {{-- <i class="bi bi-lock me-1"></i> --}}
+                                            CANCELAR
                                         </button>
                                     </div>
                                 </div>
@@ -135,23 +143,20 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 d-flex flex-column">
-                    <div class="flex-grow-1"> {{-- Removido min-height: 100% aqui, pois o flex-grow-1 no pai já faz isso --}}
-                        <h4 class="text-center mb-3 display-6">Itens da Venda</h4>
+                <div class="col-md-7 d-flex flex-column">
+                    <div class="flex-grow-1">
                         <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-striped table-hover table-sm">
-                                <thead class="bg-primary text-white sticky-top">
+                                <thead class="bg_padrao text-white sticky-top table-header-custom">
                                     <tr>
-                                        <th>Código</th>
-                                        <th>Nome</th>
-                                        <th class="text-center">Qtd</th>
-                                        <th class="text-right" style="width: 15%;">Preço</th>
-                                        <th class="text-right" style="width: 15%;">Total</th>
-                                        <th></th>
+                                        <th class="text_padrao_white">Código</th>
+                                        <th class="text_padrao_white">Nome</th>
+                                        <th class="text-center text_padrao_white" style="width: 10%;">quatidade</th>
+                                        <th class="text-right text_padrao_white" style="width: 10%;">Preço</th>
+                                        <th class="text-right text_padrao_white" style="width: 10%;">Total</th>
                                     </tr>
                                 </thead>
-                                <tbody id="itensVendaTableBody">
-                                    {{-- Linhas de itens serão injetadas aqui pelo JavaScript --}}
+                                <tbody id="itensVendaTableBody" class="table-body-custom"> {{-- Linhas de itens serão injetadas aqui pelo JavaScript --}}
                                 </tbody>
                             </table>
                         </div>
@@ -548,8 +553,8 @@
                                 value="R$ 0,00" readonly>
                         </div>
                         <div class="w-50 me-2 mx-1"> <label for="cliente-credito-ave">Crédito (avê)</label>
-                            <input type="text" class="form-control" id="cliente-credito-ave"
-                                value="R$ 0,00" readonly>
+                            <input type="text" class="form-control" id="cliente-credito-ave" value="R$ 0,00"
+                                readonly>
                         </div>
                     </div>
                 </div>

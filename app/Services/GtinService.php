@@ -55,7 +55,6 @@ class GtinService
     {
         // Cache::forget('gtin_token');
         $token =  Cache::get('gtin_token');
-
         if (!$token) {
             self::tokenGenerate();
             $token =  Cache::get('gtin_token');
@@ -105,7 +104,7 @@ class GtinService
             'Accept' => 'application/json', // Espera JSON na resposta
             'Authorization' => "Bearer {$token}", // Adiciona o header Authorization
         ])->get($url);
-
+        dd($response);
         return (object) ['mensagem' => $response->json(), 'status' => $response->status()];
     }
 

@@ -122,7 +122,7 @@
     </button>
 </div>
  <div id="dataView"
-    data-rota-unidade-medida ="{{route('cadastro.produto.get.yajra')}}"
+    data-rota-unidade-medida ="{{route('unidade_medida.select2')}}"
     data-rota-classificacao-produto ="{{route('classificacao_produto.select2')}}"
     data-route-busca-gtin="{{route('cadastro.produto.nfe.get.gtin')}}"
     ></div>
