@@ -32,66 +32,96 @@
     </ul>
 
     <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="empresa" role="tabpanel" aria-labelledby="empresa-tab">
+        <div class="tab-pane fade show active pt-3" id="empresa" role="tabpanel" aria-labelledby="empresa-tab">
             @if ($empresa)
-                <form action="{{ route('admin.empresa.update', ['empresa' => $empresa->id]) }}" method="POST">
+                <form action="{{ route('admin.empresa.update', ['empresa' => $empresa->id]) }}" method="POST" enctype="multipart/form-data">
                     @method('PUT')
                     @csrf
                 @else
-                    <form action="{{ route('admin.empresa.store') }}" method="POST">
+                    <form action="{{ route('admin.empresa.store') }}" method="POST" enctype="multipart/form-data">
                         @method('POST')
                         @csrf
             @endif
 
-            <div class="mb-3 mt-3">
-                <label for="cnpj" class="form-label">CNPJ *</label>
-                <input type="text" class="form-control " id="cnpj"
-                    {{ $empresa && $empresa->cnpj ? 'readonly' : '' }}
-                    value="{{ $empresa && $empresa->cnpj ? formatCNPJ($empresa->cnpj) : '' }}" name="cnpj" required>
+            <div class="row">
+                <div class="mb-3 col-12 col-xl-4">
+                    <label for="cnpj" class="form-label">CNPJ *</label>
+                    <input type="text" class="form-control " id="cnpj"
+                        {{ $empresa && $empresa->cnpj ? 'readonly' : '' }}
+                        value="{{ $empresa && $empresa->cnpj ? formatCNPJ($empresa->cnpj) : '' }}" name="cnpj" required>
+                </div>
+
+                <div class="mb-3 col-12 col-xl-4">
+                    <label for="nome_fantasia" class="form-label">Nome Fantasia *</label>
+                    <input type="text" readonly class="form-control" id="nome_fantasia"
+                        value="{{ $empresa->nome_fantasia ?? '' }}" name="nome_fantasia" required>
+                </div>
+
+                <div class="mb-3 col-12 col-xl-4">
+                    <label for="telefone" class="form-label">Telefone</label>
+                    <input type="tel" class="form-control" id="telefone"
+                        value="{{ $empresa && $empresa->matriz ? $empresa->matriz->telefone : '' }}" name="telefone">
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="razao_social" class="form-label">Razão Social *</label>
-                <input readonly type="text" class="form-control" id="razao_social"
-                    value="{{ $empresa->razao_social ?? '' }}" name="razao_social" required>
+            <div class="row">
+                <div class="mb-3 col-12 col-xl-6">
+                    <label for="razao_social" class="form-label">Razão Social *</label>
+                    <input readonly type="text" class="form-control" id="razao_social"
+                        value="{{ $empresa->razao_social ?? '' }}" name="razao_social" required>
+                </div>
+                <div class="mb-3 col-12 col-xl-6">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="email"
+                        value="{{ $empresa && $empresa->matriz ? $empresa->matriz->email : '' }}" name="email">
+                </div>
+
             </div>
 
-            <div class="mb-3">
-                <label for="nome_fantasia" class="form-label">Nome Fantasia *</label>
-                <input type="text" readonly class="form-control" id="nome_fantasia"
-                    value="{{ $empresa->nome_fantasia ?? '' }}" name="nome_fantasia" required>
+            <div class="row d-flex align-items-center">
+                <div class="col-12 col-xl-4">
+                    <div class="mb-3">
+                        <label for="modulo_id" class="form-label">Selecione o Módulo*</label>
+                        <select required class="form-control select2" name="modulo_id" {{ $empresa ? 'disabled' : '' }} id="modulo_id">
+                            <option value="">Selecione um módulo</option>
+                            @foreach (config('config.modulos') as $nome => $id)
+                                <option value="{{ $id }}"
+                                    {{ $empresa && $empresa->matriz->modulo_id == $id ? 'selected' : '' }}>
+                                    {{ $nome }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3 col-12 col-xl-2">
+                    <label for="caixa_cor" class="form-label">Cor para o caixa</label>
+                    <input type="color" class="form-control form-control-color" id="caixa_cor"
+                        value="{{ $empresa ? $empresa->caixa_cor : '#494949' }}" name="caixa_cor">
+                </div>
+                <div class="mb-3 col-12 col-xl-4">
+                    <label for="foto" class="form-label">Selecione uma nova foto: </label>
+                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                </div>
+                <div class="mb-3 mt-3 col-12 col-xl-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" {{ $empresa && $empresa->ativo ? 'checked' : '' }}
+                            name="ativo" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Ativo *
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input type="email" class="form-control" id="email"
-                    value="{{ $empresa && $empresa->matriz ? $empresa->matriz->email : '' }}" name="email">
-            </div>
-            <div class="mb-3">
-                <label for="telefone" class="form-label">Telefone</label>
-                <input type="tel" class="form-control" id="telefone"
-                    value="{{ $empresa && $empresa->matriz ? $empresa->matriz->telefone : '' }}" name="telefone">
-            </div>
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" {{ $empresa && $empresa->ativo ? 'checked' : '' }}
-                    name="ativo" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Ativo*
-                </label>
-            </div>
-
-            <div class="mb-3">
-                <label for="modulo_id" class="form-label">Selecione o Módulo*</label>
-                <select required class="form-control select2" name="modulo_id" {{ $empresa ? 'disabled' : '' }}
-                    id="modulo_id">
-                    <option value="">Selecione um módulo</option>
-                    @foreach (config('config.modulos') as $nome => $id)
-                        <option value="{{ $id }}"
-                            {{ $empresa && $empresa->matriz->modulo_id == $id ? 'selected' : '' }}>
-                            {{ $nome }}
-                        </option>
-                    @endforeach
-                </select>
+            <div class="mb-3 row">
+                <div class="col-12 col-xl-12">
+                    @if($empresa && $empresa->foto)
+                        <div class="text-center">
+                            <label>Foto atual</label> <br>
+                            <img src="{{$empresa && $empresa->foto ? asset('storage/' . $empresa->foto) : ''}}" alt="Foto da empresa" width="300">
+                        </div>
+                    @endif
+                </div>
             </div>
 
             <div class="card-footer">

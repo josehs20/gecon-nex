@@ -6,28 +6,49 @@ use App\Models\Empresa;
 
 class EmpresaRepository
 {
-    public static function create(string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id): ?Empresa
+    public static function create(string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null): ?Empresa
     {
-        return Empresa::create([
+        $data = [
             'razao_social' => $razao_social,
             'nome_fantasia' => $nome_fantasia,
             'cnpj' => $cnpj,
             'status_id' => $status_id,
             'ativo' => $ativo
-        ]);
+        ];
+
+        if (!is_null($foto)) {
+            $data['foto'] = $foto;
+        }
+
+        if (!is_null($caixa_cor)) {
+            $data['caixa_cor'] = $caixa_cor;
+        }
+
+        return Empresa::create($data);
     }
 
-    public static function update(int $id, string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id): ?Empresa
+    public static function update(int $id, string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null): ?Empresa
     {
         $empresa = Empresa::find($id);
-        $empresa->update([
+        $data = [
             'razao_social' => $razao_social,
             'nome_fantasia' => $nome_fantasia,
             'cnpj' => $cnpj,
             'status_id' => $status_id,
-            'ativo' => $ativo
-        ]);
-        return $empresa;
+            'ativo' => $ativo,
+        ];
+
+        if (!is_null($foto)) {
+            $data['foto'] = $foto;
+        }
+
+        if (!is_null($caixa_cor)) {
+            $data['caixa_cor'] = $caixa_cor;
+        }
+
+        $empresa->update($data);
+
+        return $empresa->refresh();
     }
 
 

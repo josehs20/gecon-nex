@@ -27,7 +27,15 @@ class CriarEmpresa
 
     public function criarEmpresa()
     {
-        return EmpresaRepository::create($this->request->getRazaoSocial(), $this->request->getNomeFantasia(), $this->request->getCnpj(), $this->request->getAtivo(), $this->request->getStatusId());
+        return EmpresaRepository::create(
+            $this->request->getRazaoSocial(),
+            $this->request->getNomeFantasia(),
+            $this->request->getCnpj(),
+            $this->request->getAtivo(),
+            $this->request->getStatusId(),
+            $this->request->getFoto(),
+            $this->request->getCaixaCor()
+        );
     }
 
     public function validacoes()

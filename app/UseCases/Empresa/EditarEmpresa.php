@@ -29,7 +29,16 @@ class EditarEmpresa
 
     public function editarEmpresa()
     {
-        return EmpresaRepository::update($this->id, $this->request->getRazaoSocial(), $this->request->getNomeFantasia(), $this->request->getCnpj(), $this->request->getAtivo(), $this->request->getStatusId());
+        return EmpresaRepository::update(
+            $this->id,
+            $this->request->getRazaoSocial(),
+            $this->request->getNomeFantasia(),
+            $this->request->getCnpj(),
+            $this->request->getAtivo(),
+            $this->request->getStatusId(),
+            $this->request->getFoto(),
+            $this->request->getCaixaCor()
+        );
     }
 
     public function validacoes()

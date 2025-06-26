@@ -53,13 +53,23 @@ class HomeController extends ControllerBase
             $ativo = $request->ativo ? 1 : 0;
             $status_id = config('config.status.em_dia');
             $parans->nome_fantasia = !$parans->nome_fantasia ? $parans->razao_social : $parans->nome_fantasia;
+            $caixa_cor = $request->input('caixa_cor') ?? null;
+            
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('fotos_empresas', 'public');
+            }
+
             $empresa = EmpresaApplication::criarEmpresa(new CriarEmpresaRequest(
                 $parans->razao_social,
                 $parans->nome_fantasia,
                 $parans->cnpj,
                 $ativo,
-                $status_id
+                $status_id,
+                $fotoPath,
+                $caixa_cor
             ));
+            
             $nome = 'Loja 1';
             $empresa_id = $empresa->id;
             $matriz = true;
@@ -125,8 +135,25 @@ class HomeController extends ControllerBase
             $parans = (object) Post::anti_injection_array($request->all());
             $ativo = $request->ativo ? 1 : 0;
             $status_id = config('config.status.em_dia');
+            $caixa_cor = $request->input('caixa_cor') ?? null;
+            
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('fotos_empresas', 'public');
+            }
 
-            $empresa = EmpresaApplication::editarEmpresa($master, new CriarEmpresaRequest($parans->razao_social, $parans->nome_fantasia, $parans->cnpj, $ativo, $status_id));
+            $empresa = EmpresaApplication::editarEmpresa(
+                $master, 
+                new CriarEmpresaRequest(
+                    $parans->razao_social,
+                    $parans->nome_fantasia,
+                    $parans->cnpj,
+                    $ativo,
+                    $status_id,
+                    $fotoPath,
+                    $caixa_cor
+                )
+            );
 
             $this->getDb()->commit();
             session()->flash('success', 'Empresa atualizada com sucesso.');
