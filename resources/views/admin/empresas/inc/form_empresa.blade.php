@@ -78,6 +78,25 @@
 
             </div>
 
+            <label class="mt-3">Selecione cores para o caixa: </label>
+            <div class="row mb-3">
+                <div class="mb-3 col-12 col-xl-4">
+                    <label for="caixa_cor" class="form-label">Elementos do caixa</label>
+                    <input type="color" class="form-control form-control-color" id="caixa_cor"
+                        value="{{ $empresa ? $empresa->caixa_cor : '#494949' }}" name="caixa_cor">
+                </div>
+                {{-- <div class="mb-3 col-12 col-xl-4">
+                    <label for="caixa_cor_fundo" class="form-label">Fundo</label>
+                    <input type="color" class="form-control form-control-color" id="caixa_cor_fundo"
+                        value="{{ $empresa ? $empresa->caixa_cor_fundo : '#494949' }}" name="caixa_cor_fundo">
+                </div> --}}
+                 <div class="mb-3 col-12 col-xl-4">
+                    <label for="caixa_cor_letras" class="form-label">Letras</label>
+                    <input type="color" class="form-control form-control-color" id="caixa_cor_letras"
+                        value="{{ $empresa ? $empresa->caixa_cor_letras : '#494949' }}" name="caixa_cor_letras">
+                </div>
+            </div>
+
             <div class="row d-flex align-items-center">
                 <div class="col-12 col-xl-4">
                     <div class="mb-3">
@@ -93,16 +112,11 @@
                         </select>
                     </div>
                 </div>
-                <div class="mb-3 col-12 col-xl-2">
-                    <label for="caixa_cor" class="form-label">Cor para o caixa</label>
-                    <input type="color" class="form-control form-control-color" id="caixa_cor"
-                        value="{{ $empresa ? $empresa->caixa_cor : '#494949' }}" name="caixa_cor">
-                </div>
                 <div class="mb-3 col-12 col-xl-4">
                     <label for="foto" class="form-label">Selecione uma nova foto: </label>
                     <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
                 </div>
-                <div class="mb-3 mt-3 col-12 col-xl-2">
+                <div class="mb-3 mt-3 col-12 col-xl-4">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" {{ $empresa && $empresa->ativo ? 'checked' : '' }}
                             name="ativo" id="flexCheckDefault">

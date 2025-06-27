@@ -22,6 +22,8 @@ class EmpresasTable extends Migration
             $table->boolean('ativo')->nullable();
             $table->string('foto')->nullable();
             $table->string('caixa_cor')->nullable();
+            $table->string('caixa_cor_fundo')->nullable();
+            $table->string('caixa_cor_letras')->nullable();
             $table->timestamps();
             $table->foreign('status_id')->references('id')->on('status')->onDelete('cascade');
         });

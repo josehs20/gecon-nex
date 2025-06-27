@@ -18,7 +18,9 @@ class Empresa extends Model
         'ativo',
         'status_id',
         'foto',
-        'caixa_cor'
+        'caixa_cor',
+        'caixa_cor_fundo',
+        'caixa_cor_letras',
     ];
 
     public function mercadoLojas()

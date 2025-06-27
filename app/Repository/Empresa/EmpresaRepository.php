@@ -6,7 +6,7 @@ use App\Models\Empresa;
 
 class EmpresaRepository
 {
-    public static function create(string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null): ?Empresa
+    public static function create(string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null, ?string $caixa_cor_fundo = null, ?string $caixa_cor_letras = null): ?Empresa
     {
         $data = [
             'razao_social' => $razao_social,
@@ -24,10 +24,18 @@ class EmpresaRepository
             $data['caixa_cor'] = $caixa_cor;
         }
 
+        if (!is_null($caixa_cor_fundo)) {
+            $data['caixa_cor_fundo'] = $caixa_cor_fundo;
+        }
+
+        if (!is_null($caixa_cor_letras)) {
+            $data['caixa_cor_letras'] = $caixa_cor_letras;
+        }
+
         return Empresa::create($data);
     }
 
-    public static function update(int $id, string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null): ?Empresa
+    public static function update(int $id, string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id, ?string $foto = null, ?string $caixa_cor = null, ?string $caixa_cor_fundo = null, ?string $caixa_cor_letras = null): ?Empresa
     {
         $empresa = Empresa::find($id);
         $data = [
@@ -44,6 +52,14 @@ class EmpresaRepository
 
         if (!is_null($caixa_cor)) {
             $data['caixa_cor'] = $caixa_cor;
+        }
+
+        if (!is_null($caixa_cor_fundo)) {
+            $data['caixa_cor_fundo'] = $caixa_cor_fundo;
+        }
+
+        if (!is_null($caixa_cor_letras)) {
+            $data['caixa_cor_letras'] = $caixa_cor_letras;
         }
 
         $empresa->update($data);

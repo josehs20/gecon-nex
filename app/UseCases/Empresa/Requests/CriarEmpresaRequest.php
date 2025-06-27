@@ -13,6 +13,8 @@ class CriarEmpresaRequest
     private int $status_id;
     private ?string $foto;
     private ?string $caixa_cor;
+    private ?string $caixa_cor_fundo;
+    private ?string $caixa_cor_letras;
 
     public function __construct(
         string $razao_social,
@@ -21,7 +23,9 @@ class CriarEmpresaRequest
         int $ativo,
         int $status_id,
         ?string $foto = null,
-        ?string $caixa_cor = null
+        ?string $caixa_cor = null,
+        ?string $caixa_cor_fundo = null,
+        ?string $caixa_cor_letras = null
     ) {
         $this->razao_social = $razao_social;
         $this->nome_fantasia = $nome_fantasia;
@@ -30,6 +34,8 @@ class CriarEmpresaRequest
         $this->ativo = $ativo ? true : false;
         $this->foto = $foto;
         $this->caixa_cor = $caixa_cor;
+        $this->caixa_cor_fundo = $caixa_cor_fundo;
+        $this->caixa_cor_letras = $caixa_cor_letras;
     }
 
     // Getters
@@ -68,6 +74,16 @@ class CriarEmpresaRequest
         return $this->caixa_cor;
     }
 
+    public function getCaixaCorFundo(): ?string
+    {
+        return $this->caixa_cor_fundo;
+    }
+
+    public function getCaixaCorLetras(): ?string
+    {
+        return $this->caixa_cor_letras;
+    }
+
     // Setters
     public function setRazaoSocial(string $razao_social): void
     {
@@ -97,5 +113,15 @@ class CriarEmpresaRequest
     public function setCaixaCor(?string $caixa_cor): void
     {
         $this->caixa_cor = $caixa_cor;
+    }
+
+    public function setCaixaCorFundo(?string $caixa_cor_fundo): void
+    {
+        $this->caixa_cor_fundo = $caixa_cor_fundo;
+    }
+
+    public function setCaixaCorLetras(?string $caixa_cor_letras): void
+    {
+        $this->caixa_cor_letras = $caixa_cor_letras;
     }
 }

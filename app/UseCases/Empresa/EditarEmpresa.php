@@ -37,7 +37,9 @@ class EditarEmpresa
             $this->request->getAtivo(),
             $this->request->getStatusId(),
             $this->request->getFoto(),
-            $this->request->getCaixaCor()
+            $this->request->getCaixaCor(),
+            $this->request->getCaixaCorFundo(),
+            $this->request->getCaixaCorLetras(),
         );
     }
 

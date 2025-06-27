@@ -54,6 +54,8 @@ class HomeController extends ControllerBase
             $status_id = config('config.status.em_dia');
             $parans->nome_fantasia = !$parans->nome_fantasia ? $parans->razao_social : $parans->nome_fantasia;
             $caixa_cor = $request->input('caixa_cor') ?? null;
+            $caixa_cor_fundo = $request->input('caixa_cor_fundo') ?? null;
+            $caixa_cor_letras = $request->input('caixa_cor_letras') ?? null;
             
             $fotoPath = null;
             if ($request->hasFile('foto')) {
@@ -67,7 +69,9 @@ class HomeController extends ControllerBase
                 $ativo,
                 $status_id,
                 $fotoPath,
-                $caixa_cor
+                $caixa_cor,
+                $caixa_cor_fundo,
+                $caixa_cor_letras,
             ));
             
             $nome = 'Loja 1';
@@ -136,6 +140,8 @@ class HomeController extends ControllerBase
             $ativo = $request->ativo ? 1 : 0;
             $status_id = config('config.status.em_dia');
             $caixa_cor = $request->input('caixa_cor') ?? null;
+            $caixa_cor_fundo = $request->input('caixa_cor_fundo') ?? null;
+            $caixa_cor_letras = $request->input('caixa_cor_letras') ?? null;
             
             $fotoPath = null;
             if ($request->hasFile('foto')) {
@@ -151,7 +157,9 @@ class HomeController extends ControllerBase
                     $ativo,
                     $status_id,
                     $fotoPath,
-                    $caixa_cor
+                    $caixa_cor,
+                    $caixa_cor_fundo,
+                    $caixa_cor_letras
                 )
             );
 
