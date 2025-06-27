@@ -11,7 +11,17 @@ class Empresa extends Model
     protected $table = 'empresas';
     protected $connection = 'gecon';
 
-    protected $fillable = ['razao_social', 'nome_fantasia', 'cnpj', 'ativo', 'status_id'];
+    protected $fillable = [
+        'razao_social',
+        'nome_fantasia',
+        'cnpj',
+        'ativo',
+        'status_id',
+        'foto',
+        'caixa_cor',
+        'caixa_cor_fundo',
+        'caixa_cor_letras',
+    ];
 
     public function mercadoLojas()
     {

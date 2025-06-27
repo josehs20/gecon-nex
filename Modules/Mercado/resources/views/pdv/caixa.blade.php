@@ -1,12 +1,20 @@
 @extends('mercado::layouts.pdv')
 
 @section('content')
+
+    @php
+        $corElemento = auth()->user()->empresa->caixa_cor ?? '#0b00aa';
+        $corFundo    = auth()->user()->empresa->caixa_cor_fundo ?? 'rgb(241, 239, 250)';
+        $corTexto    = auth()->user()->empresa->caixa_cor_letras ?? '#fff';
+    @endphp
+
     {{-- Para o card ocupar a altura total, o pai imediato do card (geralmente body ou main)
          precisa ter altura definida. Se o layout principal (layouts.pdv) já tiver isso,
          então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
          Vamos adicionar 'h-100' ao card e 'flex-grow-1' se o contêiner pai for um flexbox. --}}
-    <div class="card h-100" style="background-color: rgb(241, 239, 239)"> {{-- Adicionado 'h-100' aqui --}}
-        <div class="card-header bg_padrao text-white d-flex justify-content-between align-items-center px-4">
+    {{-- <div class="card h-100" style="background-color: rgb(241, 239, 250)"> Adicionado 'h-100' aqui --}}
+    <div class="card h-100" style="background-color: {{$corFundo}}">
+        <div class="card-header d-flex justify-content-between align-items-center px-4" style="background-color: {{$corElemento}}; color: {{$corTexto}}">
             <div>
                 <h4 class="mb-0 fw-bold fs-5"><i class="bi bi-cash-register me-2"></i>CAIXA: <span
                         class="cashier-number">1</span></h4>
@@ -25,7 +33,7 @@
                 <div class="col-md-5 d-flex flex-column" style="border-right: 1px solid #dee2e6;">
                     <div class="flex-grow-1 d-flex flex-column">
 
-                        <div class="form-group">
+                        <div class="form-group" style="background-color: #dee2e6">
                             <label for="produto-select" class="text_padrao">Código de barras / Produto *</label>
                             <select class="form-control select2" id="produto-select" name="produto" style="width: 100%;">
                             </select>
@@ -147,13 +155,13 @@
                     <div class="flex-grow-1">
                         <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-striped table-hover table-sm">
-                                <thead class="bg_padrao text-white sticky-top table-header-custom">
+                                <thead class="sticky-top table-header-custom" style="background-color: {{$corElemento}}; color: {{$corTexto}}">
                                     <tr>
-                                        <th class="text_padrao_white">Código</th>
-                                        <th class="text_padrao_white">Nome</th>
-                                        <th class="text-center text_padrao_white" style="width: 10%;">quatidade</th>
-                                        <th class="text-right text_padrao_white" style="width: 10%;">Preço</th>
-                                        <th class="text-right text_padrao_white" style="width: 10%;">Total</th>
+                                        <th class="">Código</th>
+                                        <th class="">Nome</th>
+                                        <th class="text-center " style="width: 10%;">Quatidade</th>
+                                        <th class="text-right " style="width: 10%;">Preço</th>
+                                        <th class="text-right " style="width: 10%;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itensVendaTableBody" class="table-body-custom"> {{-- Linhas de itens serão injetadas aqui pelo JavaScript --}}
@@ -164,6 +172,11 @@
                             Nenhum item adicionado ainda.
                         </div>
                     </div>
+                    @if(auth()->user()->empresa && auth()->user()->empresa->foto)
+                        <div class="text-end">
+                            <img src="{{auth()->user()->empresa && auth()->user()->empresa->foto ? asset('storage/' . auth()->user()->empresa->foto) : ''}}" alt="Foto da empresa" width="300">
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
