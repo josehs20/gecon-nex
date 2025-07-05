@@ -11,22 +11,39 @@ class CriarEmpresaRequest
     private string $cnpj;
     private int $ativo;
     private int $status_id;
+    private ?string $foto;
+    private ?string $caixa_cor;
+    private ?string $caixa_cor_fundo;
+    private ?string $caixa_cor_letras;
 
-    public function __construct(string $razao_social, string $nome_fantasia, string $cnpj, int $ativo, int $status_id)
-    {
+    public function __construct(
+        string $razao_social,
+        string $nome_fantasia,
+        string $cnpj,
+        int $ativo,
+        int $status_id,
+        ?string $foto = null,
+        ?string $caixa_cor = null,
+        ?string $caixa_cor_fundo = null,
+        ?string $caixa_cor_letras = null
+    ) {
         $this->razao_social = $razao_social;
         $this->nome_fantasia = $nome_fantasia;
         $this->cnpj = $cnpj;
         $this->status_id = $status_id;
         $this->ativo = $ativo ? true : false;
+        $this->foto = $foto;
+        $this->caixa_cor = $caixa_cor;
+        $this->caixa_cor_fundo = $caixa_cor_fundo;
+        $this->caixa_cor_letras = $caixa_cor_letras;
     }
 
+    // Getters
     public function getStatusId(): int
     {
         return $this->status_id;
     }
 
-    // Métodos Get
     public function getRazaoSocial(): string
     {
         return $this->razao_social;
@@ -47,7 +64,27 @@ class CriarEmpresaRequest
         return $this->ativo;
     }
 
-    // Métodos Set
+    public function getFoto(): ?string
+    {
+        return $this->foto;
+    }
+
+    public function getCaixaCor(): ?string
+    {
+        return $this->caixa_cor;
+    }
+
+    public function getCaixaCorFundo(): ?string
+    {
+        return $this->caixa_cor_fundo;
+    }
+
+    public function getCaixaCorLetras(): ?string
+    {
+        return $this->caixa_cor_letras;
+    }
+
+    // Setters
     public function setRazaoSocial(string $razao_social): void
     {
         $this->razao_social = $razao_social;
@@ -66,5 +103,25 @@ class CriarEmpresaRequest
     public function setAtivo(int $ativo): void
     {
         $this->ativo = $ativo;
+    }
+
+    public function setFoto(?string $foto): void
+    {
+        $this->foto = $foto;
+    }
+
+    public function setCaixaCor(?string $caixa_cor): void
+    {
+        $this->caixa_cor = $caixa_cor;
+    }
+
+    public function setCaixaCorFundo(?string $caixa_cor_fundo): void
+    {
+        $this->caixa_cor_fundo = $caixa_cor_fundo;
+    }
+
+    public function setCaixaCorLetras(?string $caixa_cor_letras): void
+    {
+        $this->caixa_cor_letras = $caixa_cor_letras;
     }
 }

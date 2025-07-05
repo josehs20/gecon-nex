@@ -4,12 +4,20 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
     <img src="{{ asset('img/logo_mercado.jpg') }}" class="imagem-canto-inferior">
+
+    @php
+        $corElemento = auth()->user()->empresa->caixa_cor ?? '#0b00aa';
+        $corFundo    = auth()->user()->empresa->caixa_cor_fundo ?? 'rgb(241, 239, 250)';
+        $corTexto    = auth()->user()->empresa->caixa_cor_letras ?? '#fff';
+    @endphp
+
     {{-- Para o card ocupar a altura total, o pai imediato do card (geralmente body ou main)
          precisa ter altura definida. Se o layout principal (layouts.pdv) já tiver isso,
          então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
          Vamos adicionar 'h-100' ao card e 'flex-grow-1' se o contêiner pai for um flexbox. --}}
-    <div class="card h-100" style="background-color: rgb(241, 239, 239)"> {{-- Adicionado 'h-100' aqui --}}
-        <div class="card-header bg_padrao text-white d-flex justify-content-between align-items-center px-4">
+    {{-- <div class="card h-100" style="background-color: rgb(241, 239, 250)"> Adicionado 'h-100' aqui --}}
+    <div class="card h-100" style="background-color: {{$corFundo}}">
+        <div class="card-header d-flex justify-content-between align-items-center px-4" style="background-color: {{$corElemento}}; color: {{$corTexto}}">
             <div>
                 <div id="qrcode"></div>
                 <button id="imprimir">testes imprimir</button>
@@ -33,6 +41,7 @@
                     <div class="flex-grow-1 d-flex flex-column">
 
                         <div class="form-group position-relative" style="z-index: 999;">
+                        <div class="form-group" style="background-color: #dee2e6">
                             <label for="produto-select" class="text_padrao">Código de barras / Produto *</label>
 
                             <input type="text" id="busca-produto" class="form-control"
@@ -141,13 +150,13 @@
                     <div class="flex-grow-1">
                         <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-striped table-hover table-sm">
-                                <thead class="bg_padrao text-white sticky-top table-header-custom">
+                                <thead class="sticky-top table-header-custom" style="background-color: {{$corElemento}}; color: {{$corTexto}}">
                                     <tr>
-                                        <th class="text_padrao_white">Código</th>
-                                        <th class="text_padrao_white">Nome</th>
-                                        <th class="text-center text_padrao_white" style="width: 10%;">quatidade</th>
-                                        <th class="text-right text_padrao_white" style="width: 10%;">Preço</th>
-                                        <th class="text-right text_padrao_white" style="width: 10%;">Total</th>
+                                        <th class="">Código</th>
+                                        <th class="">Nome</th>
+                                        <th class="text-center " style="width: 10%;">Quatidade</th>
+                                        <th class="text-right " style="width: 10%;">Preço</th>
+                                        <th class="text-right " style="width: 10%;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itensVendaTableBody" class="table-body-custom"> {{-- Linhas de itens serão injetadas aqui pelo JavaScript --}}
@@ -182,6 +191,11 @@
                             </div>
                         </div>
                     </div>
+                    @if(auth()->user()->empresa && auth()->user()->empresa->foto)
+                        <div class="text-end">
+                            <img src="{{auth()->user()->empresa && auth()->user()->empresa->foto ? asset('storage/' . auth()->user()->empresa->foto) : ''}}" alt="Foto da empresa" width="300">
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
