@@ -1,35 +1,88 @@
 import * as gerais from '@/gerais.js';
 import { param } from 'jquery';
 
+
 const csrfToken = $('meta[name="csrf-token"]').attr('content');
+const $dataView = $('#dataView'); // pega uma única vez
 
 const rotas = {
-    finalizarVenda: $('#dataView').data('rotaFinalizarVenda'),
-    devolucaoVenda: $('#dataView').data('rotaDevolucaoVenda'),
-    orcamentoVenda: $('#dataView').data('rotaOrcamentoVenda'),
-    suprirCaixa: $('#dataView').data('rotaSuprirCaixa'),
-    sangriaCaixa: $('#dataView').data('rotaSangriaCaixa'),
-    rotaReceberConta: $('#dataView').data('rotaReceberConta'),
-    rotaFecharCaixa: $('#dataView').data('rotaFecharCaixa'),
-    rotaAdicionarItem: $('#dataView').data('rotaAdicionarItem'),
-    rotaRemoverItem: $('#dataView').data('rotaRemoverItem'),
-    rotaSupervisores: $('#dataView').data('rotaSupervisores'),
-    validarSuperior: $('#dataView').data('validarSuperior'),
-    clientesGet: $('#dataView').data('clientesGet'),
-    formasPagamentoGet: $('#dataView').data('formasPagamentoGet'),
-    rotaBuscaProduto: $('#dataView').data('caixaProdutoGet'),
-    rotaVendasDevolucaoGet: $('#dataView').data('rotaVendasDevolucaoGet'),
-    rotaVendaDevolverGet: $('#dataView').data('rotaVendaDevolverGet'),
-    rotaOrcamento: $('#dataView').data('rotaOrcamento'),
-    rotaOrcamentoGet: $('#dataView').data('rotaOrcamentoGet'),
-    rotaColocarOrcamentoEmVenda: $('#dataView').data('rotaColocarOrcamentoEmVenda'),
-    excluirOrcamento: $('#dataView').data('excluirOrcamento'),
-    rotaGetEspecies: $('#dataView').data('rotaGetEspecies'),
-    rotaGetCaixa: $('#dataView').data('rotaGetCaixa'),
-    rotaGetCaixaFechamento: $('#dataView').data('rotaGetCaixaFechamento'),
-    rotaGetClienteRecebimentoParcelas: $('#dataView').data('rotaGetClienteRecebimentoParcelas'),
-    rotaGetClienteParcelas: $('#dataView').data('rotaGetClienteParcelas'),
+    finalizarVenda: $dataView.data('rotaFinalizarVenda'),
+    devolucaoVenda: $dataView.data('rotaDevolucaoVenda'),
+    orcamentoVenda: $dataView.data('rotaOrcamentoVenda'),
+    suprirCaixa: $dataView.data('rotaSuprirCaixa'),
+    sangriaCaixa: $dataView.data('rotaSangriaCaixa'),
+    rotaReceberConta: $dataView.data('rotaReceberConta'),
+    rotaFecharCaixa: $dataView.data('rotaFecharCaixa'),
+    rotaAdicionarItem: $dataView.data('rotaAdicionarItem'),
+    rotaRemoverItem: $dataView.data('rotaRemoverItem'),
+    rotaSupervisores: $dataView.data('rotaSupervisores'),
+    validarSuperior: $dataView.data('validarSuperior'),
+    clientesGet: $dataView.data('clientesGet'),
+    formasPagamentoGet: $dataView.data('formasPagamentoGet'),
+    rotaBuscaProduto: $dataView.data('caixaProdutoGet'),
+    rotaVendasDevolucaoGet: $dataView.data('rotaVendasDevolucaoGet'),
+    rotaVendaDevolverGet: $dataView.data('rotaVendaDevolverGet'),
+    rotaOrcamento: $dataView.data('rotaOrcamento'),
+    rotaOrcamentoGet: $dataView.data('rotaOrcamentoGet'),
+    rotaColocarOrcamentoEmVenda: $dataView.data('rotaColocarOrcamentoEmVenda'),
+    excluirOrcamento: $dataView.data('excluirOrcamento'),
+    rotaGetEspecies: $dataView.data('rotaGetEspecies'),
+    rotaGetCaixa: $dataView.data('rotaGetCaixa'),
+    rotaGetCaixaFechamento: $dataView.data('rotaGetCaixaFechamento'),
+    rotaGetClienteRecebimentoParcelas: $dataView.data('rotaGetClienteRecebimentoParcelas'),
+    rotaGetClienteParcelas: $dataView.data('rotaGetClienteParcelas'),
+    imprimir: 'http://localhost:9000/imprimir', //rota padrao para imprimir no microsserviço python gecon
+    rotaTesteImpressao: $dataView.data('rotaTesteImpressao'),
+
 };
+import Mousetrap from 'mousetrap';
+
+// Permitir atalhos mesmo dentro de inputs/textareas
+Mousetrap.prototype.stopCallback = function () {
+    return false; // Nunca bloquear
+};
+
+// Atalhos com Shift + número (interpreta como símbolos)
+Mousetrap.bind('!', function (e) { // Shift+1
+    e.preventDefault();
+    document.getElementById('finalizaVendaBtnSideBar')?.click();
+});
+
+Mousetrap.bind('@', function (e) { // Shift+2
+    e.preventDefault();
+    document.getElementById('devolucaoVenda')?.click();
+});
+
+Mousetrap.bind('#', function (e) { // Shift+3
+    e.preventDefault();
+    document.getElementById('orcamentoVenda')?.click();
+});
+
+Mousetrap.bind('$', function (e) { // Shift+4
+    e.preventDefault();
+    document.getElementById('suprirCaixa')?.click();
+});
+
+Mousetrap.bind('%', function (e) { // Shift+5
+    e.preventDefault();
+    document.getElementById('sangriaCaixa')?.click();
+});
+
+Mousetrap.bind('&', function (e) { // Shift+6
+    e.preventDefault();
+    document.getElementById('receberConta')?.click();
+});
+
+Mousetrap.bind('*', function (e) { // Shift+7
+    e.preventDefault();
+    document.getElementById('fecharCaixa')?.click();
+});
+
+Mousetrap.bind('(', function (e) { // Shift+8
+    e.preventDefault();
+    document.getElementById('cancelar')?.click();
+});
+
 
 function ajaxPost(url, requestData, texto = null) {
     return $.ajax({
@@ -101,9 +154,6 @@ function montaVendaRequest() {
         // Reconstrua o ID completo do input de parcelas
         const idCampoParcelasEsperado = `parcela-parcelas-forma-pagamento-${idFormaPagamento}`;
         const $inputParcelas = $(`#${idCampoParcelasEsperado}`);
-
-        console.log(`Buscando input de parcelas com ID: #${idCampoParcelasEsperado}`);
-        console.log(`Encontrado $inputParcelas:`, $inputParcelas); // Verifique se ele encontra algo
 
         let parcelas = 1;
         if ($inputParcelas.length > 0) {
@@ -292,44 +342,29 @@ function montaRequestFecharCaixa(validarValorMinimo = true) {
 }
 
 function montaRequestAdicionarItem() {
-    // Pega o array de dados do Select2
-    let selectedData = $('#produto-select').select2('data');
-    if (selectedData.length === 0 || !selectedData[0].id) {
+    if (!produtoSelecionadoGlobal || !produtoSelecionadoGlobal.id) {
         gerais.msgToastr('Por favor, selecione um produto antes de adicionar o item.', 'info')
-        $('#produto-select').select2('open'); // Tenta focar o Select2 novamente
-        return null; // Sai da função
+        $('#busca-produto').focus();
+        return null;
     }
-    // Verifica se há algum item selecionado
-    if (selectedData.length > 0) {
-        // Pega o primeiro (e único) item do array, já que é uma seleção única
-        let produtoSelecionado = selectedData[0];
 
-        // Agora você pode acessar todas as propriedades que você mapeou no processResults
-        let estoqueId = produtoSelecionado.id;
+    let quantidadeInputVal = $('#quantidade').val();
+    let quantidade = parseFloat(quantidadeInputVal.replace(',', '.')) || 0;
 
-        let quantidadeInputVal = $('#quantidade').val();
-        let quantidade = parseFloat(quantidadeInputVal.replace(',', '.')) || 0; // Converte para float, lida com vírgula e garante 0 se inválido
-
-        if (quantidadeInputVal.trim() === '' || isNaN(quantidade) || quantidade <= 0) {
-            gerais.msgToastr('Por favor, insira uma quantidade válida e maior que zero.', 'info')
-            $('#quantidade').focus(); // Foca o campo de quantidade
-            return null; // Sai da função
-        }
-        // Agora você pode usar esses dados para montar o seu objeto de requisição (request body)
-        // Por exemplo, para um item de venda:
-        let requestBody = {
-            estoqueId: estoqueId,
-            quantidade: quantidade
-        }
-
-        return requestBody;
-
-    } else {
-        gerais.msgToastr('Nenhum produto selecionado.', 'info');
-        $('#produto-select').focus();
-        return null; // Retorna null ou um objeto vazio se nada estiver selecionado
+    if (quantidadeInputVal.trim() === '' || isNaN(quantidade) || quantidade <= 0) {
+        gerais.msgToastr('Por favor, insira uma quantidade válida e maior que zero.', 'info')
+        $('#quantidade').focus();
+        return null;
     }
+
+    let requestBody = {
+        estoqueId: produtoSelecionadoGlobal.id,
+        quantidade: quantidade
+    };
+
+    return requestBody;
 }
+
 /**
  * testes
  */
@@ -364,6 +399,145 @@ function montaRequestAdicionarItem() {
 
 
 //-----------------parte da seleção de produtos ------------//
+let indexSelecionado = -1;
+let produtoSelecionadoGlobal = null;
+
+let delayBuscaProduto;
+const tempoEspera = 500;
+
+$('#busca-produto').on('input', function () {
+    clearTimeout(delayBuscaProduto);
+
+    let termo = $(this).val().trim();
+
+    // Aguarda 500ms após o último input
+    delayBuscaProduto = setTimeout(() => {
+        if (termo.length < 2) {
+            $('#resultado-produto').empty();
+            return;
+        }
+
+        $.ajax({
+            url: rotas.rotaBuscaProduto,
+            method: 'GET',
+            data: { busca: termo },
+            success: function (data) {
+                indexSelecionado = -1;
+
+                if (!data.length) {
+                    $('#resultado-produto').html('<div class="list-group-item">Nenhum resultado encontrado</div>');
+                    return;
+                }
+
+                let lista = '';
+                data.forEach((produto, i) => {
+                    let nomeCortado = produto.nome.length > 20
+                        ? produto.nome.substring(0, 43) + '...'
+                        : produto.nome;
+
+                    lista += `<a href="#" class="list-group-item list-group-item-action"
+                        data-id="${produto.id}"
+                        data-nome="${nomeCortado}"
+                        data-preco="${produto.preco}"
+                        data-index="${i}">
+                        ${produto.cod_aux} - ${nomeCortado} - ${produto.fabricante_nome} - ${produto.sigla}
+                      </a>`;
+                });
+
+                $('#resultado-produto').html(lista);
+
+                if (/^\d{7,}$/.test(termo) && data.length == 1) {
+
+                    let produto = data[0];
+                    let nome = produto.nome.length > 20
+                        ? produto.nome.substring(0, 43) + '...'
+                        : produto.nome;
+                    $('#busca-produto').val(nome);
+                    // $('#resultado-produto').empty();
+
+                    produtoSelecionadoGlobal = {
+                        id: produto.id,
+                        nome: nome,
+                        preco: produto.preco
+                    };
+                    setTimeout(() => {
+                        adicionarItem()
+                    }, 1000);
+                }
+            }
+        });
+
+    }, tempoEspera);
+});
+
+
+
+$('#busca-produto').on('keydown', function (e) {
+    let itens = $('#resultado-produto .list-group-item');
+
+    if (!itens.length) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado + 1) % itens.length;
+        atualizarSelecao(itens);
+    }
+
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+        atualizarSelecao(itens);
+    }
+
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        if (indexSelecionado >= 0) {
+            let item = $(itens[indexSelecionado]);
+
+            $('#busca-produto').val(item.data('nome'));
+            // $('#resultado-produto').hide();
+
+            // Guarda os dados do produto selecionado
+            produtoSelecionadoGlobal = {
+                id: item.data('id'),
+                nome: item.data('nome'),
+                preco: item.data('preco')
+            };
+            $('#resultado-produto').empty();
+
+            $('#quantidade').focus();
+        }
+    }
+});
+$('#resultado-produto').on('click', '.list-group-item', function () {
+    $('#busca-produto').val($(this).data('nome'));
+    $('#resultado-produto').empty();
+
+    produtoSelecionadoGlobal = {
+        id: $(this).data('id'),
+        nome: $(this).data('nome'),
+        preco: $(this).data('preco')
+    };
+
+    $('#quantidade').focus();
+});
+
+$('#quantidade').on('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        adicionarItem(); // sua função
+    }
+});
+
+function atualizarSelecao(itens) {
+    itens.removeClass('active');
+
+    let itemAtivo = $(itens[indexSelecionado]);
+    itemAtivo.addClass('active');
+
+    // Garante que o item ativo fique visível
+    itemAtivo[0].scrollIntoView({ block: 'nearest' });
+}
 
 $('#quantidade').val(1);//define o vlaor da quantidade como um padrão
 // Certifique-se de que esta função seja chamada quando o DOM estiver pronto
@@ -402,71 +576,8 @@ function formatProductSelection(product) {
     return product.text;
 }
 
-$('#produto-select').select2({
-    placeholder: "",
-    allowClear: true,
-    language: {
-        errorLoading: function () {
-            return "Erro ao carregar as informações.";
-        },
-        inputTooShort: function () {
-            return "";
-        },
-        loadingMore: function () {
-            return "Carregando mais resultados...";
-        },
-        noResults: function () {
-            return "Nenhum resultado encontrado";
-        },
-        searching: function () {
-            return "Procurando...";
-        },
-    },
-    minimumInputLength: 3, // exige pelo menos 3 letras
-    ajax: {
-        url: rotas.rotaBuscaProduto,
-        dataType: 'json',
-        delay: 250,
-        data: function (params) {
-            return {
-                q: params.term
-            };
-        },
-        processResults: function (data) {
-            return {
-                results: $.map(data, function (item) {
-                    return {
-                        id: item.id,
-                        text: item.nome + ' - ' + item.fabricante_nome + ' - ' + item.sigla,
-                        qtd_estoque: item.quantidade_disponivel,
-                        preco: item.preco,
-                        cod_aux: item.cod_aux
-                    }
-                })
-            };
-        },
-        cache: true
-    },
-    templateResult: formatProductResult,
-    templateSelection: formatProductSelection,
-    dropdownParent: $('body') // Garante que o dropdown é anexado ao body para evitar problemas de z-index ou corte
-});
-
-// Evento para quando o Select2 é aberto
-$('#produto-select').on('select2:open', function () {
-    const $dropdown = $('.select2-container--open .select2-dropdown');
-    const $searchField = $dropdown.find('.select2-search__field');
-    const $results = $dropdown.find('.select2-results__options');
-
-    // Verifica se o cabeçalho já existe para não duplicar
-    if ($dropdown.find('.select2-columns-header-internal').length === 0) {
-        // Insere o cabeçalho logo após o campo de busca
-        $searchField.closest('.select2-search').after(select2HeaderHtml);
-    }
-});
-
 setTimeout(function () {
-    $('#produto-select').select2('open');
+    $('#busca-produto').val('').focus();
 }, 500);
 
 // Evento disparado quando um item é selecionado
@@ -501,6 +612,7 @@ $('#adicionarItemButton').on('click', adicionarItem)
 
 async function adicionarItem() {
     const data = montaRequestAdicionarItem();
+    produtoSelecionadoGlobal = null;
     if (!data) {
         return;
     }
@@ -508,8 +620,9 @@ async function adicionarItem() {
         $('#total-venda').data('total', response.total);
         calcularTotalVendaComDesconto();
         renderizarTabelaItensVenda(response.itens);
-        $('#produto-select').val(null).trigger('change');
-        $('#produto-select').select2('open');
+        $('#busca-produto').val('').focus();
+        $('#resultado-produto').empty();
+
         $('#valor-unitario').val('0.00');
         $('#quantidade').val(1);
         $('#total-item').val('0.00');
@@ -649,14 +762,36 @@ $('#itensVendaTableBody').on('click', '.linha-item', function () {
         removeItemTemp(idTemp);
     }
 });
+$('#cancelar').on('click', function () {
+    const isMasterCaixa = $('#dataView').data('isMasterCaixa');
 
+    // Faz a pergunta de senha padrão
+    if (!isMasterCaixa) {
+        // Passa a ação e os parâmetros para validaSuperior
+        validaSuperior('cancela_venda');
+    } else {
+        // Se não for MasterCaixa, remove diretamente
+        cancelaVenda();
+    }
+});
+function cancelaVenda() {
+    ajaxPost(rotas.rotaRemoverItem, { id: null, remover_todos: true }).done(function (response) {
+        $('#total-venda').data('total', response.total);
+        calcularTotalVendaComDesconto();
+        renderizarTabelaItensVenda(response.itens);
+
+    }).fail(function (error) {
+        // Código de erro (sua função ajaxPost já deve lidar com alertas de erro)
+        console.error('Erro na requisição AJAX ao adicionar item:', error);
+    });;
+}
 function removeItemTemp(idItemTemp) {
     ajaxPost(rotas.rotaRemoverItem, { id: idItemTemp }).done(function (response) {
         $('#total-venda').data('total', response.total);
         calcularTotalVendaComDesconto();
         renderizarTabelaItensVenda(response.itens);
-        $('#produto-select').val(null).trigger('change');
-        $('#produto-select').select2('open');
+        $('#busca-produto').val('').focus();
+
         $('#valor-unitario').val('0.00');
         $('#quantidade').val(1);
         $('#total-item').val('0.00');
@@ -739,6 +874,9 @@ function executaProximaAcao(acao, parametros) {
             break;
         case 'fechar_caixa':
             fecharCaixa();
+            break;
+        case 'cancela_venda':
+            cancelaVenda();
             break;
         default:
             break;
@@ -1002,7 +1140,6 @@ function distribuirValoresRestantes() {
     }
 }
 
-
 $('#formFinalizarVenda').on('submit', function (e) {
     e.preventDefault();
     const request = montaVendaRequest();
@@ -1022,11 +1159,13 @@ $('#formFinalizarVenda').on('submit', function (e) {
             $('#total-venda').data('total', response.total);
             calcularTotalVendaComDesconto();
             renderizarTabelaItensVenda(response.itens);
-            $('#produto-select').val(null).trigger('change');
-            $('#produto-select').select2('open');
+            $('#busca-produto').val('').focus();
             $('#valor-unitario').val('0.00');
             $('#quantidade').val(1);
             $('#total-item').val('0.00');
+        }
+        if (request.tipo_finalizacao == 'cupom') {
+            // rotaExecutar = rotas.orcamentoVenda
         }
     });
 });
@@ -1174,6 +1313,7 @@ $('#venda-devolucao-select').on('select2:select', function (e) {
         });
     }
 });
+
 function renderizarTabelaItensDevolucao(venda) {
     const tbody = $('#devolucaoItensTableBody');
     tbody.empty(); // Limpa antes de adicionar novos
@@ -1228,8 +1368,6 @@ function renderizarTabelaItensDevolucao(venda) {
             $('#aviso-especie-devolucao').text('');
 
         }
-    } else {
-        console.log("O objeto 'venda' ou 'venda_pagamentos' não está definido.");
     }
     gerais.maskQtdByClass('qtd-devolver');
 
@@ -1275,7 +1413,6 @@ function calcularTotalDevolucao(descontoPorcentagemVenda) { // Recebe a porcenta
         // Considera apenas inputs que não estão desabilitados
         if (!$(this).prop('disabled')) {
             const quantidadeDevolver = gerais.stringParaFloat($(this).val()) || 0;
-            console.log("Quantidade Devolver (float):", quantidadeDevolver, "Valor do input:", $(this).val());
 
             const precoUnitario = parseFloat($(this).data('preco-unitario')) || 0;
             subtotalDevolucao += quantidadeDevolver * precoUnitario;
@@ -1509,7 +1646,6 @@ function calcularTotalReceber() {
         const $input = $(this);
         const valorMaxCents = parseFloat($input.data('valor-max')); // Pega o valor máximo do atributo data-
         let valorReceberCents = gerais.reaisParaCentavos($input.val()); // Converte o valor digitado para centavos
-        console.log(valorMaxCents);
 
         // --- Lógica de Validação da Quantidade Máxima ---
         if (valorReceberCents > valorMaxCents) {
@@ -1734,4 +1870,82 @@ function fecharTodasSidebars() {
     $('.overlay').removeClass('active');
     $('#venda-devolucao-select').val(null).trigger('change');
 }
+
+
+//----------------IMPRESSÃO--------------//
+
+function ajaxImprimir(data) {
+    console.log(data);
+
+    return $.ajax({
+        url: rotas.imprimir,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            if (response.success == true) {
+               gerais.msgToastr(response.msg, 'success')
+            }else{
+                gerais.msgToastr(response.msg, 'warning')
+
+            }
+
+            // Por exemplo, mostrar o QR code na página
+            // $('#qrcode').html(`<img src="data:image/png;base64,${response.qrcode_base64}" />`);
+
+            // Ou aqui você pode chamar a função que manda imprimir, passando essa imagem
+        },
+        error: function (xhr) {
+            gerais.msgToastr('O serviço de impressão não esta ligado em seu computador.', 'warning')
+            console.error('Erro:', xhr.responseText);
+        }
+    });
+}
+
+function imprimir(tipo, data) {
+    switch (tipo) {
+        case 'teste':
+            testarImpressao(tipo, data);
+            break;
+        case 'cupom':
+            imprimirCupom(tipo, data);
+            break;
+        case 'orcamento':
+            imprimirOrcamento(tipo, data);
+            break;
+        default:
+            break;
+    }
+}
+function testarImpressao(tipo, data) {
+     ajaxImprimir({
+        tipo: tipo,
+        data: data // que é um objeto
+    });
+}
+function imprimirCupom(tipo, data) {
+    ajaxImprimir({
+        tipo: tipo,
+        data: data.venda // que é um objeto
+    });
+}
+
+function imprimirOrcamento(tipo, data) {
+    console.log(data, 213123);
+
+}
+// testes
+$('#imprimir').on('click', function () {
+    const tipos = ['teste'];//cupom
+    tipos.forEach(t => {
+        ajaxPost(rotas.rotaTesteImpressao, { tipo: t }).done(function (response) {
+            if (response.success) {
+
+                imprimir(t, response)
+            }
+        })
+
+    });
+})
+
 

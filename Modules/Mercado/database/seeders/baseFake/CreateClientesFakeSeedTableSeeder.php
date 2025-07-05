@@ -33,7 +33,7 @@ class CreateClientesFakeSeedTableSeeder extends Seeder
     {
         $faker = Factory::create('pt_BR');
         $qtdBlocos = 10; // Quantidade de blocos
-        $registrosPorBloco = 500; // Quantidade de registros por bloco
+        $registrosPorBloco = 50; // Quantidade de registros por bloco
         $clientes = [];
         $endereco = Endereco::first();
         // Cria o cliente padrão

@@ -11,6 +11,7 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
     Route::post('/abrir', [CaixaPDVController::class, 'abrir'])->name('caixa.abrir')->defaults('acao_id', config('config.acoes.abriu_caixa.id'));
     Route::get('/verifica/caixa', [CaixaPDVController::class, 'verifica_caixa'])->name('caixa.verificar.status');
     Route::post('/caixa/status', [CaixaPDVController::class, 'update_status'])->name('caixa.status.update')->defaults('acao_id', config('config.acoes.atualizou_status_caixa.id'));
+    Route::post('caixa/teste/impressao', [CaixaPDVController::class, 'impressao_teste'])->name('caixa.teste.impressao');
 
     Route::middleware('caixa')->group(function () {
         //rotas com os recursos principais do caixa

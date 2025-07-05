@@ -210,7 +210,7 @@ class CaixaPDVRepository
 
     public static function getVendaById(int $vendaId)
     {
-        return Venda::with(['devolucoes', 'venda_pagamentos' => function ($q) {
+        return Venda::with(['usuario.master','cliente', 'loja.endereco', 'devolucoes', 'venda_pagamentos' => function ($q) {
             $q->with(['vendaParcelas', 'especiePagamento']);
         }, 'venda_itens.devolucao_itens', 'venda_itens.estoque.produto' => function ($q) {
             $q->with(['fabricante', 'unidade_medida']);

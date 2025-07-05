@@ -35,7 +35,7 @@ class FinalizarVenda
         $caixa = $this->updateCaixa();
         $this->limpaCaixaItensTemp();
 
-        return $venda;
+        return CaixaPDVRepository::getVendaById($venda->id);
     }
 
     private function validate()
@@ -200,7 +200,7 @@ class FinalizarVenda
         //agora cria de fato o que foi pago e as parcelas de cada forma de pagamento
         return $venda->venda_pagamentos->map(function ($vp) use ($venda){
             return $vp->vendaParcelas->map(function ($v) use ($venda) {
-              
+
                 if ($v->pago == true) {
                     return CaixaPDVRepository::criarFichaClienteAttrs($this->request->getCriarHistoricoRequest(), [
                         'cliente_id' => $v->cliente_id,

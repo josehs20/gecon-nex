@@ -9,8 +9,10 @@
 
  html,
  body {
-     height: 100%;
-     margin: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* impede rolagem */
  }
 
  .modal {
@@ -32,7 +34,7 @@
      position: fixed;
      z-index: 1050;
      top: 0;
-     right: 0;
+     left: 0;
      background-color: #f8f9fa;
      overflow-x: hidden;
      transition: 0.5s;
@@ -49,7 +51,7 @@
  /* NOVO: Estilo para a sidebar de Venda Final com 60% de largura */
  .sidebar#finalizarVendaSidebar.open {
      /* Mais específico para sobrescrever o .sidebar.open */
-     width: 60%;
+     width: 50%;
      /* A largura desejada para esta sidebar específica */
  }
 
@@ -118,7 +120,7 @@
      z-index: 1045;
      /* ligeiramente menor que a mãe */
      top: 0;
-     right: 40%;
+     left: 40%;
      /* começa exatamente onde a mãe termina */
      background-color: #e9ecef;
      overflow-y: auto;
@@ -325,6 +327,35 @@
 
 /* Se quiser que o item selecionado (após escolha) também tenha um fundo cinza */
 .select2-container--default .select2-selection--single {
-    background-color: #000000 !important; /* tom ainda mais suave */
+    background-color: #fff !important; /* tom ainda mais suave */
 }
 
+.resultado-estatica {
+    position: static;
+    min-height: 48%; /* Garante altura mesmo sem conteúdo */
+    max-height: 255px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: block;
+    margin-top: 5px;
+}
+
+
+.btn {
+    position: relative; /* necessário para o posicionamento do span */
+}
+
+.imagem-canto-inferior {
+    position: fixed;
+    bottom: -40px;  /* metade fora da tela */
+    right: -40px;   /* metade fora da tela */
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+    z-index: 10;
+    opacity: 0.8; /* bem sutil */
+    pointer-events: none; /* não atrapalha clique */
+}

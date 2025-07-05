@@ -19,6 +19,7 @@ use Modules\Mercado\Entities\EspeciePagamento;
 use Modules\Mercado\Entities\Estoque;
 use Modules\Mercado\Entities\Loja;
 use Modules\Mercado\Entities\Usuario;
+use Modules\Mercado\Entities\Venda;
 use Modules\Mercado\Http\Controllers\ControllerBaseMercado;
 use Modules\Mercado\Repository\Caixa\CaixaRepository;
 use Modules\Mercado\Repository\Devolucao\DevolucaoRepository;
@@ -41,6 +42,7 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\ReceberContaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SangriaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SuprirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\TrocarDispositivoRequest;
+use PhpParser\Node\Expr\Cast\Object_;
 
 class CaixaPDVController extends ControllerBaseMercado
 {
@@ -253,8 +255,19 @@ class CaixaPDVController extends ControllerBaseMercado
         try {
             $parans = Post::anti_injection_array($request->all());
             $parans = (object) $parans['data'];
+            $temps = [];
+            if (isset($parans->remover_todos)) {
+                $itens = CaixaPDVRepository::getItensCaixaTemp($request->attributes->get('caixa_id'));
+                if ($itens->count() == 0) {
+                    throw new Exception("Não existe itens a serem cancelados.", 1);
+                }
 
-            $temps = PDVApplication::remove_item_temp($parans->id);
+                foreach ($itens as $key => $i) {
+                    $temps = PDVApplication::remove_item_temp($i->id);
+                }
+            } else {
+                $temps = PDVApplication::remove_item_temp($parans->id);
+            }
 
             $this->getDb()->commit();
             return response()->json(['success' => true, 'msg' => 'Item removido com sucesso.', 'itens' => $temps, 'total' => $temps->sum('total')]);
@@ -267,9 +280,10 @@ class CaixaPDVController extends ControllerBaseMercado
 
     public function get_produtos(Request $request)
     {
-        $busca = Post::anti_injection($request->q) ?? '';
+        $busca = Post::anti_injection($request->busca) ?? '';
         // $produtos = CaixaApplication::get_produtos($busca);
         $produtos = PDVApplication::get_produtos($request->attributes->get('loja_id'), $busca);
+
         return response()->json($produtos, 200);
     }
 
@@ -394,10 +408,10 @@ class CaixaPDVController extends ControllerBaseMercado
             );
 
             $venda = PDVApplication::finalizar_venda($finalizarVendaRequest);
-            $this->getDb()->commit();
             $temps = CaixaPDVRepository::getItensCaixaTemp($venda->caixa_id);
+            // $this->getDb()->commit();
             //falta processo de impressao elgin
-            return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !', 'itens' => $temps, 'total' => $temps->sum('total')]);
+            return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !', 'venda' => $venda, 'itens' => $temps, 'total' => $temps->sum('total')]);
         } catch (Exception $e) {
             $this->getDb()->rollBack();
             Log::error($e);
@@ -629,9 +643,9 @@ class CaixaPDVController extends ControllerBaseMercado
         $parans = (object) $parans->data;
 
         $vendaPagamento = CaixaPDVRepository::get_venda_pagamento_by_id($parans->venda_pagamento_id);
-        $vendaPagamento->cliente->credito;//carrega relacao
+        $vendaPagamento->cliente->credito; //carrega relacao
         $cliente = $vendaPagamento->cliente;
-        return response()->json(['success' => true, 'venda_pagamento' => $vendaPagamento, 'cliente' =>$cliente]);
+        return response()->json(['success' => true, 'venda_pagamento' => $vendaPagamento, 'cliente' => $cliente]);
     }
 
     public function get_clientes_parcela_receber(Request $request)
@@ -1069,6 +1083,27 @@ class CaixaPDVController extends ControllerBaseMercado
             debugException($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    //sempre retorna os dados que a impressao precisa
+    public function impressao_teste(Request $request)
+    {
+        $parans = (object) Post::anti_injection_array($request->all());
+        $parans = (object) $parans->data;
+        $tipo = $parans->tipo;
+
+        switch ($tipo) {
+            case 'cupom':
+                $venda = Venda::first();
+                return response()->json(['success' => true, 'venda' => CaixaPDVRepository::getVendaById($venda->id)]);
+                break;
+            case 'teste':
+                return response()->json(['success' => true, 'msg' => 'mensagem do servidor ok']);
+                break;
+            default:
+                # code...
+                break;
         }
     }
 }

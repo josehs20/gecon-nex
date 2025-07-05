@@ -1,6 +1,9 @@
 @extends('mercado::layouts.pdv')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+    <img src="{{ asset('img/logo_mercado.jpg') }}" class="imagem-canto-inferior">
     {{-- Para o card ocupar a altura total, o pai imediato do card (geralmente body ou main)
          precisa ter altura definida. Se o layout principal (layouts.pdv) já tiver isso,
          então adicionar 'h-100' ou 'min-vh-100' ao 'card' pode ajudar.
@@ -8,6 +11,10 @@
     <div class="card h-100" style="background-color: rgb(241, 239, 239)"> {{-- Adicionado 'h-100' aqui --}}
         <div class="card-header bg_padrao text-white d-flex justify-content-between align-items-center px-4">
             <div>
+                <div id="qrcode"></div>
+                <button id="imprimir">testes imprimir</button>
+
+
                 <h4 class="mb-0 fw-bold fs-5"><i class="bi bi-cash-register me-2"></i>CAIXA: <span
                         class="cashier-number">1</span></h4>
             </div>
@@ -25,115 +32,102 @@
                 <div class="col-md-5 d-flex flex-column" style="border-right: 1px solid #dee2e6;">
                     <div class="flex-grow-1 d-flex flex-column">
 
-                        <div class="form-group">
+                        <div class="form-group position-relative" style="z-index: 999;">
                             <label for="produto-select" class="text_padrao">Código de barras / Produto *</label>
-                            <select class="form-control select2" id="produto-select" name="produto" style="width: 100%;">
-                            </select>
+
+                            <input type="text" id="busca-produto" class="form-control"
+                                placeholder="Digite o nome ou código do produto" autocomplete="off">
                         </div>
-                        <div class="form-group mt-2">
-                            <div class="d-flex align-items-center">
-                                <div class="mr-2">
-                                    <label for="quantidade" class="text_padrao">Quantidade * </label>
-                                    <input type="text" class="form-control maskQtdByClass" id="quantidade"
-                                        name="quantidade" required>
-                                </div>
-                                <div class="mr-2">
-                                    <label for="valor-unitario" class="text_padrao">Valor Unitário</label>
-                                    <input type="text" class="form-control maskDinheiroByClass" id="valor-unitario"
-                                        name="valor_unitario" readonly>
-                                </div>
-                                <div class="mr-2">
-                                    <label for="total-item" class="text_padrao">Total</label>
-                                    <input type="text" class="form-control maskDinheiroByClass" id="total-item"
-                                        name="total_item" readonly>
-                                </div>
-                                <div class="align-self-end">
-                                    <button type="button" id="adicionarItemButton"
-                                        class="btn btn-azul-forte">ADICIONAR</button>
-                                </div>
-                            </div>
+
+                        {{-- Resultado fixo visível --}}
+                        <div id="resultado-produto" class="list-group resultado-estatica">
+                            <!-- Resultados vão aqui -->
                         </div>
-                        <hr>
-                        <div class="flex-grow-1"></div>
 
                         <div class="mt-auto">
-                            <div class="form-group mt-5">
-                                <div class="d-flex justify-content-end">
-                                    <div class="mr-2 flex-grow-1 col-md-4">
-                                        <label for="desconto" class="text_padrao">desconto (%) </label>
-                                        {{-- Adicionei um span para exibir o desconto em reais ao lado do label --}}
-                                        {{-- <span class="badge badge-primary mx-2" id="desconto-reais">0,00</span> --}}
-                                        {{-- Mantido como type="text" para a máscara de porcentagem/dinheiro --}}
-                                        <input type="text" class="form-control maskPorcentagem" id="desconto"
-                                            name="desconto" placeholder="0,00" required>
+                            <div class="form-group mt-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-2">
+                                        <label for="quantidade" class="text_padrao">Quantidade * </label>
+                                        <input type="text" class="form-control maskQtdByClass" id="quantidade"
+                                            name="quantidade" required>
                                     </div>
-                                      <div class="mr-2 flex-grow-1 col-md-4">
-                                        <label for="desconto" class="text_padrao">desconto (R$) </label>
-                                        <input type="text" class="form-control" id="desconto-reais"
-                                            name="desconto-reais" placeholder="0,00" readonly>
+                                    <div class="mr-2">
+                                        <label for="valor-unitario" class="text_padrao">Valor Unitário</label>
+                                        <input type="text" class="form-control maskDinheiroByClass" id="valor-unitario"
+                                            name="valor_unitario" readonly>
                                     </div>
-                                    <div class="mr-2 flex-grow-1 col-md-4">
-                                        <label for="total-venda" class="text_padrao"><u>Total da Venda</u></label>
-                                        <input type="text" class="form-control maskDinheiroByClass" id="total-venda"
-                                            name="total_venda" value="0.00" readonly>
+                                    <div class="mr-2">
+                                        <label for="total-item" class="text_padrao">Total</label>
+                                        <input type="text" class="form-control maskDinheiroByClass" id="total-item"
+                                            name="total_item" readonly>
                                     </div>
+                                    {{-- <div class="align-self-end">
+                                    <button type="button" id="adicionarItemButton"
+                                        class="btn btn-azul-forte">ADICIONAR</button>
+                                </div> --}}
                                 </div>
                             </div>
                             <div class="form-group mt-2">
                                 <div class="row">
-                                    <div class="col-md-3 mt-1">
-                                        <button id="finalizaVendaBtnSideBar" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+1</span>
+
+                                        <button id="finalizaVendaBtnSideBar"
+                                            class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#finalizarVendaSidebar">
-                                            {{-- <i class="bi bi-check2"></i> --}}
                                             FINALIZAR
                                         </button>
                                     </div>
-                                    <div class="col-md-3 mt-1">
-                                        <button id="devolucaoVenda" class="btn btn-azul-forte w-100 sidebar-toggle-btn bg_padrao"
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+2</span>
+
+                                        <button id="devolucaoVenda"
+                                            class="btn btn-azul-forte w-100 sidebar-toggle-btn bg_padrao"
                                             data-sidebar-target="#devolucaoSidebar">
-                                            {{-- <i class="bi bi-box-arrow-in-down"></i> --}}
                                             DEVOLUÇÃO
                                         </button>
                                     </div>
-                                    <div class="col-md-3 mt-1">
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+3</span>
+
                                         <button id="orcamentoVenda" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#orcamentoSiedbar">
-                                            {{-- <i class="bi bi-calculator"></i> --}}
                                             ORÇAMENTO
                                         </button>
                                     </div>
-                                    <div class="col-md-3 mt-1">
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+4</span>
                                         <button id="suprirCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#suprirSidebar">
-                                            {{-- <i class="bi bi-cash-coin mx-1"></i> --}}
                                             SUPRIR
                                         </button>
                                     </div>
 
-                                    <div class="col-md-3 mt-1">
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+5</span>
                                         <button id="sangriaCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#sangriaSidebar">
-                                            {{-- <i class="bi bi-arrow-down-circle"></i> --}}
                                             SANGRIA
                                         </button>
                                     </div>
-                                    <div class="col-md-3 mt-1">
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+6</span>
                                         <button id="receberConta" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#recebimentoSidebar">
-                                            {{-- <i class="bi bi-wallet me-1"></i> --}}
                                             RECEBER
                                         </button>
                                     </div>
-                                    <div class="col-md-3 mt-1">
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+7</span>
                                         <button id="fecharCaixa" class="btn btn-azul-forte w-100 sidebar-toggle-btn"
                                             data-sidebar-target="#fechamentoSidebar">
-                                            {{-- <i class="bi bi-lock me-1"></i> --}}
                                             FECHAR
                                         </button>
                                     </div>
-                                      <div class="col-md-3 mt-1">
-                                        <button id="cancelar" class="btn btn-azul-forte w-100 sidebar-toggle-btn">
-                                            {{-- <i class="bi bi-lock me-1"></i> --}}
+                                    <div class="col-md-3 mt-1 text-center">
+                                        <span class="atalho-label mx-4">⇧+8</span>
+                                        <button id="cancelar" class="btn btn-azul-forte w-100">
                                             CANCELAR
                                         </button>
                                     </div>
@@ -164,6 +158,30 @@
                             Nenhum item adicionado ainda.
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="d-flex justify-content-start">
+                            <div class="mr-2 mt-4 flex-grow-1 col-md-3">
+                                <label for="desconto" class="text_padrao">desconto (%) </label>
+                                {{-- Adicionei um span para exibir o desconto em reais ao lado do label --}}
+                                {{-- <span class="badge badge-primary mx-2" id="desconto-reais">0,00</span> --}}
+                                {{-- Mantido como type="text" para a máscara de porcentagem/dinheiro --}}
+                                <input type="text" class="form-control maskPorcentagem" id="desconto"
+                                    name="desconto" placeholder="0,00" required>
+                            </div>
+                            <div class="mr-2 mt-4 flex-grow-1 col-md-3">
+                                <label for="desconto" class="text_padrao">desconto (R$) </label>
+                                <input type="text" class="form-control" id="desconto-reais" name="desconto-reais"
+                                    placeholder="0,00" readonly>
+                            </div>
+                            <div class="mr-2 flex-grow-1 col-md-4">
+                                <label for="total-venda" class="text_padrao"><u>Total da Venda</u></label>
+                                <input style="height: 65px; font-size: 32px;" type="text"
+                                    class="form-control form-control-lg maskDinheiroByClass" id="total-venda"
+                                    name="total_venda" value="0.00" readonly>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,6 +209,7 @@
         data-rota-get-cliente-recebimento-parcelas="{{ route('caixa.cliente.recebimento.parcelas.get') }}"
         data-rota-get-cliente-parcelas="{{ route('caixa.cliente.parcelas.get') }}"
         data-rota-get-caixa-fechamento="{{ route('caixa.fechamento.caixa.get') }}"
+        data-rota-teste-impressao="{{ route('caixa.teste.impressao') }}"
         data-rota-get-especies="{{ route('caixa.get.especies') }}" data-rota-get-caixa="{{ route('caixa.get.caixa') }}"
         data-rota-colocar-orcamento-em-venda="{{ route('caixa.colcoar.orcamento.orcamento.em.venda') }}"
         data-rota-fechar-caixa="{{ route('caixa.fechar.post') }}"></div>
@@ -201,7 +220,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="formSenhaSuperior">
-                    <div class="modal-header">
+                    <div class="modal-header bg_padrao">
                         <h5 class="modal-title" id="modalSenhaSuperiorLabel">Validação de Superior</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
                             <span aria-hidden="true">&times;</span>
@@ -232,7 +251,7 @@
 
     {{-- siedbar finalizzar venda --}}
     <div id="finalizarVendaSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Finalizar Venda</h3>
             <button type="button" class="close-btn close-sidebar-btn"
                 data-sidebar-target="#finalizarVendaSidebar">&times;</button>
@@ -292,7 +311,7 @@
 
     {{-- siedbar orçamento venda --}}
     <div id="orcamentoSiedbar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Orçamento</h3>
             <button type="button" class="close-btn close-sidebar-btn"
                 data-sidebar-target="#orcamentoSiedbar">&times;</button>
@@ -329,7 +348,7 @@
     </div>
     {{-- Sidebar Itens de orçamento (Filha - 50% à direita) --}}
     <div id="orcamentoItensSidebar" class="sidebar-filha">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3 id="ocamentoText"></h3> {{-- Para exibir o número da venda --}}
             {{-- Adicione o botão de fechar para a sidebar filha --}}
 
@@ -362,7 +381,7 @@
 
     {{-- Sidebar de Devolução (Principal - 50% à esquerda) --}}
     <div id="devolucaoSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Devolução</h3>
             {{-- Adicione o botão de fechar para a sidebar principal --}}
             <button type="button" class="close-btn close-sidebar-btn"
@@ -420,7 +439,7 @@
 
     {{-- Sidebar Itens de Devolução (Filha - 50% à direita) --}}
     <div id="devolucaoItensSidebar" class="sidebar-filha">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3 id="vendaNumeroDevolucao"></h3> {{-- Para exibir o número da venda --}}
             {{-- Adicione o botão de fechar para a sidebar filha --}}
             {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
@@ -457,7 +476,7 @@
 
     {{-- Sidebar de suprir o caixa (Principal - 50% à esquerda) --}}
     <div id="suprirSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Suprimentos</h3>
             {{-- Adicione o botão de fechar para a sidebar principal --}}
             <button type="button" class="close-btn close-sidebar-btn"
@@ -488,7 +507,7 @@
 
     {{-- Sidebar de sangria o caixa (Principal - 50% à esquerda) --}}
     <div id="sangriaSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Sangria</h3>
             {{-- Adicione o botão de fechar para a sidebar principal --}}
             <button type="button" class="close-btn close-sidebar-btn"
@@ -531,7 +550,7 @@
 
     {{-- Sidebar de recebiemento (Principal - 50% à esquerda) --}}
     <div id="recebimentoSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Recebimento</h3>
             {{-- Adicione o botão de fechar para a sidebar principal --}}
             <button type="button" class="close-btn close-sidebar-btn"
@@ -577,7 +596,7 @@
 
     {{-- Sidebar parcelas filhas (Filha - 50% à direita) --}}
     <div id="recebimentoParcelasSidebar" class="sidebar-filha">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3 id="clienteRecebimento"></h3> {{-- Para exibir o número da venda --}}
             {{-- Adicione o botão de fechar para a sidebar filha --}}
             {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
@@ -615,7 +634,7 @@
 
     {{-- Sidebar de fechamento de caixa (Principal - 50% à esquerda) --}}
     <div id="fechamentoSidebar" class="sidebar">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3>Fechamento de caixa</h3>
             {{-- Adicione o botão de fechar para a sidebar principal --}}
             <button type="button" class="close-btn close-sidebar-btn"
@@ -661,7 +680,7 @@
 
     {{-- Sidebar parcelas filhas (Filha - 50% à direita) --}}
     <div id="fechamentoSidebarFilha" class="sidebar-filha">
-        <div class="sidebar-header py-2">
+        <div class="sidebar-header py-2 bg_padrao">
             <h3 id="tituloSidebarFilhaFechamento"></h3> {{-- Para exibir o número da venda --}}
             {{-- Adicione o botão de fechar para a sidebar filha --}}
             {{-- <button type="button" class="close-btn close-sidebar-btn" data-sidebar-target="#devolucaoItensSidebar">&times;</button> --}}
