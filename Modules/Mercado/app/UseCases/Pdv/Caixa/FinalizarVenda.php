@@ -58,9 +58,12 @@ class FinalizarVenda
         $this->request->setFormasPagamento($valoresCentavos);
 
         $valores = PDVApplication::calculaTotaisVendaTemp($this->request->getCaixaId(), $this->request->getDesconto());
-
         $total_pago = array_sum(array_column($this->request->getFormasPagamento(), 'valor'));
         // dd($total_pago< $valores['total']);
+        if (count($this->request->getFormasPagamento()) > 1 && $total_pago != $valores['total']) {
+            throw new Exception("Para várias formas de pagamento o valor deve ser exato. Valor esperado: " . converterParaReais($valores['total']) . ' Valor fornecido: ' . converterParaReais($total_pago), 1);
+        }
+
         if ($total_pago < $valores['total']) {
             throw new Exception("O valor recebido é menor que o valor total da venda.", 1);
         }
@@ -122,15 +125,26 @@ class FinalizarVenda
         $pagamentos = [];
 
         foreach ($this->request->getFormasPagamento() as $key => $fp) {
-            $valor = (int) $fp['valor']; // Sempre centavos
+            $formaPagamento = PagamentoRepository::getFormaPagamentoById($fp['id']);
+
+            // $valor = (int) $fp['valor']; // Sempre centavos
+            if ($formaPagamento->especie->afeta_troco && count($this->request->getFormasPagamento()) == 1) {
+               //caso seja dinheiro e somente uma forma de pagamento ele passa o valor total pois pode ocorrer de ter troco no final da funcao
+                $valor = $venda->total; // Sempre centavos
+                //caso for masi de uma forma de pagamento e conter dinheiro não existe a possibilidade de dar troco (Regra por segurança)
+            } else {
+                $valor = (int)$fp['valor']; // Sempre centavos
+
+            }
+
             $parcelas = isset($fp['parcelas']) ? (int) $fp['parcelas'] : 1;
 
             $valorParcela = intdiv($valor, $parcelas); // divisão inteira
             $resto = $valor % $parcelas; // ajuste para não perder centavos
 
             $parcelasValores = [];
+
             //cria a venda pagamentos sendo eles os tipos de pagamentos que foram
-            $formaPagamento = PagamentoRepository::getFormaPagamentoById($fp['id']);
             $vendaPagamento = CaixaPDVRepository::criarVendaPagamentoAttrs($this->request->getCriarHistoricoRequest(), [
                 'venda_id' => $venda->id,
                 'forma_pagamento_id' => $formaPagamento->id,
@@ -174,6 +188,12 @@ class FinalizarVenda
                     $valor_pago = 0;
                 }
 
+                $troco = null;
+                $valor_total_recebido = $fp['valor'];
+                if ($formaPagamento->especie->afeta_troco && count($this->request->getFormasPagamento()) == 1) {
+                    $troco = $valor_total_recebido - $venda->total;
+                }
+
                 CaixaPDVRepository::criarVendaParcelaAttrs($this->request->getCriarHistoricoRequest(), [
                     'venda_id' => $venda->id,
                     'loja_id' => $venda->loja_id,
@@ -184,6 +204,8 @@ class FinalizarVenda
                     'data_vencimento' => $data_vencimento, //validar caso cada cliente tenha uma data específica de pagamento
                     'data_pagamento' => $data_pagamento,
                     'pago' => $pago,
+                    'valor_total_recebido' => $valor_total_recebido,
+                    'troco' => $troco,
                     'forma_pagamento_id' => $vendaPagamento->forma_pagamento_id,
                     'cliente_id' => $this->request->getClienteId(),
                     'status_id' => $status_id,
@@ -198,7 +220,7 @@ class FinalizarVenda
     private function criaFichaCliente(Venda $venda)
     {
         //agora cria de fato o que foi pago e as parcelas de cada forma de pagamento
-        return $venda->venda_pagamentos->map(function ($vp) use ($venda){
+        return $venda->venda_pagamentos->map(function ($vp) use ($venda) {
             return $vp->vendaParcelas->map(function ($v) use ($venda) {
 
                 if ($v->pago == true) {

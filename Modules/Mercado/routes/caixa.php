@@ -62,7 +62,5 @@ Route::middleware(['processo:' . config('config.processos.pdv.caixa.id')])->grou
 });
 Route::middleware(['processo:' . config('config.processos.pdv.fechamento_caixa.id')])->group(function () {
     Route::get('/caixa/fechamento/index', [CaixaPDVController::class, 'fechamento_caixa_index'])->name('caixa.fechamento.index');
-    Route::get('/caixa/fechamento/show/{evidencia_id}', [CaixaPDVController::class, 'fechamento_show'])->name('caixa.fechamento.show');
-    Route::get('/caixa/fechamento/get/venda/itens', [CaixaPDVController::class, 'fechamento_get_itens_venda'])->name('caixa.fechar.itens.venda.get');
-    Route::get('/caixa/fechamento/get/venda/itens/devolucao', [CaixaPDVController::class, 'fechamento_get_itens_venda_devolucao'])->name('caixa.fechar.itens.venda.devolucao.get');
+    Route::get('/caixa/fechamento/{caixa_diario_id}', [CaixaPDVController::class, 'fechamento_caixa_diario'])->name('caixa.fechamento.caixa_diario');
 });

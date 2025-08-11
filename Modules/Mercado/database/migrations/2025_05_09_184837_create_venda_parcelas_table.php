@@ -21,6 +21,8 @@ class CreateVendaParcelasTable extends Migration
             $table->integer('numero_parcela');
             $table->bigInteger('valor');
             $table->bigInteger('valor_pago')->nullable();
+            $table->bigInteger('troco')->nullable();
+            $table->bigInteger('valor_total_recebido')->nullable();
             $table->bigInteger('valor_devolvido')->nullable();
             $table->date('data_vencimento');
             $table->date('data_pagamento')->nullable();

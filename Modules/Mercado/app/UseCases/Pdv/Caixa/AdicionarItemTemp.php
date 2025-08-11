@@ -32,6 +32,7 @@ class AdicionarItemTemp
     private function adicionaItem()
     {
         $estoque = EstoqueRepository::getEstoqueById($this->request->getEstoqueId());
+        
         return CaixaPDVRepository::criaItemTempAttrs($this->request->getCriarHistoricoRequest(), [
             'estoque_id' => $estoque->id,
             'quantidade' => $this->request->getQuantidade(),

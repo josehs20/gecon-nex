@@ -5,7 +5,7 @@
     @if ($loja)
         <form action="{{ route('admin.loja.update', ['empresa_id' => $empresa->id, 'loja_id' => $loja->id]) }}"
             method="POST">
-            @method('PUT')
+          
             @csrf
         @else
             <form action="{{ route('admin.loja.store', ['empresa_id' => $empresa->id]) }}" method="POST">

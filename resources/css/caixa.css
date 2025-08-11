@@ -12,7 +12,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* impede rolagem */
+    /* overflow: hidden; impede rolagem */
  }
 
  .modal {
@@ -351,11 +351,11 @@
     position: fixed;
     bottom: -40px;  /* metade fora da tela */
     right: -40px;   /* metade fora da tela */
-    width: 250px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     object-fit: cover;
     z-index: 10;
-    opacity: 0.8; /* bem sutil */
+    opacity: 0.5; /* bem sutil */
     pointer-events: none; /* não atrapalha clique */
 }

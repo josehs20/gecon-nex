@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/loja/{empresa_id}', [App\Http\Controllers\Dashboard\Admin\LojaController::class, 'create'])->name('admin.loja.create')->middleware(config('config.middlewares.admin'));
         Route::get('/loja/edit/{loja_id}', [App\Http\Controllers\Dashboard\Admin\LojaController::class, 'edit'])->name('admin.loja.edit')->middleware(config('config.middlewares.admin'));
         Route::post('/loja/{empresa_id}', [App\Http\Controllers\Dashboard\Admin\LojaController::class, 'store'])->name('admin.loja.store')->middleware(config('config.middlewares.admin'));
-        Route::put('/loja/{empresa_id}/{loja_id}', [App\Http\Controllers\Dashboard\Admin\LojaController::class, 'update'])->name('admin.loja.update')->middleware(config('config.middlewares.admin'));
+        Route::post('/loja/{empresa_id}/{loja_id}', [App\Http\Controllers\Dashboard\Admin\LojaController::class, 'update'])->name('admin.loja.update')->middleware(config('config.middlewares.admin'));
 
         /**
          * NFC

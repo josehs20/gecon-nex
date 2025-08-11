@@ -16,6 +16,8 @@ class VendaParcela extends ModelBase
         'valor_pago',
         'status_id',
         'pago',
+        'troco',
+        'valor_total_recebido',
         'data_vencimento',
         'data_pagamento',
         'forma_pagamento_id',

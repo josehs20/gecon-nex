@@ -28,10 +28,10 @@
             }
 </style>
         <div class="btn-group dropleft mx-5">
-            <div class="notification-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{-- <div class="notification-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="bi bi-bell"></span>
                 <span class="badge">3</span> <!-- Número de notificações -->
-            </div>
+            </div> --}}
             <div class="dropdown-menu">
                 <a class="dropdown-item" style="color: black !important;" href="#">Notificação 1</a>
                 <hr>

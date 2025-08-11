@@ -210,7 +210,7 @@ class CaixaPDVRepository
 
     public static function getVendaById(int $vendaId)
     {
-        return Venda::with(['usuario.master','cliente', 'loja.endereco', 'devolucoes', 'venda_pagamentos' => function ($q) {
+        return Venda::with(['usuario.master', 'cliente', 'loja.endereco', 'devolucoes', 'venda_pagamentos' => function ($q) {
             $q->with(['vendaParcelas', 'especiePagamento']);
         }, 'venda_itens.devolucao_itens', 'venda_itens.estoque.produto' => function ($q) {
             $q->with(['fabricante', 'unidade_medida']);
@@ -384,6 +384,7 @@ class CaixaPDVRepository
     ) {
         $caixa = CaixaRepository::getCaixaById($caixa_id);
         $evidenciaDeInicio = $caixa->diario_atual->caixa_evidencia_id;
+
         $evidencias = CaixaEvidencia::with([
             'recurso',
             'venda.venda_pagamentos.especiePagamento',
@@ -393,7 +394,64 @@ class CaixaPDVRepository
             'fichas_cliente.formaPagamento.especie'
         ])->where('caixa_id', $caixa_id)->where('id', '>=', $evidenciaDeInicio)->get();
         //formata objeto para uma melhor visualização das especies de movimentacao do caixa
+
         $evidencias = $evidencias->map(function ($item) {
+            if ($item->caixa_recurso_id == config('config.caixa.recursos.abertura.id')) {
+                $item->especies = EspeciePagamento::where('id', config('config.especie_pagamento.dinheiro.id'))->get();
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.venda.id')) {
+                $item->especies = $item->venda->venda_pagamentos->map(function ($pagamento) {
+                    return $pagamento->especiePagamento;
+                });
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.devolucao.id')) {
+                $item->especies = collect([$item->devolucao->formaPagamento->especie]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.suprimentos.id')) {
+                $item->especies = collect([$item->suprimento->especiePagamento]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.sangria.id')) {
+                $item->especies = collect([$item->sangria->especiePagamento]);
+            } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.recebimento.id')) {
+                $item->especies = $item->fichas_cliente->map(function ($f) {
+                    return $f->formaPagamento->especie;
+                });
+            }
+            return $item;
+        });
+
+        return $evidencias;
+    }
+
+    public static function getCaixasFechados($usuario_id, $loja_id)
+    {
+        $caixas_diario = CaixaDiario::with(['evidencia'])->whereHas('caixa', function ($q) use ($usuario_id, $loja_id) {
+            $q->where('loja_id', $loja_id)->whereHas('permissoes', function ($q) use ($usuario_id, $loja_id) {
+                $q->where('usuario_id', $usuario_id);
+            });
+        })->where('status_id', config('config.status.fechado'))->get();
+        return $caixas_diario;
+    }
+
+    public static function get_detalhes_evidencias_caixa(
+        int $caixas_diario_id
+    ) {
+        //pega evidencia de abertura do caixa diario qcom a evidencia de abertura
+        $caixas_diario = CaixaDiario::find($caixas_diario_id);
+
+        //pega evidencia fechamento
+        $evidenciaFechamento = CaixaEvidencia::where('caixa_id', $caixas_diario->caixa_id)->where('acao_id', config('config.acoes.fechou_caixa.id'))
+            ->where('id', '>', $caixas_diario->caixa_evidencia_id)->first();
+
+        //pega todas evidências do mesmo caixa até a evidência de fechamento do caixa
+        $evidenciasDoCaixaDiario = CaixaEvidencia::with([
+            'recurso',
+            'venda.venda_pagamentos.especiePagamento',
+            'devolucao.formaPagamento.especie',
+            'sangria.especiePagamento',
+            'suprimento.especiePagamento',
+            'fichas_cliente.formaPagamento.especie'
+        ])->where('caixa_id', $caixas_diario->caixa_id)
+            ->where('id', '>=', $caixas_diario->caixa_evidencia_id)
+            ->where('id', '<=', $evidenciaFechamento->id)->get();
+
+        $evidencias = $evidenciasDoCaixaDiario->map(function ($item) {
             if ($item->caixa_recurso_id == config('config.caixa.recursos.abertura.id')) {
                 $item->especies = EspeciePagamento::where('id', config('config.especie_pagamento.dinheiro.id'))->get();
             } elseif ($item->caixa_recurso_id == config('config.caixa.recursos.venda.id')) {

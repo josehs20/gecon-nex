@@ -30,10 +30,19 @@ $('#cod_barras').on('input', function () {
                 cod_barras: codigo
             },
             success: function (response) {
-                $('#captcha-container').html(response.html);
+                if (response.success == true) {
+                    let nomeProduto = response.msg.mensagem.nome;
+                    $('#nome').val(nomeProduto);
+                    $('#preco_custo').focus();
+                    gerais.msgToastr('Gtin capturado com sucesso.', 'success');
+                }else{
+                    gerais.msgToastr(response.msg);
+
+                }
+
             },
             error: function () {
-                // gerais.msgToastr('não foi possível buscar o Gtin.', 'warning')
+                gerais.msgToastr('não foi possível buscar o Gtin.', 'warning')
             }
         });
     }
