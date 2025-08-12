@@ -4,10 +4,11 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-hom
     container_name: gecon-nex-hom
     ports:
-      - "80:80" # app acessível pela porta 80 do servidor
+      - "80:80"
+      - "443:443"
     volumes:
       - .:/var/www/html # mantém código sincronizado com host
     environment:
