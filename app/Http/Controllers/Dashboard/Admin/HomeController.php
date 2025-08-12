@@ -56,7 +56,7 @@ class HomeController extends ControllerBase
             $caixa_cor = $request->input('caixa_cor') ?? null;
             $caixa_cor_fundo = $request->input('caixa_cor_fundo') ?? null;
             $caixa_cor_letras = $request->input('caixa_cor_letras') ?? null;
-            
+
             $fotoPath = null;
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('fotos_empresas', 'public');
@@ -73,7 +73,7 @@ class HomeController extends ControllerBase
                 $caixa_cor_fundo,
                 $caixa_cor_letras,
             ));
-            
+
             $nome = 'Loja 1';
             $empresa_id = $empresa->id;
             $matriz = true;
@@ -142,14 +142,14 @@ class HomeController extends ControllerBase
             $caixa_cor = $request->input('caixa_cor') ?? null;
             $caixa_cor_fundo = $request->input('caixa_cor_fundo') ?? null;
             $caixa_cor_letras = $request->input('caixa_cor_letras') ?? null;
-            
+
             $fotoPath = null;
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('fotos_empresas', 'public');
             }
 
             $empresa = EmpresaApplication::editarEmpresa(
-                $master, 
+                $master,
                 new CriarEmpresaRequest(
                     $parans->razao_social,
                     $parans->nome_fantasia,

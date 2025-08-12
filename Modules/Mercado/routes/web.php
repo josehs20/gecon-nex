@@ -135,7 +135,7 @@ Route::prefix('/cadastros')->group(function () {
         Route::get('/produtos/get/yajra', [Modules\Mercado\Http\Controllers\Gerenciamento\ProdutoController::class, 'get_produtos_yajra'])->name('cadastro.produto.get.yajra');
         Route::get('/nfe/get/ncms', [Modules\Mercado\Http\Controllers\Gerenciamento\ProdutoController::class, 'get_ncms'])->name('cadastro.produto.get.ncms');
         Route::post('/nfe/post/ncms/{estoque_id}', [Modules\Mercado\Http\Controllers\Gerenciamento\ProdutoController::class, 'post_ncms'])->name('cadastro.produto.post.ncms')->defaults('acao_id', config('config.acoes.atualizou_ncm.id'));
-        Route::get('/nfe/get/gtin', [Modules\Mercado\Http\Controllers\Gerenciamento\ProdutoController::class, 'get_gtin'])->name('cadastro.produto.nfe.get.gtin');
+        Route::get('/nfe/get/gtin', [Modules\Mercado\Http\Controllers\Gerenciamento\ProdutoController::class, 'get_gtin'])->name('cadastro.produto.nfe.get.gtin')->defaults('acao_id', config('config.acoes.cadastrou_produto.id'));
     });
 
     Route::middleware(['processo:' . config('config.processos.gerenciamento.fornecedor.id')])->group(function () {

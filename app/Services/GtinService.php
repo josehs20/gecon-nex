@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Laravel\Dusk\Browser;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Illuminate\Support\Facades\Log;
 use Tests\DuskTestCase;
 use TwoCaptcha\TwoCaptcha;
 
@@ -104,7 +106,10 @@ class GtinService
             'Accept' => 'application/json', // Espera JSON na resposta
             'Authorization' => "Bearer {$token}", // Adiciona o header Authorization
         ])->get($url);
-        dd($response);
+        if ($response->status() != 200) {
+            Log::error($response);
+            throw new Exception("Não foi possível consultar o Gtin informado", 1);
+        }
         return (object) ['mensagem' => $response->json(), 'status' => $response->status()];
     }
 

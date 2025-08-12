@@ -56,4 +56,14 @@ class CaixaDiario extends ModelBase
     {
         return $this->hasMany(FichaCliente::class, 'caixa_diario_id');
     }
+
+     public function vendas()
+    {
+        return $this->hasMany(Venda::class, 'caixa_diario_id');
+    }
+
+      public function devolucoes()
+    {
+        return $this->hasMany(Devolucao::class, 'caixa_diario_id');
+    }
 }

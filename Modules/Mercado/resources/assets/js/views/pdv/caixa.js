@@ -68,17 +68,18 @@ Mousetrap.bind('%', function (e) { // Shift+5
     document.getElementById('sangriaCaixa')?.click();
 });
 
-Mousetrap.bind('&', function (e) { // Shift+6
+Mousetrap.bind('¨', function (e) { // Shift+6
     e.preventDefault();
     document.getElementById('receberConta')?.click();
 });
 
-Mousetrap.bind('*', function (e) { // Shift+7
+Mousetrap.bind('&', function (e) { // Shift+7
     e.preventDefault();
+
     document.getElementById('fecharCaixa')?.click();
 });
 
-Mousetrap.bind('(', function (e) { // Shift+8
+Mousetrap.bind('*', function (e) { // Shift+8
     e.preventDefault();
     document.getElementById('cancelar')?.click();
 });
@@ -342,7 +343,7 @@ function montaRequestFecharCaixa(validarValorMinimo = true) {
 }
 
 function montaRequestAdicionarItem() {
-    if (!produtoSelecionadoGlobal || !produtoSelecionadoGlobal.id) {
+    if (!produtoSelecionadoGlobal || !produtoSelecionadoGlobal.estoqueId) {
         gerais.msgToastr('Por favor, selecione um produto antes de adicionar o item.', 'info')
         $('#busca-produto').focus();
         return null;
@@ -358,10 +359,9 @@ function montaRequestAdicionarItem() {
     }
 
     let requestBody = {
-        estoqueId: produtoSelecionadoGlobal.id,
+        estoqueId: produtoSelecionadoGlobal.estoqueId,
         quantidade: quantidade
     };
-
     return requestBody;
 }
 
@@ -437,6 +437,7 @@ $('#busca-produto').on('input', function () {
 
                     lista += `<a href="#" class="list-group-item list-group-item-action"
                         data-id="${produto.id}"
+                        data-estoque-id="${produto.estoque_id}"
                         data-nome="${nomeCortado}"
                         data-preco="${produto.preco}"
                         data-index="${i}">
@@ -457,6 +458,7 @@ $('#busca-produto').on('input', function () {
 
                     produtoSelecionadoGlobal = {
                         id: produto.id,
+                        estoqueId: produto.estoque_id,
                         nome: nome,
                         preco: produto.preco
                     };
@@ -500,6 +502,7 @@ $('#busca-produto').on('keydown', function (e) {
             // Guarda os dados do produto selecionado
             produtoSelecionadoGlobal = {
                 id: item.data('id'),
+                estoqueId: item.data('estoqueId'),
                 nome: item.data('nome'),
                 preco: item.data('preco')
             };
@@ -515,10 +518,15 @@ $('#resultado-produto').on('click', '.list-group-item', function () {
 
     produtoSelecionadoGlobal = {
         id: $(this).data('id'),
+        estoqueId: $(this).data('estoqueId'),
         nome: $(this).data('nome'),
         preco: $(this).data('preco')
     };
 
+    let quantidade = $('#quantidade').val() == '' || $('#quantidade').val() == 0 ? 1 : parseFloat($('#quantidade').val());
+    $('#valor-unitario').val(gerais.centavosParaReais(produtoSelecionadoGlobal.preco));
+    $('#valor-unitario').data('preco', produtoSelecionadoGlobal.preco);
+    $('#total-item').val(gerais.centavosParaReais(produtoSelecionadoGlobal.preco * quantidade));
     $('#quantidade').focus();
 });
 
@@ -537,6 +545,11 @@ function atualizarSelecao(itens) {
 
     // Garante que o item ativo fique visível
     itemAtivo[0].scrollIntoView({ block: 'nearest' });
+    let quantidade = $('#quantidade').val() == '' || $('#quantidade').val() == 0 ? 1 : parseFloat($('#quantidade').val());
+    $('#valor-unitario').val(gerais.centavosParaReais(itemAtivo.data('preco')));
+    $('#valor-unitario').data('preco', itemAtivo.data('preco'));
+    $('#total-item').val(gerais.centavosParaReais(itemAtivo.data('preco') * quantidade));
+
 }
 
 $('#quantidade').val(1);//define o vlaor da quantidade como um padrão
@@ -636,7 +649,9 @@ async function adicionarItem() {
 function calcularTotalItem() {
     // Garante que os valores são números e lida com casos vazios ou não numéricos
     const quantidade = parseFloat($('#quantidade').val().replace(',', '.')) || 0; // Substitui vírgula por ponto para parse
+
     const valorUnitario = $('#valor-unitario').data('preco');
+    console.log(valorUnitario);
 
     const totalItem = quantidade * valorUnitario;
 
@@ -1059,86 +1074,81 @@ $('#forma-pagamento-select').on('change', function () {
     }
 });
 
-// --- Função para Distribuir os Valores Restantes e Calcular Troco ---
 function distribuirValoresRestantes() {
     const totalVendaComDescontoCents = calcularTotalVendaComDesconto();
-    let valorJaPreenchidoSequentialCents = 0; // Para preenchimento sequencial
-    let totalPagoEmFormasCents = 0; // Para calcular o total pago para o troco
 
     const $valorInputs = $('.valor-forma-pagamento');
     let inputQueDisparouEventoIndex = -1;
-    let inputDinheiroTrocoId = null; // ID do input de valor da forma de pagamento que permite troco
-    let trocoInputId = null; // ID do input de troco (o disabled)
+    let inputDinheiroTrocoId = null;
+    let trocoInputId = null;
 
-    // Primeira iteração: Identifica o input que disparou o evento, soma valores e identifica o input de dinheiro
+    // Identifica input que disparou o evento e o que pode ter troco
     $valorInputs.each(function (index) {
-        const $currentInput = $(this);
-        const currentInputValueCents = gerais.reaisParaCentavos($currentInput.val());
-
-        totalPagoEmFormasCents += currentInputValueCents; // Soma todos os valores preenchidos para o cálculo do troco total
-
-        // Verifica se é o input que disparou o evento
-        if ($currentInput[0] === event.target) {
+        if (this === event.target) {
             inputQueDisparouEventoIndex = index;
         }
-
-        // Verifica se esta forma de pagamento pode gerar troco
-        if ($currentInput.data('contem-troco') === true) { // O data-attribute armazena como booleano
-            inputDinheiroTrocoId = $currentInput.attr('id');
-            // O ID do input de troco é 'troco-' seguido do ID da forma de pagamento
-            trocoInputId = `troco-${$currentInput.data('forma-id')}`;
+        if ($(this).data('contem-troco') === true) {
+            inputDinheiroTrocoId = $(this).attr('id');
+            trocoInputId = `troco-${$(this).data('forma-id')}`;
         }
     });
 
-    // Reset o valor preenchido para a lógica sequencial (distribuir o restante)
-    valorJaPreenchidoSequentialCents = 0;
+    // Calcula quanto já foi preenchido antes do input alterado
+    let valorAcumulado = 0;
     $valorInputs.each(function (index) {
-        const $currentInput = $(this);
-        const currentInputValueCents = gerais.reaisParaCentavos($currentInput.val());
-
-        if (index < inputQueDisparouEventoIndex) {
-            valorJaPreenchidoSequentialCents += currentInputValueCents;
+        if (index <= inputQueDisparouEventoIndex) {
+            valorAcumulado += gerais.reaisParaCentavos($(this).val());
         }
     });
-    // Adiciona o valor do input que disparou o evento para a soma sequencial
-    valorJaPreenchidoSequentialCents += gerais.reaisParaCentavos($($valorInputs[inputQueDisparouEventoIndex]).val());
 
-
-    // Segunda iteração: Preenche os inputs restantes sequencialmente
+    // Preenche os próximos sem alterar os anteriores
     if (inputQueDisparouEventoIndex !== -1) {
         $valorInputs.each(function (index) {
             if (index > inputQueDisparouEventoIndex) {
-                const $nextInput = $(this);
-                const valorAtualNextInputCents = gerais.reaisParaCentavos($nextInput.val());
+                const restante = totalVendaComDescontoCents - valorAcumulado;
+                const valorParaSetar = Math.max(0, restante);
 
-                const remainingCents = totalVendaComDescontoCents - valorJaPreenchidoSequentialCents;
-                const valueToSet = Math.max(0, remainingCents);
+                $(this).val(gerais.centavosParaReais(valorParaSetar));
+                gerais.maskDinheiro($(this).attr('id'));
 
-                // Só preenche o próximo se o valor atual for zero E ainda houver restante a ser pago
-                if (valorAtualNextInputCents === 0 && remainingCents > 0) {
-                    const formattedValue = gerais.centavosParaReais(valueToSet);
-                    $nextInput.val(formattedValue);
-                    gerais.maskDinheiro($nextInput.attr('id'));
-                }
-                // Adiciona o valor que foi preenchido (ou já estava lá) para o próximo cálculo sequencial
-                valorJaPreenchidoSequentialCents += gerais.reaisParaCentavos($nextInput.val());
+                valorAcumulado += valorParaSetar;
             }
         });
     }
 
-    // --- Cálculo e Exibição do Troco ---
-    const trocoCents = totalPagoEmFormasCents - totalVendaComDescontoCents;
-    if (trocoInputId && trocoInputId !== null) {
+    // --- Troco ---
+    let totalPagoFinalCents = 0;
+    let formasPreenchidas = 0;
+    let contemDinheiro = false;
+
+    $valorInputs.each(function () {
+        const valorCents = gerais.reaisParaCentavos($(this).val());
+        if (valorCents > 0) formasPreenchidas++;
+        totalPagoFinalCents += valorCents;
+
+        if ($(this).data('contem-troco') === true && valorCents > 0) {
+            contemDinheiro = true;
+        }
+    });
+
+    let trocoCents = 0;
+    if (formasPreenchidas === 1 && contemDinheiro) {
+        trocoCents = totalPagoFinalCents - totalVendaComDescontoCents;
+    }
+
+    if (trocoInputId) {
         const $trocoInput = $(`#${trocoInputId}`);
-        if ($trocoInput.length) { // Garante que o input de troco existe
-            if (trocoCents > 0) {
-                $trocoInput.val('R$ ' + gerais.centavosParaReais(trocoCents));
-            } else {
-                $trocoInput.val('R$ 0,00');
-            }
+        if ($trocoInput.length) {
+            $trocoInput.val('R$ ' + gerais.centavosParaReais(Math.max(0, trocoCents)));
+        }
+        if (trocoCents > totalVendaComDescontoCents) {
+            gerais.msgToastr('Valor em troco maior que venda, escolha outra forma de pagamento.', 'warning');
+            $('.valor-forma-pagamento').val(null).trigger('change');
+            $trocoInput.val('R$ 0,00');
         }
     }
 }
+
 
 $('#formFinalizarVenda').on('submit', function (e) {
     e.preventDefault();
@@ -1884,8 +1894,8 @@ function ajaxImprimir(data) {
         data: JSON.stringify(data),
         success: function (response) {
             if (response.success == true) {
-               gerais.msgToastr(response.msg, 'success')
-            }else{
+                gerais.msgToastr(response.msg, 'success')
+            } else {
                 gerais.msgToastr(response.msg, 'warning')
 
             }
@@ -1918,7 +1928,7 @@ function imprimir(tipo, data) {
     }
 }
 function testarImpressao(tipo, data) {
-     ajaxImprimir({
+    ajaxImprimir({
         tipo: tipo,
         data: data // que é um objeto
     });

@@ -9,12 +9,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\Mercado\Application\ClassificacaoProdutoApplication;
 use Modules\Mercado\Application\EstoqueApplication;
 use Modules\Mercado\Application\ProdutoApplication;
+use Modules\Mercado\Entities\Gtin;
 use Modules\Mercado\Entities\NCM;
 use Modules\Mercado\Http\Controllers\ControllerBaseMercado;
+use Modules\Mercado\Repository\ClassificacaoProduto\ClassificacaoProdutoRepository;
 use Modules\Mercado\Repository\Fabricante\FabricanteRepository;
 use Modules\Mercado\Repository\Produto\ProdutoRepository;
+use Modules\Mercado\UseCases\Gerenciamento\ClassificacaoProduto\Requests\CriarClassificacaoProdutoRequest;
 use Modules\Mercado\UseCases\Gerenciamento\Estoque\Requests\AtualizaNCMRequest;
 use Modules\Mercado\UseCases\Gerenciamento\Produto\Requests\CriarProdutoRequest;
 use Modules\Mercado\UseCases\Gerenciamento\Produto\Requests\EditarProdutoRequest;
@@ -234,8 +238,29 @@ class ProdutoController extends ControllerBaseMercado
 
     public function get_gtin(Request $request)
     {
-        $service = new GtinService();
-        return $service->getGtin(Post::anti_injection($request->cod_barras));
+        $this->getDb()->begin();
+        try {
+            $service = new GtinService();
+            $dataGetin = $service->getGtin(Post::anti_injection($request->cod_barras));
+
+            if (array_key_exists('categoria', $dataGetin->mensagem)) {
+                $existeClassificacaoInterna = ClassificacaoProdutoRepository::getCpByDescricao($dataGetin->mensagem['categoria']);
+                //caso não exista cria essa classificação automaticamente
+                if (!$existeClassificacaoInterna) {
+                    $classificacao =  ClassificacaoProdutoApplication::criarClassificacaoProduto(new CriarClassificacaoProdutoRequest(
+                        $this->getCriarHistoricoRequest($request),
+                        $dataGetin->mensagem['categoria'],
+                        auth()->user()->empresa_id
+                    ));
+                }
+            }
+            $this->getDb()->commit();
+            return response()->json(['success' => true, 'msg' => $dataGetin]);
+        } catch (\Exception $e) {
+            $this->getDb()->rollBack();
+
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
     }
 
     public function get_ncms(Request $request)

@@ -13,6 +13,7 @@ use Modules\Mercado\Application\CaixaApplication;
 use Modules\Mercado\Application\ClienteApplication;
 use Modules\Mercado\Application\PagamentoApplication;
 use Modules\Mercado\Application\PDVApplication;
+use Modules\Mercado\Entities\CaixaDiario;
 use Modules\Mercado\Entities\CaixaEvidencia;
 use Modules\Mercado\Entities\CaixaItemTemp;
 use Modules\Mercado\Entities\EspeciePagamento;
@@ -42,7 +43,6 @@ use Modules\Mercado\UseCases\Pdv\Caixa\Requests\ReceberContaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SangriaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\SuprirCaixaRequest;
 use Modules\Mercado\UseCases\Pdv\Caixa\Requests\TrocarDispositivoRequest;
-use PhpParser\Node\Expr\Cast\Object_;
 
 class CaixaPDVController extends ControllerBaseMercado
 {
@@ -409,7 +409,8 @@ class CaixaPDVController extends ControllerBaseMercado
 
             $venda = PDVApplication::finalizar_venda($finalizarVendaRequest);
             $temps = CaixaPDVRepository::getItensCaixaTemp($venda->caixa_id);
-            // $this->getDb()->commit();
+
+            $this->getDb()->commit();
             //falta processo de impressao elgin
             return response()->json(['success' => true, 'msg' => 'Venda finalizada com sucesso !', 'venda' => $venda, 'itens' => $temps, 'total' => $temps->sum('total')]);
         } catch (Exception $e) {
@@ -1080,10 +1081,31 @@ class CaixaPDVController extends ControllerBaseMercado
             return response()->json(['success' => true, 'msg' => 'Caixa foi suprido com sucesso']);
         } catch (\Exception $e) {
             $this->getDb()->rollBack();
-            debugException($e);
             Log::error($e);
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
+    }
+
+    public function fechamento_caixa_index(Request $request)
+    {
+        $usuario = auth()->user()->getUserModulo;
+        $caixas_diario = CaixaPDVRepository::getCaixasFechados($usuario->id, $usuario->loja_id);
+        return view('mercado::pdv.fechamento_caixa_index', ['caixas_diario' => $caixas_diario]);
+    }
+
+    public function fechamento_caixa_diario($caixa_diario_id)
+    {
+        $detalhesFechamentoCaixa = CaixaPDVRepository::get_detalhes_evidencias_caixa($caixa_diario_id);
+        $caixaAbertura = $detalhesFechamentoCaixa->first()->caixa;
+        $diario = CaixaDiario::find($caixa_diario_id);
+        $caixafechamento = $detalhesFechamentoCaixa->last();
+        // $caixa_diario->load(['']);
+        return view('mercado::pdv.caixa_fechado', [
+            'diario' => $diario,
+            'detalhesFechamentoCaixa' => $detalhesFechamentoCaixa,
+            'caixa' => $caixaAbertura,
+            'caixafechamento' => $caixafechamento
+        ]);
     }
 
     //sempre retorna os dados que a impressao precisa
