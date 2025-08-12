@@ -1,6 +1,10 @@
 FROM php:8.3-apache
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite ssl
+
+# Copiar certificados para dentro do container
+COPY ./docker/ssl/apache.crt /etc/apache2/ssl/apache.crt
+COPY ./docker/ssl/apache.key /etc/apache2/ssl/apache.key
 
 # Instala dependências do sistema e PHP
 RUN apt-get update && \
@@ -34,6 +38,6 @@ RUN npm ci && npm run build
 RUN chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
-EXPOSE 80
+EXPOSE 80 443
 
 CMD ["apache2-foreground"]
