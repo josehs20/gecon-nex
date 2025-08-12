@@ -1,6 +1,6 @@
 FROM php:8.3-apache
 
-RUN a2enmod rewrite ssl
+RUN a2enmod ssl rewrite proxy proxy_http
 
 # Copiar certificados para dentro do container
 COPY ./docker/ssl/apache.crt /etc/apache2/ssl/apache.crt
