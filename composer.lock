@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d9cac5afd92817cf16866c026e57d8e",
+    "content-hash": "7107520968e6ac89f88b1d05fdb92a2d",
     "packages": [
         {
             "name": "brick/math",
@@ -1190,7 +1190,7 @@
         },
         {
             "name": "jhslib/historico-service",
-            "version": "dev-main",
+            "version": "dev-release/1.0.0",
             "dist": {
                 "type": "path",
                 "url": "./resources/packages/historico_service",
