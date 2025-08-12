@@ -10,6 +10,7 @@ services:
       - "8081:80"
     volumes:
       - .:/var/www/html # mantém código sincronizado com host
+      - ./.env-hom:/var/www/html/.env
     environment:
       APP_ENV: staging
       APP_DEBUG: "true"
