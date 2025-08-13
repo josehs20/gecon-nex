@@ -7,8 +7,9 @@ services:
       dockerfile: Dockerfile-hom
     container_name: gecon-nex-hom
     ports:
-      - "8081:80"
+      - "8181:80"
     volumes:
+      - .:/var/www/html # mantém código sincronizado com host
       - ./.env-hom:/var/www/html/.env
     environment:
       APP_ENV: hom
@@ -25,7 +26,7 @@ services:
     image: mysql:8.0
     container_name: mysql_gecon_hom
     ports:
-      - "3310:3306"
+      - "3310:3306" # permite acessar MySQL de fora para testes
     environment:
       MYSQL_DATABASE: gecon
       MYSQL_ROOT_PASSWORD: 123456
