@@ -11,6 +11,9 @@ services:
     volumes:
       - .:/var/www/html # mantém código sincronizado com host
       - ./.env-hom:/var/www/html/.env
+    user: "www-data"
+    entrypoint: >
+      bash -c "chown -R www-data:www-data /var/www/html && exec docker-php-entrypoint apache2-foreground"
     environment:
       APP_ENV: hom
       APP_DEBUG: "true"
