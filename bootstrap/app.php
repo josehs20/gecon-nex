@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'processo' => EtapaProcessoMiddleware::class,
             'caixa' => CaixaMiddleware::class,
         ]);
+              // Adiciona a configuração de proxy apenas se o ambiente for de produção
+            if (env('APP_ENV') != 'local') {
+                $middleware->trustProxies(at: '*');
+            }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
