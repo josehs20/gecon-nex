@@ -26,7 +26,7 @@ services:
     image: mysql:8.0
     container_name: mysql_gecon_hom
     ports:
-      - "3309:3306" # permite acessar MySQL de fora para testes
+      - "3310:3306" # permite acessar MySQL de fora para testes
     environment:
       MYSQL_DATABASE: gecon
       MYSQL_ROOT_PASSWORD: 123456
