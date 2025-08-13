@@ -9,20 +9,12 @@ services:
     ports:
       - "8081:80"
     volumes:
-      - .:/var/www/html # mantém código sincronizado com host
       - ./.env-hom:/var/www/html/.env
-    user: "root" # Usamos root para garantir que os comandos rodem
-    entrypoint: >
-      bash -c "git config --global --add safe.directory /var/www/html &&
-      composer install --no-dev &&
-      npm ci && npm run build &&
-      chown -R www-data:www-data /var/www/html &&
-      exec docker-php-entrypoint apache2-foreground"
     environment:
       APP_ENV: hom
       APP_DEBUG: "true"
       APP_KEY: base64:d1ttqOkOWY7oou/sqptbl4+3/QdUL1bnOXjk8vBJlBk=
-      DB_HOST: db
+      DB_HOST: db_hom
       DB_DATABASE: gecon
       DB_USERNAME: root
       DB_PASSWORD: 123456
@@ -33,7 +25,7 @@ services:
     image: mysql:8.0
     container_name: mysql_gecon_hom
     ports:
-      - "3310:3306" # permite acessar MySQL de fora para testes
+      - "3310:3306"
     environment:
       MYSQL_DATABASE: gecon
       MYSQL_ROOT_PASSWORD: 123456
