@@ -20,7 +20,7 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: 123456
     depends_on:
-      - db
+      - db_hom
 
   db_hom:
     image: mysql:8.0
