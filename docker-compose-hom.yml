@@ -12,7 +12,7 @@ services:
       - .:/var/www/html # mantém código sincronizado com host
       - ./.env-hom:/var/www/html/.env
     environment:
-      APP_ENV: staging
+      APP_ENV: hom
       APP_DEBUG: "true"
       APP_KEY: base64:d1ttqOkOWY7oou/sqptbl4+3/QdUL1bnOXjk8vBJlBk=
       DB_HOST: db
