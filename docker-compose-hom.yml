@@ -13,7 +13,8 @@ services:
       - ./.env-hom:/var/www/html/.env
     user: "root" # Usamos root para garantir que os comandos rodem
     entrypoint: >
-      bash -c "composer install --no-dev --optimize-autoloader --no-interaction &&
+      bash -c "git config --global --add safe.directory /var/www/html &&
+      composer install --no-dev &&
       npm ci && npm run build &&
       chown -R www-data:www-data /var/www/html &&
       exec docker-php-entrypoint apache2-foreground"
