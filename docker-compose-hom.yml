@@ -11,9 +11,12 @@ services:
     volumes:
       - .:/var/www/html # mantém código sincronizado com host
       - ./.env-hom:/var/www/html/.env
-    user: "www-data"
+    user: "root" # Usamos root para garantir que os comandos rodem
     entrypoint: >
-      bash -c "chown -R www-data:www-data /var/www/html && exec docker-php-entrypoint apache2-foreground"
+      bash -c "composer install --no-dev --optimize-autoloader --no-interaction &&
+      npm ci && npm run build &&
+      chown -R www-data:www-data /var/www/html &&
+      exec docker-php-entrypoint apache2-foreground"
     environment:
       APP_ENV: hom
       APP_DEBUG: "true"
