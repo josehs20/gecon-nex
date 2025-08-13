@@ -1,5 +1,6 @@
 FROM php:8.3-apache
 
+# Habilita o mod_rewrite do Apache
 RUN a2enmod rewrite
 
 # Instala dependências do sistema e PHP
@@ -12,31 +13,17 @@ RUN apt-get update && \
     && docker-php-ext-install pdo_mysql mysqli zip soap gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Composer
+# Configuração do Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Configuração do Apache
-# Copiar o arquivo vhost personalizado
+# Copia o arquivo vhost personalizado para o diretório de sites disponíveis
 COPY ./docker/vhost-hom.conf /etc/apache2/sites-available/gecon-nex-hom.conf
 
-# Desabilitar o site padrão do Apache e habilitar o nosso
+# Desabilita o site padrão e habilita o nosso
 RUN a2dissite 000-default.conf && a2ensite gecon-nex-hom.conf
 
 WORKDIR /var/www/html
-
-# Copiar código
-COPY . .
-
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Build assets frontend
-RUN npm ci && npm run build
-
-# Permissões Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache && \
-    chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
